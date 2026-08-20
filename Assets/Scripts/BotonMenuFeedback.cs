@@ -88,4 +88,14 @@ public class BotonMenuFeedback : MonoBehaviour,
     {
         colorObjetivo = colorHover;
     }
+
+    public void ActivarFeedbackManual()
+    {
+        OnPointerDown(null);
+    }
+
+    public void DesactivarFeedbackManual()
+    {
+        OnPointerExit(null);
+    }
 }

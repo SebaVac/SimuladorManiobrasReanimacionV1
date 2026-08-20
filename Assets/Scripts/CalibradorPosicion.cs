@@ -45,7 +45,7 @@ public class CalibradorPosicion : MonoBehaviour
         if (rendererCuerpo != null) materialOriginal = rendererCuerpo.material;
 
         // AUTO-SPAWN
-        if (referenciaCamara != null)
+        if (sistemaActivo && referenciaCamara != null)
         {
             Vector3 mirarAlFrente = referenciaCamara.forward;
             mirarAlFrente.y = 0; mirarAlFrente.Normalize();
@@ -62,7 +62,7 @@ public class CalibradorPosicion : MonoBehaviour
     {
         if (!sistemaActivo) return; // Si estamos en RCP, este botón no hace nada
         modoEdicionSensor = !modoEdicionSensor;
-        AlternarModo();
+        ActualizarTextoModo();
     }
 
     public bool ObtenerEstadoModo() { return modoEdicionSensor; }
@@ -143,7 +143,6 @@ public class CalibradorPosicion : MonoBehaviour
                 {
                     Vector3 nuevaPos = manoDerecha.position + (manoDerecha.rotation * offsetPosicion);
                     Quaternion nuevaRot = manoDerecha.rotation * offsetRotacion;
-                    nuevaPos.y = alturaSuelo;
                     Vector3 eulerRot = nuevaRot.eulerAngles;
                     nuevaRot = Quaternion.Euler(0, eulerRot.y, 0);
                     objetoSeleccionado.position = nuevaPos;

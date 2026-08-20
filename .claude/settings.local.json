@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__coplay-mcp__get_unity_editor_state",
+      "mcp__coplay-mcp__list_game_objects_in_hierarchy",
+      "mcp__coplay-mcp__list_packages",
+      "mcp__coplay-mcp__set_unity_project_root",
+      "mcp__coplay-mcp__list_files",
+      "PowerShell(New-Item -ItemType Directory -Force \"D:\\\\Unity\\\\SimuladorManiobrasReanimacion\\\\Assets\\\\Editor\")",
+      "mcp__coplay-mcp__check_compile_errors",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"D:\\\\Unity\\\\SimuladorManiobrasReanimacion\\\\Assets\\\\Scripts\\\\CasoClinico\")",
+      "Bash(xargs grep -l \"0a7d2469f24041c4284c66706f84c45e\")",
+      "mcp__coplay-mcp__get_game_object_info",
+      "WebSearch",
+      "Read(//c/Users/Pipasooo/**)",
+      "Read(//c/Users/Pipasooo/.claude/**)",
+      "WebFetch(domain:github.com)",
+      "Bash(find 'C:\\\\Users\\\\Pipasooo/.claude' -maxdepth 3 -iname *.json -newer /c/Users/Pipasooo/.claude.json)",
+      "Bash(grep -n '\"D:\\\\\\\\\\\\\\\\Unity\\\\\\\\\\\\\\\\SimuladorManiobrasReanimacion\"\\\\|\"D:/Unity/SimuladorManiobrasReanimacion\"' \"/c/Users/Pipasooo/.claude.json\")",
+      "mcp__coplay-mcp__list_unity_project_roots",
+      "mcp__coplay-mcp__get_unity_logs",
+      "Bash(awk -F: '$1 >= 1840 && $1 <= 4700')",
+      "Bash(awk -F: '$1 >= 4600 && $1 <= 4900')"
+    ]
+  }
+}

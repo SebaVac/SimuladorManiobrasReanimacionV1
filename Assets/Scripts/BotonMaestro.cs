@@ -1,16 +1,16 @@
 using UnityEngine;
-using TMPro; // Para cambiar texto del botón si quieres
+using TMPro;
 
 public class BotonMaestro : MonoBehaviour
 {
     [Header("Scripts a Controlar")]
     public CalibradorPosicion scriptCalibrador; // El que mueve el cuerpo
-    public LogicaRCP scriptJuego;               // El que hace la simulación
+    public LogicaRCP scriptJuego;               // El que hace la simulaciÃ³n
 
-    [Header("Visuales del Botón")]
+    [Header("Visuales del BotÃ³n")]
     public Renderer miRenderer;
     public Color colorModoConfig = Color.blue; // Azul = Configurando
-    public Color colorModoJuego = Color.red;   // Rojo = Jugando (No tocar configuración)
+    public Color colorModoJuego = Color.red;   // Rojo = Jugando (No tocar configuraciÃ³n)
 
     [Header("Texto Informativo (Opcional)")]
     public TextMeshPro textoEstado;
@@ -23,44 +23,39 @@ public class BotonMaestro : MonoBehaviour
         AplicarEstado();
     }
 
-    // Se activa al tocar el cubo con la mano (dedo índice con física)
+    // Se activa al tocar el cubo con la mano (dedo Ã­ndice con fÃ­sica)
     private void OnTriggerEnter(Collider other)
     {
-        // Cambiamos el estado (Toggle)
         enModoConfiguracion = !enModoConfiguracion;
         AplicarEstado();
-
-        // Debug
-        Debug.Log("Cambio de Modo Global: " + (enModoConfiguracion ? "CONFIGURACIÓN" : "RCP"));
+        Debug.Log("Cambio de Modo Global: " + (enModoConfiguracion ? "CONFIGURACIÃ“N" : "RCP"));
     }
 
     void AplicarEstado()
     {
         // 1. CONFIGURAMOS EL CALIBRADOR
-        // Si estamos en config, el calibrador FUNCIONA (true). Si no, se apaga.
         if (scriptCalibrador != null)
-        {
             scriptCalibrador.SetSistemaActivo(enModoConfiguracion);
-        }
 
-        // 2. CONFIGURAMOS LA LÓGICA RCP
-        // Si estamos en config, la lógica está en MODO CALIBRACIÓN (Pausa).
-        // Si no, la lógica empieza a jugar (modoCalibracion = false).
+        // 2. CONFIGURAMOS LA LÃ“GICA RCP
         if (scriptJuego != null)
         {
             scriptJuego.modoCalibracion = enModoConfiguracion;
+
+            // FIX 4: Limpiar estado interno en cada transiciÃ³n de modo.
+            // Sin esto, enPosicionCorrecta y estaEmpujando pueden quedar en true
+            // de la sesiÃ³n anterior, corrompiendo los cÃ¡lculos de la nueva sesiÃ³n.
+            scriptJuego.ResetearEstadoSimulacion();
         }
 
-        // 3. CAMBIAMOS EL COLOR DEL BOTÓN
+        // 3. CAMBIAMOS EL COLOR DEL BOTÃ“N
         if (miRenderer != null)
-        {
             miRenderer.material.color = enModoConfiguracion ? colorModoConfig : colorModoJuego;
-        }
 
         // 4. TEXTO OPCIONAL
         if (textoEstado != null)
         {
-            textoEstado.text = enModoConfiguracion ? "Estado: CONFIGURACIÓN" : "Estado: RCP ACTIVO";
+            textoEstado.text  = enModoConfiguracion ? "Estado: CONFIGURACIÃ“N" : "Estado: RCP ACTIVO";
             textoEstado.color = enModoConfiguracion ? colorModoConfig : colorModoJuego;
         }
     }

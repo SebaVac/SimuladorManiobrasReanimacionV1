@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 using TMPro;
+using System.Text;
 
 public class LogicaRCP : MonoBehaviour
 {
@@ -31,64 +32,107 @@ public class LogicaRCP : MonoBehaviour
     [Tooltip("Distancia horizontal para considerar que se SEPARARON (Salida - Mayor para evitar parpadeo)")]
     public float toleranciaHorizontalSalida = 0.25f;
 
-    public float toleranciaVerticalManos = 0.15f; // Diferencia de altura entre mano izq y der
+    public float toleranciaVerticalManos = 0.15f;
 
     [Header("Zona de Contacto 3D (Cubo)")]
     [Tooltip("Radio del círculo horizontal alrededor del pecho")]
-    public float radioEntrada = 0.15f; // 15cm de radio (Más estricto)
-    public float radioSalida = 0.25f;  // 25cm para salir
+    public float radioEntrada = 0.15f;
+    public float radioSalida = 0.25f;
 
     [Tooltip("Altura máxima permitida sobre el cubo para empezar (Eje Y)")]
-    public float alturaMaximaEntrada = 0.15f; // Tienes que estar a menos de 15cm de altura del pecho
+    public float alturaMaximaEntrada = 0.15f;
 
     [Header("Mecánicas RCP")]
     public float alturaParaDetectarPush = 0.05f;
     public float hundimientoMaximoVisual = 0.06f;
     public float bpmMetronomo = 110f;
+    [Tooltip("Profundidad (cm) por debajo de la cual se considera recoil completo. " +
+             "Coincide con el umbral de salida de push (1.5 cm) por diseño.")]
+    // Límite superior AHA 2020. Compresiones >6.0 cm aumentan riesgo de fracturas costales sin mejorar gasto cardíaco.
+    public float umbralRecoilCM = 1.5f;
 
-    // Variables internas
+    // --- Estado de simulación ---
     private float alturaInicialManos;
     private float alturaInicialPechoY;
     private bool enPosicionCorrecta = false;
     private bool estaEmpujando = false;
     private int contadorCompresiones = 0;
 
-    // Ritmo
+    // --- Ritmo ---
     private float tiempoUltimaCompresion = 0f;
     private float bpmUsuario = 0f;
     private bool contadorSumadoEnEsteCiclo = false;
 
-    // Metrónomo
+    // --- Metrónomo ---
     private float intervaloMetronomo;
     private float proximoTic;
     private AudioClip sonidoTic;
+
+    // --- FIX 3: Umbrales cuadrados pre-calculados — elimina sqrt en Update ---
+    private float _toleranciaHorizontalSqr;
+    private float _toleranciaHorizontalSalidaSqr;
+    private float _radioEntradaSqr;
+    private float _radioSalidaSqr;
+
+    // --- FIX 2: Caché de UI — elimina allocations de $"..." por frame ---
+    private readonly StringBuilder _sbUI = new StringBuilder(64);
+    private float _ultimaProfCMRound = float.MinValue;
+    private int _ultimoContadorUI = -1;
+    private bool _ultimoEstaEmpujandoUI = false;
+
+    // --- FIX 1: Caché de tracking para detectar pérdida durante push ---
+    private bool _trackingCompletoAnterior = false;
+
+    // --- FIX 4: Guard para evitar ResetearEstadoSimulacion antes de Start ---
+    private bool _inicializado = false;
+
+    // --- Recoil (AHA 2020 — 5.º componente de calidad RCP) ---
+    private bool esperandoRecoil = false;    // activo desde compresión válida hasta inicio del siguiente push
+    private bool recoilAlcanzado = false;    // latch: true si profundidadCM bajó de umbralRecoilCM en la ventana
+    private int contadorRecoilIncompleto = 0;
+    private int _ultimoContadorRecoilUI = -1; // dirty flag UI
+
+    // --- Datos expuestos para HUD externo (GestorMetricasRCP) ---
+    private float profundidadActualCM = 0f;
+    public float ProfundidadActualCM => profundidadActualCM;
+    public float BpmActual => bpmUsuario;
+    public bool EstaEmpujando => estaEmpujando;
 
     void Start()
     {
         if (pechoVisual != null) alturaInicialPechoY = pechoVisual.position.y;
         intervaloMetronomo = 60f / bpmMetronomo;
         sonidoTic = CrearSonidoBip();
+        RecalcularUmbralesSqr();
+        _inicializado = true;
+    }
+
+    void OnValidate()
+    {
+        // Mantiene los umbrales cuadrados sincronizados al editar valores en el Inspector
+        RecalcularUmbralesSqr();
+    }
+
+    private void RecalcularUmbralesSqr()
+    {
+        _toleranciaHorizontalSqr        = toleranciaHorizontal        * toleranciaHorizontal;
+        _toleranciaHorizontalSalidaSqr  = toleranciaHorizontalSalida  * toleranciaHorizontalSalida;
+        _radioEntradaSqr                = radioEntrada                 * radioEntrada;
+        _radioSalidaSqr                 = radioSalida                  * radioSalida;
     }
 
     void Update()
     {
         // ================================================================
-        // 1. MODO CALIBRACIÓN (NUEVO)
+        // 1. MODO CALIBRACIÓN
         // ================================================================
         if (modoCalibracion)
         {
-            // Mientras esto esté activo, el script "aprende" la nueva altura del cubo
-            // en lugar de obligarlo a volver a la posición original.
             if (pechoVisual != null)
-            {
                 alturaInicialPechoY = pechoVisual.position.y;
-            }
 
-            // Feedback visual para que sepas que el juego está en pausa
             ActualizarPanelManos("MODO CALIBRACIÓN\n(Ajusta y desmarca)", Color.cyan);
             LimpiarOtrosPaneles();
-
-            // IMPORTANTE: Cortamos aquí para que no ejecute lógica de juego ni resetee nada.
             return;
         }
         // ================================================================
@@ -99,7 +143,6 @@ public class LogicaRCP : MonoBehaviour
 
         if (!enPosicionCorrecta)
         {
-            // FASE DE ENTRADA: Exigimos ver todo perfecto
             if (!izqVisible || !derVisible || esqueletoIzq.Bones.Count == 0)
             {
                 ActualizarPanelManos("Buscando manos...", Color.white);
@@ -113,7 +156,6 @@ public class LogicaRCP : MonoBehaviour
         }
         else
         {
-            // FASE DE MANTENIMIENTO: Solo salimos si perdemos ambas
             if (!izqVisible && !derVisible)
             {
                 SalirDeModoRCP("MANOS PERDIDAS");
@@ -127,51 +169,44 @@ public class LogicaRCP : MonoBehaviour
     void ProcesarRCP(bool izqOk, bool derOk)
     {
         Vector3 posManos;
+        bool trackingCompleto = izqOk && derOk;
 
-        // --- A. CALCULAR POSICIÓN Y VERIFICAR UNIÓN DE MANOS ---
-        if (izqOk && derOk)
+        if (trackingCompleto)
         {
-            posManos = (manoIzquierda.transform.position + manoDerecha.transform.position) / 2;
+            posManos = (manoIzquierda.transform.position + manoDerecha.transform.position) / 2f;
 
-            // Distancia entre manos (Horizontal)
-            float distManosH = Vector2.Distance(new Vector2(manoIzquierda.transform.position.x, manoIzquierda.transform.position.z),
-                                                new Vector2(manoDerecha.transform.position.x, manoDerecha.transform.position.z));
+            // FIX 3: sqrMagnitude en lugar de Vector2.Distance — sin sqrt por frame
+            Vector3 delta = manoIzquierda.transform.position - manoDerecha.transform.position;
+            float distManosHSqr = delta.x * delta.x + delta.z * delta.z;
 
-            // Lógica de Histéresis para manos juntas
             if (enPosicionCorrecta)
             {
-                // Si ya estamos dentro, somos más permisivos (toleranciaHorizontalSalida)
-                if (distManosH > toleranciaHorizontalSalida) { SalirDeModoRCP("JUNTA LAS MANOS"); return; }
+                if (distManosHSqr > _toleranciaHorizontalSalidaSqr) { SalirDeModoRCP("JUNTA LAS MANOS"); return; }
             }
             else
             {
-                // Si estamos fuera, somos estrictos (toleranciaHorizontal)
-                if (distManosH > toleranciaHorizontal) { ActualizarPanelManos("JUNTA LAS MANOS", Color.white); ResetearPecho(); return; }
+                if (distManosHSqr > _toleranciaHorizontalSqr) { ActualizarPanelManos("JUNTA LAS MANOS", Color.white); ResetearPecho(); return; }
             }
         }
         else
         {
-            // Oclusión: Usamos la mano visible
+            // Oclusión: usamos la mano visible
             posManos = izqOk ? manoIzquierda.transform.position : manoDerecha.transform.position;
         }
 
-        // --- B. VERIFICAR ZONA 3D (Cubo) ---
-        float distanciaHorizontalAlPecho = CalcularDistanciaHorizontalCubo(posManos);
+        // FIX 3: Comparación cuadrada para zona de contacto — sin sqrt
+        float distHSqr = CalcularDistanciaHorizontalCuboSqr(posManos);
         float distanciaVerticalAlPecho = CalcularDistanciaVerticalCubo(posManos);
 
         if (!enPosicionCorrecta)
         {
-            // --- CONDICIONES PARA ENTRAR (ESTRICTAS) ---
-
-            // 1. Chequeo Horizontal (GPS)
-            if (distanciaHorizontalAlPecho > radioEntrada)
+            if (distHSqr > _radioEntradaSqr)
             {
                 ActualizarPanelManos("ACÉRCATE AL CENTRO", Color.yellow);
                 LimpiarOtrosPaneles();
                 return;
             }
 
-            // 2. Chequeo Vertical (Altura)
             if (distanciaVerticalAlPecho > alturaMaximaEntrada)
             {
                 ActualizarPanelManos("BAJA LAS MANOS\n(Toca el pecho)", Color.yellow);
@@ -179,7 +214,6 @@ public class LogicaRCP : MonoBehaviour
                 return;
             }
 
-            // ¡Si pasamos ambos filtros, entramos!
             enPosicionCorrecta = true;
             alturaInicialManos = posManos.y;
             tiempoUltimaCompresion = Time.time;
@@ -187,26 +221,27 @@ public class LogicaRCP : MonoBehaviour
         }
         else
         {
-            // --- CONDICIONES PARA SALIR (PERMISIVAS) ---
-            // Solo salimos si te alejas mucho horizontalmente
-            if (distanciaHorizontalAlPecho > radioSalida)
+            if (distHSqr > _radioSalidaSqr)
             {
                 SalirDeModoRCP("TE ALEJASTE");
                 return;
             }
         }
 
-        // --- C. EJECUTAR LÓGICA ---
         ActualizarPanelManos("RCP EN PROCESO...", Color.cyan);
-        EjecutarLogicaPush(posManos.y);
+        EjecutarLogicaPush(posManos.y, trackingCompleto);
+        _trackingCompletoAnterior = trackingCompleto; // FIX 1: actualizar caché para próximo frame
     }
 
     // --- CÁLCULOS MATEMÁTICOS ---
 
-    float CalcularDistanciaHorizontalCubo(Vector3 pos)
+    // FIX 3: Retorna distancia al cuadrado — el llamador compara contra _radioXxxSqr
+    float CalcularDistanciaHorizontalCuboSqr(Vector3 pos)
     {
-        if (pechoVisual == null) return 999f;
-        return Vector2.Distance(new Vector2(pos.x, pos.z), new Vector2(pechoVisual.position.x, pechoVisual.position.z));
+        if (pechoVisual == null) return float.MaxValue;
+        float dx = pos.x - pechoVisual.position.x;
+        float dz = pos.z - pechoVisual.position.z;
+        return dx * dx + dz * dz;
     }
 
     float CalcularDistanciaVerticalCubo(Vector3 pos)
@@ -219,13 +254,28 @@ public class LogicaRCP : MonoBehaviour
     {
         enPosicionCorrecta = false;
         estaEmpujando = false;
+        _trackingCompletoAnterior = false; // FIX 1: limpiar caché de tracking
+        esperandoRecoil = false;           // cancelar evaluación pendiente — contexto de sesión perdido
         ResetearPecho();
         ActualizarPanelManos(motivo, Color.white);
         LimpiarOtrosPaneles();
     }
 
-    void EjecutarLogicaPush(float alturaActualManos)
+    void EjecutarLogicaPush(float alturaActualManos, bool trackingCompleto)
     {
+        // FIX 1: Protección de Delta Y ante pérdida de tracking durante un push.
+        // Si el frame anterior teníamos ambas manos y ahora perdemos una mientras
+        // estábamos empujando, la posición de la mano restante puede ser inconsistente
+        // con alturaInicialManos (punto de referencia del push). Recalibramos la línea
+        // base con la posición actual y salimos limpiamente del estado de push.
+        if (!trackingCompleto && _trackingCompletoAnterior && estaEmpujando)
+        {
+            alturaInicialManos = alturaActualManos;
+            estaEmpujando = false;
+            contadorSumadoEnEsteCiclo = false;
+            esperandoRecoil = false; // C1: cancelar sin confirmar — baseline recalibrado por pérdida de tracking, no por compresión real
+        }
+
         if (Time.time >= proximoTic)
         {
             if (altavoz != null && sonidoTic != null) altavoz.PlayOneShot(sonidoTic);
@@ -234,6 +284,7 @@ public class LogicaRCP : MonoBehaviour
 
         float profundidad = alturaInicialManos - alturaActualManos;
         float profundidadCM = profundidad * 100f;
+        profundidadActualCM = profundidadCM;
 
         if (pechoVisual != null)
         {
@@ -243,39 +294,173 @@ public class LogicaRCP : MonoBehaviour
             pechoVisual.position = nuevaPos;
         }
 
-        string txtProf = "";
+        // Determinar color y registrar compresión usando el estado PRE-transición
+        // (comportamiento idéntico al original: el texto refleja el estado del frame actual)
         Color colorProf = Color.white;
-
         if (estaEmpujando)
         {
-            if (profundidadCM < 5f) { txtProf = $"▼ {profundidadCM:F1} cm ▼\n(EMPUJA MÁS)"; colorProf = Color.yellow; }
-            else if (profundidadCM <= 6.5f)
+            if (profundidadCM < 5f)
             {
-                txtProf = $"★ {profundidadCM:F1} cm ★\n(PERFECTO)"; colorProf = Color.green;
-                if (!contadorSumadoEnEsteCiclo) { RegistrarCompresion(); contadorSumadoEnEsteCiclo = true; }
+                colorProf = Color.yellow;
             }
-            else { txtProf = $"🛑 {profundidadCM:F1} cm 🛑\n(TE PASASTE)"; colorProf = Color.red; }
+            else if (profundidadCM <= 6.0f)
+            {
+                colorProf = Color.green;
+                if (!contadorSumadoEnEsteCiclo)
+                {
+                    RegistrarCompresion();
+                    contadorSumadoEnEsteCiclo = true;
+                    esperandoRecoil = true;  // abre ventana de recoil
+                    recoilAlcanzado = false; // latch: se activará cuando la mano suba por encima del umbral
+                }
+            }
+            else
+            {
+                colorProf = Color.red;
+            }
         }
         else
         {
-            txtProf = "▲ SUBE ▲"; colorProf = Color.white;
             contadorSumadoEnEsteCiclo = false;
+
+            // Actualizar latch de recoil sólo con tracking completo.
+            // Si trackingCompleto = false, suspendemos la evaluación ese frame (evita falso positivo por oclusión).
+            if (esperandoRecoil && trackingCompleto && !recoilAlcanzado)
+            {
+                if (profundidadCM < umbralRecoilCM)
+                    recoilAlcanzado = true;
+            }
         }
 
-        if (profundidad > 0.02f && !estaEmpujando) estaEmpujando = true;
-        else if (profundidad < 0.015f && estaEmpujando) estaEmpujando = false;
+        // Capturar estado de UI antes de la transición (idéntico al original)
+        bool estaEmpujandoParaUI = estaEmpujando;
 
-        if (txtInfoProfundidad != null) { txtInfoProfundidad.text = $"Total: {contadorCompresiones}\n{txtProf}"; txtInfoProfundidad.color = colorProf; }
+        if (profundidad > 0.02f && !estaEmpujando)
+        {
+            // Evaluar recoil ANTES de iniciar el siguiente push (diseño latch)
+            if (esperandoRecoil)
+            {
+                if (!recoilAlcanzado) contadorRecoilIncompleto++;
+                esperandoRecoil = false;
+            }
+            estaEmpujando = true;
+        }
+        else if (profundidad < 0.015f && estaEmpujando)
+        {
+            estaEmpujando = false;
+        }
+
+        // FIX 2: Dirty flag — sólo reconstruir la UI cuando los valores realmente cambian.
+        // Elimina la generación de strings con $"..." cada frame (90 allocs/seg en Quest).
+        // SetText(StringBuilder) de TMP es zero-alloc para el componente de texto.
+        if (txtInfoProfundidad != null)
+        {
+            float profRound = Mathf.Round(profundidadCM * 10f); // resolución 0.1 cm
+            if (profRound != _ultimaProfCMRound
+                || contadorCompresiones != _ultimoContadorUI
+                || estaEmpujandoParaUI != _ultimoEstaEmpujandoUI)
+            {
+                _ultimaProfCMRound       = profRound;
+                _ultimoContadorUI        = contadorCompresiones;
+                _ultimoEstaEmpujandoUI   = estaEmpujandoParaUI;
+
+                _sbUI.Clear();
+                _sbUI.Append("Total: ").Append(contadorCompresiones).Append('\n');
+
+                if (estaEmpujandoParaUI)
+                {
+                    // ToString("F1") asigna 1 string sólo cuando el valor cambia,
+                    // no en cada frame — reducción de ~90x en la frecuencia de alloc.
+                    string valStr = profundidadCM.ToString("F1");
+                    if (profundidadCM < 5f)
+                        _sbUI.Append("▼ ").Append(valStr).Append(" cm ▼\n(EMPUJA MÁS)");
+                    else if (profundidadCM <= 6.0f)
+                        _sbUI.Append("★ ").Append(valStr).Append(" cm ★\n(PERFECTO)");
+                    else
+                        _sbUI.Append("🛑 ").Append(valStr).Append(" cm 🛑\n(TE PASASTE)");
+                }
+                else
+                {
+                    _sbUI.Append("▲ SUBE ▲");
+                }
+
+                txtInfoProfundidad.SetText(_sbUI);
+                txtInfoProfundidad.color = colorProf;
+            }
+        }
+
+        // Recoil UI — dirty flag: sólo actualiza cuando el conteo cambia.
+        // Reutiliza _sbUI (ya fue consumido por SetText arriba, sin referencias pendientes).
+        if (txtInfoRitmo != null && contadorRecoilIncompleto != _ultimoContadorRecoilUI)
+        {
+            _ultimoContadorRecoilUI = contadorRecoilIncompleto;
+            if (contadorRecoilIncompleto > 0)
+            {
+                _sbUI.Clear();
+                _sbUI.Append("⚠ Recoil incompleto: ").Append(contadorRecoilIncompleto);
+                txtInfoRitmo.SetText(_sbUI);
+                txtInfoRitmo.color = Color.yellow;
+            }
+            else
+            {
+                txtInfoRitmo.text = "";
+            }
+        }
     }
 
-    // --- RESTO DE AUXILIARES ---
+    // FIX 4: Limpieza pública de estado interno para BotonMaestro.
+    // Evita que datos sucios de una sesión anterior contaminen la siguiente.
+    public void ResetearEstadoSimulacion()
+    {
+        if (!_inicializado) return; // Guard: no ejecutar si Start() aún no corrió
+
+        enPosicionCorrecta      = false;
+        estaEmpujando           = false;
+        contadorCompresiones    = 0;
+        contadorSumadoEnEsteCiclo = false;
+        bpmUsuario              = 0f;
+        alturaInicialManos      = 0f;
+        _trackingCompletoAnterior = false;
+
+        // Invalidar caché de UI para forzar redibujado completo en la próxima actualización
+        _ultimaProfCMRound      = float.MinValue;
+        _ultimoContadorUI       = -1;
+        _ultimoEstaEmpujandoUI  = false;
+
+        tiempoUltimaCompresion  = Time.time;
+        proximoTic              = Time.time + intervaloMetronomo;
+
+        // Resetear el pecho a la última posición calibrada conocida, luego sincronizar
+        ResetearPecho();
+        if (pechoVisual != null) alturaInicialPechoY = pechoVisual.position.y;
+
+        // Recoil
+        esperandoRecoil          = false;
+        recoilAlcanzado          = false;
+        contadorRecoilIncompleto = 0;
+        _ultimoContadorRecoilUI  = -1;
+        if (txtInfoRitmo != null) txtInfoRitmo.text = "";
+    }
+
+    // --- AUXILIARES ---
     void ActualizarPanelManos(string texto, Color color) { if (txtInfoManos != null) { txtInfoManos.text = texto; txtInfoManos.color = color; } }
-    void LimpiarOtrosPaneles() { if (txtInfoProfundidad != null) txtInfoProfundidad.text = "--"; if (txtInfoRitmo != null) txtInfoRitmo.text = ""; }
+
+    void LimpiarOtrosPaneles()
+    {
+        if (txtInfoProfundidad != null)
+        {
+            txtInfoProfundidad.text = "--";
+            _ultimaProfCMRound = float.MinValue; // FIX 2: invalidar caché para forzar redibujado al re-entrar
+        }
+        if (txtInfoRitmo != null)
+        {
+            txtInfoRitmo.text = "";
+            _ultimoContadorRecoilUI = -1; // forzar redibujado al re-entrar en zona RCP
+        }
+    }
+
     void RegistrarCompresion() { contadorCompresiones++; float tiempoActual = Time.time; float diferencia = tiempoActual - tiempoUltimaCompresion; if (diferencia > 0) { float nuevoBPM = 60f / diferencia; if (bpmUsuario == 0) bpmUsuario = nuevoBPM; else bpmUsuario = Mathf.Lerp(bpmUsuario, nuevoBPM, 0.3f); } tiempoUltimaCompresion = tiempoActual; }
-
-    // El ResetearPecho ahora solo actúa si NO estamos calibrando (gracias al return del Update)
     void ResetearPecho() { if (pechoVisual != null && Mathf.Abs(pechoVisual.position.y - alturaInicialPechoY) > 0.001f) { Vector3 pos = pechoVisual.position; pos.y = alturaInicialPechoY; pechoVisual.position = pos; } }
-
     AudioClip CrearSonidoBip() { int sampleRate = 44100; float duracion = 0.1f; int length = (int)(sampleRate * duracion); float[] samples = new float[length]; float frecuencia = 1000f; for (int i = 0; i < length; i++) { samples[i] = Mathf.Sin(2 * Mathf.PI * frecuencia * i / sampleRate); if (i > length - 1000) samples[i] *= (length - i) / 1000f; } AudioClip clip = AudioClip.Create("BipProcedural", length, 1, sampleRate, false); clip.SetData(samples, 0); return clip; }
     bool SonManosAbiertas() { float apIzq = ObtenerApertura(esqueletoIzq); float apDer = ObtenerApertura(esqueletoDer); return (apIzq > umbralApertura && apDer > umbralApertura); }
     bool EsRotacionCorrecta() { float angIzq = Vector3.Angle(manoIzquierda.transform.up, Vector3.up); float angDer = Vector3.Angle(manoDerecha.transform.up, Vector3.up); return (angIzq < anguloMaximo && angDer < anguloMaximo); }
