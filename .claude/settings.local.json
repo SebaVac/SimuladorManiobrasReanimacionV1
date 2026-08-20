@@ -20,7 +20,20 @@
       "mcp__coplay-mcp__list_unity_project_roots",
       "mcp__coplay-mcp__get_unity_logs",
       "Bash(awk -F: '$1 >= 1840 && $1 <= 4700')",
-      "Bash(awk -F: '$1 >= 4600 && $1 <= 4900')"
+      "Bash(awk -F: '$1 >= 4600 && $1 <= 4900')",
+      "Bash(awk '/^--- !u!1001 &100000$/{flag=1} flag{print} flag && /^--- !u!/ && !/&100000$/{if\\(NR>1 && prev!=\"\"\\) exit} {prev=$0}' SceneInicio.unity)",
+      "Bash(awk '/^--- !u!1001 &100000$/{flag=1} flag{print} flag && /^--- !u!/ && !/&100000$/ && NR_seen{exit} flag{NR_seen=1}' SceneInicio.unity)",
+      "Bash(awk '/^--- !u!1001 &[0-9]+$/{name=$0} /OVRCameraRig \\\\\\(source Prefab/{print name}' SceneSimulador.unity)",
+      "Bash(grep -n -A15 \"^--- !u!.* &737584001$\" SceneSimulador.unity)",
+      "Bash(xargs grep -l \"class OVRPassthroughLayer\")",
+      "Bash(grep -n -A12 \"^--- !u!1 &737584000$\" SceneSimulador.unity)",
+      "Bash(xargs grep -l \"InsightPassthrough\\\\|insightPassthrough\")",
+      "Bash(grep -v '^0$')",
+      "Bash(grep -n -A7 \"^--- !u!222 &300034$\" SceneInicio.unity)",
+      "Bash(grep -n \"^--- !u!1 &300040$\" SceneInicio.unity)",
+      "Bash(grep -n -A7 \"^--- !u!222 &300054$\" SceneInicio.unity)",
+      "Bash(grep -n \"^--- !u!1 &300060$\" SceneInicio.unity)",
+      "Bash(grep -n -A30 \"^--- !u!1 &300020$\" SceneInicio.unity)"
     ]
   }
 }

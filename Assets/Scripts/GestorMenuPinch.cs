@@ -5,68 +5,101 @@ using UnityEngine.UI;
 public class GestorMenuPinch : MonoBehaviour
 {
     [Header("Referencias OVR")]
-    public OVRHand manoIzquierda;
-    public OVRHand manoDerecha;
+    public OVRSkeleton esqueletoIzquierdo;
+    public OVRSkeleton esqueletoDerecho;
 
-    [Header("Detección de botón")]
-    [Tooltip("Radio de selección alrededor de la punta del dedo (proximidad esférica). " +
-             "Calculado para la separación real entre botones adyacentes del HUD actual.")]
-    public float radioSeleccion = 0.035f;
+    [Header("Menú")]
+    [Tooltip("Contenedor cuyos botones hijos (activos) se evalúan para la selección por toque.")]
+    public Transform contenedorBotones;
+
+    [Header("Detección de toque")]
+    [Tooltip("Tolerancia de profundidad frente/detrás del plano del botón, en metros.")]
+    public float profundidadToque = 0.05f;
 
     [Header("Feedback")]
     public float duracionFeedback = 0.15f;
 
-    private bool pellizcandoIzqAnterior = false;
-    private bool pellizcandoDerAnterior = false;
+    private Button botonTocadoIzq;
+    private Button botonTocadoDer;
+    private readonly Vector3[] _esquinas = new Vector3[4];
 
     void Update()
     {
-        ProcesarMano(manoIzquierda, ref pellizcandoIzqAnterior);
-        ProcesarMano(manoDerecha, ref pellizcandoDerAnterior);
+        ProcesarMano(esqueletoIzquierdo, ref botonTocadoIzq);
+        ProcesarMano(esqueletoDerecho, ref botonTocadoDer);
     }
 
-    void ProcesarMano(OVRHand mano, ref bool pellizcandoAnterior)
+    void ProcesarMano(OVRSkeleton esqueleto, ref Button botonTocadoAnterior)
     {
-        if (mano == null) return;
+        if (esqueleto == null || contenedorBotones == null) return;
+        if (!esqueleto.IsInitialized || !esqueleto.IsDataValid) return;
 
-        bool pellizcando = EsPellizco(mano);
+        Transform puntaDedo = ObtenerPuntaIndice(esqueleto);
+        if (puntaDedo == null) return;
 
-        if (pellizcando && !pellizcandoAnterior)
+        Button botonActual = BuscarBotonTocado(puntaDedo.position);
+
+        if (botonActual != null && botonActual != botonTocadoAnterior)
         {
-            Button boton = BuscarBotonCercano(mano.PointerPose.position);
-            if (boton != null)
-            {
-                var feedback = boton.GetComponent<BotonMenuFeedback>();
-                if (feedback != null) StartCoroutine(FlashFeedback(feedback));
-                boton.onClick.Invoke();
-            }
+            var feedback = botonActual.GetComponent<BotonMenuFeedback>();
+            if (feedback != null) StartCoroutine(FlashFeedback(feedback));
+            botonActual.onClick.Invoke();
         }
 
-        pellizcandoAnterior = pellizcando;
+        botonTocadoAnterior = botonActual;
     }
 
-    bool EsPellizco(OVRHand mano)
+    Transform ObtenerPuntaIndice(OVRSkeleton esqueleto)
     {
-        return mano.GetFingerIsPinching(OVRHand.HandFinger.Index) &&
-               mano.GetFingerConfidence(OVRHand.HandFinger.Index) == OVRHand.TrackingConfidence.High;
+        var huesos = esqueleto.Bones;
+        if (huesos == null) return null;
+
+        for (int i = 0; i < huesos.Count; i++)
+        {
+            if (huesos[i].Id == OVRSkeleton.BoneId.Hand_IndexTip)
+                return huesos[i].Transform;
+        }
+        return null;
     }
 
-    Button BuscarBotonCercano(Vector3 posMundo)
+    Button BuscarBotonTocado(Vector3 puntaDedo)
     {
-        Button[] botones = GetComponentsInChildren<Button>(false);
-        Button masCercano = null;
-        float distMinSqr = radioSeleccion * radioSeleccion;
+        Button[] botones = contenedorBotones.GetComponentsInChildren<Button>(false);
 
         foreach (Button b in botones)
         {
-            float distSqr = (b.transform.position - posMundo).sqrMagnitude;
-            if (distSqr <= distMinSqr)
-            {
-                distMinSqr = distSqr;
-                masCercano = b;
-            }
+            if (EstaTocando(b.transform as RectTransform, puntaDedo))
+                return b;
         }
-        return masCercano;
+        return null;
+    }
+
+    bool EstaTocando(RectTransform rt, Vector3 puntaDedo)
+    {
+        if (rt == null) return false;
+
+        rt.GetWorldCorners(_esquinas);
+        // _esquinas: 0=abajo-izq, 1=arriba-izq, 2=arriba-der, 3=abajo-der
+
+        Vector3 origen = _esquinas[0];
+        Vector3 ejeX = _esquinas[3] - _esquinas[0];
+        Vector3 ejeY = _esquinas[1] - _esquinas[0];
+        float largoX = ejeX.magnitude;
+        float largoY = ejeY.magnitude;
+        if (largoX <= 0f || largoY <= 0f) return false;
+        ejeX /= largoX;
+        ejeY /= largoY;
+        Vector3 normal = Vector3.Cross(ejeX, ejeY).normalized;
+
+        Vector3 offset = puntaDedo - origen;
+
+        float distanciaPlano = Vector3.Dot(offset, normal);
+        if (Mathf.Abs(distanciaPlano) > profundidadToque) return false;
+
+        float proyX = Vector3.Dot(offset, ejeX);
+        float proyY = Vector3.Dot(offset, ejeY);
+
+        return proyX >= 0f && proyX <= largoX && proyY >= 0f && proyY <= largoY;
     }
 
     IEnumerator FlashFeedback(BotonMenuFeedback feedback)
