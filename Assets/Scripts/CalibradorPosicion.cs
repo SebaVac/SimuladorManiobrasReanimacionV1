@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
 using TMPro;
 
-public class CalibradorPosicion : MonoBehaviour
+public class CalibradorPosicion : MonoBehaviour, IEtiquetaDinamica, IItemMenuCondicional
 {
     [Header("--- INTERRUPTOR MAESTRO ---")]
     public bool sistemaActivo = true; // Si es FALSE, este script no hace NADA.
+
+    // Congela Update() (GestorMenuPausa), sin alterar el gesto de agarre en curso.
+    private bool pausado = false;
+    public void SetPausado(bool valor) => pausado = valor;
 
     [Header("Referencias OVR")]
     public Transform manoDerecha;
@@ -67,6 +71,18 @@ public class CalibradorPosicion : MonoBehaviour
 
     public bool ObtenerEstadoModo() { return modoEdicionSensor; }
 
+    // ── Ítem "Ajustar sensor de pecho" del menú de pausa (SceneSimulador) ────
+    // Reemplaza al cubo físico Boton_Selector_Movimiento, ya eliminado.
+
+    /// <summary>IEtiquetaDinamica: etiqueta del ítem según el sub-modo al que se
+    /// pasaría al seleccionarlo (mismo criterio que BotonMaestro).</summary>
+    public string ObtenerEtiqueta() =>
+        modoEdicionSensor ? "Cambiar a ajuste del cuerpo" : "Cambiar a ajuste del sensor";
+
+    /// <summary>IItemMenuCondicional: el ítem solo tiene sentido en calibración
+    /// (en modo RCP, AlternarModo() no hace nada), así que se oculta fuera de ella.</summary>
+    public bool DebeMostrarseEnMenu() => sistemaActivo;
+
     // Función pública para que el Botón Maestro nos despierte o nos duerma
     public void SetSistemaActivo(bool activo)
     {
@@ -91,6 +107,8 @@ public class CalibradorPosicion : MonoBehaviour
 
     void Update()
     {
+        if (pausado) return;
+
         // --- AQUÍ ESTÁ EL CAMBIO CLAVE ---
         if (!sistemaActivo) return;
         // ---------------------------------

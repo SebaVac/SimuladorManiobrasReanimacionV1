@@ -1,0 +1,165 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0059c866089bbe24c9d13b586730ee9e, type: 3}
+  m_Name: CasoEPOC
+  m_EditorClassIdentifier:
+  idCaso: CASO-EPOC
+  nombreCaso: 'Exacerbación de EPOC'
+  motivoConsulta: 'Llevo años con tos, pero ahora me cuesta respirar mucho más que antes, se me agravó.'
+  antecedentesRelevantes:
+  - 'Tabaquismo de larga data (≈30 paquetes/año).'
+  - 'Exacerbaciones previas de EPOC.'
+  - 'Posible exposición ocupacional a humo o polvo.'
+  signosVitales:
+    frecuenciaCardiaca: 100
+    frecuenciaRespiratoria: 24
+    presionArterial: 130/85
+    saturacionO2: 89
+    temperatura: 36.5
+  hallazgosPorRegion:
+  - regionAnatomica: Cabeza y cuello
+    hallazgoTexto: 'Respiración con labios fruncidos.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Tórax anterior
+    hallazgoTexto: 'Tórax en tonel, murmullo disminuido, sibilancias espiratorias.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Tórax posterior
+    hallazgoTexto: 'Hipersonoridad a la percusión, roncus.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Precordio
+    hallazgoTexto: 'Ruidos cardíacos alejados por hiperinsuflación.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Abdomen
+    hallazgoTexto: 'Sin hallazgos relevantes.'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Extremidades
+    hallazgoTexto: 'Sin edema (salvo cor pulmonale asociado).'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Piel y mucosas
+    hallazgoTexto: 'Coloración rosada-grisácea, sin cianosis franca.'
+    esHallazgoRelevante: 1
+  examenesDisponibles:
+  - nombreExamen: 'Espirometría'
+    resultado: 'Patrón obstructivo, VEF1/CVF < 0,70 post-broncodilatador.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Gases arteriales'
+    resultado: 'Hipoxemia leve-moderada, PaCO2 normal o levemente elevada.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Radiografía de tórax'
+    resultado: 'Hiperinsuflación, aplanamiento diafragmático.'
+    esExamenPertinente: 1
+  preguntasClave:
+  - idPregunta: epoc_duracion_tos
+    preguntaSugerida: '¿Hace cuánto tiempo tiene tos?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - hace
+      - tos
+    - palabras:
+      - años
+      - tos
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Hace años; tos de fumador le dicen.'
+    esPreguntaClave: 1
+  - idPregunta: epoc_tabaquismo
+    preguntaSugerida: '¿Fuma o ha fumado? ¿Cuánto?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - fum
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Fumé como 30 años, un paquete al día.'
+    esPreguntaClave: 1
+  - idPregunta: epoc_expectoracion
+    preguntaSugerida: '¿La tos tiene flema?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - tos
+      - flem
+    - palabras:
+      - flem
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, en las mañanas boto harta flema.'
+    esPreguntaClave: 1
+  - idPregunta: epoc_disnea_esfuerzo
+    preguntaSugerida: '¿Ha notado que se cansa más al hacer esfuerzo?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - cansa
+      - esfuerzo
+    - palabras:
+      - fatiga
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, ya no puedo subir escaleras como antes.'
+    esPreguntaClave: 1
+  - idPregunta: epoc_baja_peso
+    preguntaSugerida: '¿Ha bajado de peso?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - baj
+      - peso
+    - palabras:
+      - adelgaz
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Un poco, sí.'
+    esPreguntaClave: 1
+  - idPregunta: epoc_exacerbaciones
+    preguntaSugerida: '¿Ha tenido episodios similares antes?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - episodio
+      - antes
+    - palabras:
+      - recaida
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, esta es como la tercera vez que me pasa esto.'
+    esPreguntaClave: 1
+  respuestaGenericaSinMatch: 'No estoy segura de a qué se refiere con eso.'
+  diagnosticoEsperado: 'Exacerbación de Enfermedad Pulmonar Obstructiva Crónica (EPOC).'
+  conjuntosPalabrasClaveDiagnostico:
+  - palabras:
+    - epoc
+  - palabras:
+    - exacerbacion
+    - epoc
+  - palabras:
+    - obstructiva
+    - cronica
+  accionesCriticas:
+  - descripcion: 'Valorar patrón respiratorio y titular O2 con cautela (evitar hiperoxia en retenedores de CO2)'
+    tipo: 4
+    idReferencia: 'manejo_o2_titulado'
+    peso: 50
+  - descripcion: 'Reconocer necesidad de broncodilatadores y valorar fatiga respiratoria'
+    tipo: 4
+    idReferencia: 'manejo_broncodilatadores'
+    peso: 50
+  erroresFrecuentes:
+  - descripcion: 'No indagar la historia tabáquica'
+    idReferenciaCondicion: 'omitio:epoc_tabaquismo'
+    retroalimentacion: 'Cuantificar el tabaquismo (paquetes/año) es esencial para el diagnóstico y el pronóstico de la EPOC.'
+  - descripcion: 'No indagar exacerbaciones previas'
+    idReferenciaCondicion: 'omitio:epoc_exacerbaciones'
+    retroalimentacion: 'La frecuencia de exacerbaciones define el fenotipo y la gravedad del paciente EPOC.'
+  - descripcion: 'Administrar oxígeno a alto flujo sin control'
+    idReferenciaCondicion: ''
+    retroalimentacion: 'En el retenedor de CO2 la hiperoxia puede deprimir el estímulo respiratorio; titular O2 a una SatO2 objetivo de 88-92%.'
+  datosAdministrativos:
+    nombrePacienteFicticio: 'Rojas Vidal, Manuel'
+    sexoPaciente: Masculino
+    edadPaciente: '64 años'
+    nombreEstablecimiento: 'Hospital Regional Simulado — Servicio de Urgencias'

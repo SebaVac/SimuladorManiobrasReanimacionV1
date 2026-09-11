@@ -1,3 +1,18 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// NEUTRALIZADO POR CLAUDE (2026-09-07) — pendiente de decisión del usuario.
+//
+// Este generador construye una FichaCaso con la API ANTIGUA del módulo
+// (fases / FaseClinica / TriggerTransicion / MotorEvolucionPaciente), que fue
+// reemplazada por el modelo de razonamiento clínico basado en casos. Con el
+// nuevo FichaCaso.cs, este archivo NO COMPILA y bloquea toda la compilación del
+// proyecto (Assembly-CSharp-Editor).
+//
+// Se envuelve en `#if false` para desbloquear la compilación sin borrar tu
+// contenido. Opciones (elige una): (a) eliminar el archivo, o (b) reescribirlo
+// como generador de un caso real con la API nueva — esto último la spec lo
+// difiere ("no implementar aún ningún caso clínico real").
+// ─────────────────────────────────────────────────────────────────────────────
+#if false
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
@@ -191,4 +206,5 @@ public static class CrearCasoAsmatica
             "OK");
     }
 }
+#endif
 #endif

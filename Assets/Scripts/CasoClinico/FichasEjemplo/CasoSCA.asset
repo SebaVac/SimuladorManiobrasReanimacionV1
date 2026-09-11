@@ -1,0 +1,195 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0059c866089bbe24c9d13b586730ee9e, type: 3}
+  m_Name: CasoSCA
+  m_EditorClassIdentifier:
+  idCaso: CASO-SCA
+  nombreCaso: 'Síndrome Coronario Agudo (STEMI)'
+  motivoConsulta: 'Tengo un dolor fuerte en el pecho que se me corre al brazo izquierdo, hace como media hora.'
+  antecedentesRelevantes:
+  - 'Hipertensión arterial, diabetes, dislipidemia.'
+  - 'Tabaquismo.'
+  - 'Infarto agudo de miocardio previo (hace 2 años).'
+  signosVitales:
+    frecuenciaCardiaca: 105
+    frecuenciaRespiratoria: 22
+    presionArterial: 150/95
+    saturacionO2: 94
+    temperatura: 36.6
+  hallazgosPorRegion:
+  - regionAnatomica: Cabeza y cuello
+    hallazgoTexto: 'Sudoración profusa, palidez facial.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Tórax anterior
+    hallazgoTexto: 'Sin hallazgos auscultatorios pulmonares relevantes.'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Tórax posterior
+    hallazgoTexto: 'Murmullo pulmonar conservado.'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Precordio
+    hallazgoTexto: 'Dolor variable a la palpación, cuarto ruido (S4) audible.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Abdomen
+    hallazgoTexto: 'Refiere náuseas; sin hallazgos físicos relevantes.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Extremidades
+    hallazgoTexto: 'Piel fría; pulsos periféricos conservados (disminuidos si hay compromiso hemodinámico).'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Piel y mucosas
+    hallazgoTexto: 'Palidez, sudoración fría.'
+    esHallazgoRelevante: 1
+  examenesDisponibles:
+  - nombreExamen: 'Electrocardiograma'
+    resultado: 'Supradesnivel del segmento ST en derivaciones anteriores.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Marcadores cardíacos (troponina)'
+    resultado: 'Troponina elevada, con curva ascendente.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Exploración clínica del dolor'
+    resultado: 'Dolor retroesternal opresivo, EVA 8/10.'
+    esExamenPertinente: 1
+  preguntasClave:
+  - idPregunta: sca_inicio_dolor
+    preguntaSugerida: '¿Cuándo comenzó el dolor?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - cuando
+      - dol
+    - palabras:
+      - empez
+      - dol
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Hace unos 30 minutos, de repente.'
+    esPreguntaClave: 1
+  - idPregunta: sca_caracteristica_dolor
+    preguntaSugerida: '¿Cómo describe el dolor?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - como
+      - dol
+    - palabras:
+      - opresivo
+    - palabras:
+      - peso
+      - pecho
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Como un peso fuerte en el pecho, opresivo.'
+    esPreguntaClave: 1
+  - idPregunta: sca_irradiacion
+    preguntaSugerida: '¿El dolor se corre a algún lado?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - dol
+      - irradia
+    - palabras:
+      - dol
+      - corre
+    - palabras:
+      - dol
+      - brazo
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, al brazo izquierdo y al cuello.'
+    esPreguntaClave: 1
+  - idPregunta: sca_sintomas_asociados
+    preguntaSugerida: '¿Ha tenido náuseas o sudoración?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - nause
+    - palabras:
+      - sud
+    - palabras:
+      - vomit
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, estoy sudando frío y con ganas de vomitar.'
+    esPreguntaClave: 1
+  - idPregunta: sca_antecedente_cardiaco
+    preguntaSugerida: '¿Antecedentes de enfermedades del corazón?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - cardi
+    - palabras:
+      - corazon
+    - palabras:
+      - infarto
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Tuve un infarto hace dos años.'
+    esPreguntaClave: 1
+  - idPregunta: sca_factores_riesgo
+    preguntaSugerida: '¿Es hipertenso, diabético o fuma?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - hipertens
+    - palabras:
+      - diabet
+    - palabras:
+      - fum
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, soy hipertenso y diabético, y fumo.'
+    esPreguntaClave: 1
+  - idPregunta: sca_relacion_reposo
+    preguntaSugerida: '¿El dolor cede con el reposo?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - dol
+      - repos
+    - palabras:
+      - cede
+      - repos
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'No, sigue igual aunque estoy sentado.'
+    esPreguntaClave: 1
+  respuestaGenericaSinMatch: 'No estoy segura de a qué se refiere con eso.'
+  diagnosticoEsperado: 'Síndrome Coronario Agudo con supradesnivel del ST (IAM tipo STEMI).'
+  conjuntosPalabrasClaveDiagnostico:
+  - palabras:
+    - infarto
+  - palabras:
+    - sca
+  - palabras:
+    - sindrome
+    - coronario
+  - palabras:
+    - stemi
+  accionesCriticas:
+  - descripcion: 'ECG de 12 derivaciones dentro de los primeros 10 minutos, monitorización continua y vía venosa permeable'
+    tipo: 4
+    idReferencia: 'manejo_ecg_monitor_via'
+    peso: 50
+  - descripcion: 'Activar el protocolo de reperfusión / traslado oportuno'
+    tipo: 4
+    idReferencia: 'manejo_activar_reperfusion'
+    peso: 50
+  erroresFrecuentes:
+  - descripcion: 'No preguntar por la irradiación del dolor'
+    idReferenciaCondicion: 'omitio:sca_irradiacion'
+    retroalimentacion: 'La irradiación a brazo izquierdo, cuello o mandíbula aumenta la probabilidad de origen isquémico.'
+  - descripcion: 'No preguntar por la duración exacta del dolor'
+    idReferenciaCondicion: 'omitio:sca_inicio_dolor'
+    retroalimentacion: 'El tiempo de evolución define la ventana de reperfusión y la urgencia del traslado.'
+  - descripcion: 'No tomar el ECG de forma oportuna'
+    idReferenciaCondicion: 'omitio:Electrocardiograma'
+    retroalimentacion: 'El ECG de 12 derivaciones debe realizarse dentro de los primeros 10 minutos ante todo dolor torácico sugerente.'
+  - descripcion: 'No cuantificar la intensidad del dolor (EVA)'
+    idReferenciaCondicion: 'omitio:Exploración clínica del dolor'
+    retroalimentacion: 'La EVA permite objetivar el dolor, seguir la respuesta al tratamiento y priorizar la atención.'
+  datosAdministrativos:
+    nombrePacienteFicticio: 'Alarcón Bravo, Jorge'
+    sexoPaciente: Masculino
+    edadPaciente: '59 años'
+    nombreEstablecimiento: 'Hospital Regional Simulado — Servicio de Urgencias'

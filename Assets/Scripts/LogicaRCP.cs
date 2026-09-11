@@ -7,6 +7,10 @@ public class LogicaRCP : MonoBehaviour
     [Header("Control de Estado")]
     public bool modoCalibracion = true; // ✅ MANTENER MARCADO mientras ajustas el cubo con el calibrador
 
+    // Congela Update() por completo (GestorMenuPausa) sin tocar ningún contador.
+    private bool pausado = false;
+    public void SetPausado(bool valor) => pausado = valor;
+
     [Header("Referencias OVR")]
     public OVRHand manoIzquierda;
     public OVRHand manoDerecha;
@@ -123,6 +127,8 @@ public class LogicaRCP : MonoBehaviour
 
     void Update()
     {
+        if (pausado) return;
+
         // ================================================================
         // 1. MODO CALIBRACIÓN
         // ================================================================
@@ -131,7 +137,7 @@ public class LogicaRCP : MonoBehaviour
             if (pechoVisual != null)
                 alturaInicialPechoY = pechoVisual.position.y;
 
-            ActualizarPanelManos("MODO CALIBRACIÓN\n(Ajusta y desmarca)", Color.cyan);
+            ActualizarPanelManos("MODO CALIBRACIÓN\n(Ajusta · menú de pausa → RCP)", Color.cyan);
             LimpiarOtrosPaneles();
             return;
         }

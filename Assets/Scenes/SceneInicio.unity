@@ -288,10 +288,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 134800462}
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 100004, guid: 126d619cf4daa52469682f85c1378b4a,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 100031}
     - targetCorrespondingSourceObject: {fileID: 100006, guid: 126d619cf4daa52469682f85c1378b4a,
         type: 3}
       insertIndex: -1
@@ -305,78 +301,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 100007}
   m_SourcePrefab: {fileID: 100100000, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
---- !u!1 &100030 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 100004, guid: 126d619cf4daa52469682f85c1378b4a,
-    type: 3}
-  m_PrefabInstance: {fileID: 100000}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &100031
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 555725d48e9051a4bb6b8d45178c2fdd, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  projectionSurfaceType: 0
-  overlayType: 1
-  compositionDepth: -1
-  hidden: 0
-  overridePerLayerColorScaleAndOffset: 0
-  colorScale: {x: 1, y: 1, z: 1, w: 1}
-  colorOffset: {x: 0, y: 0, z: 0, w: 0}
-  passthroughLayerResumed:
-    m_PersistentCalls:
-      m_Calls: []
-  colorMapEditorType_: 0
-  colorMapEditorGradient:
-    serializedVersion: 2
-    key0: {r: 0, g: 0, b: 0, a: 1}
-    key1: {r: 1, g: 1, b: 1, a: 1}
-    key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 65535
-    ctime2: 0
-    ctime3: 0
-    ctime4: 0
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 2
-    m_NumAlphaKeys: 2
-  colorMapEditorContrast: 0
-  colorMapEditorBrightness: 0
-  colorMapEditorPosterize: 0
-  colorMapEditorSaturation: 0
-  _colorLutSourceTexture: {fileID: 0}
-  _colorLutTargetTexture: {fileID: 0}
-  _lutWeight: 1
-  _flipLutY: 1
-  serializedSurfaceGeometry: []
-  textureOpacity_: 1
-  edgeRenderingEnabled_: 0
-  edgeColor_: {r: 1, g: 1, b: 1, a: 1}
-  colorMapType: 0
 --- !u!4 &100001 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 482130, guid: 126d619cf4daa52469682f85c1378b4a,
@@ -762,14 +686,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 200000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f4b1e93a06d4c8fa5b2c8d719e5f603, type: 3}
+  m_Script: {fileID: 11500000, guid: 19c9628626130494b865a490996c38be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   esqueletoIzquierdo: {fileID: 100023}
   esqueletoDerecho: {fileID: 100013}
-  contenedorBotones: {fileID: 300001}
-  profundidadToque: 0.05
-  duracionFeedback: 0.15
+  graciaInicioSeg: 0.35
+  logSelecciones: 0
 --- !u!114 &200003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -783,7 +706,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   escenaSimuladorRCP: SceneSimulador
-  escenaRazonamientoClinico: 
+  escenaRazonamientoClinico: SceneDiagnostico
 --- !u!1 &300000
 GameObject:
   m_ObjectHideFlags: 0
@@ -794,6 +717,7 @@ GameObject:
   m_Component:
   - component: {fileID: 300001}
   - component: {fileID: 300002}
+  - component: {fileID: 300003}
   m_Layer: 0
   m_Name: Canvas_MenuPrincipal
   m_TagString: Untagged
@@ -810,7 +734,7 @@ RectTransform:
   m_GameObject: {fileID: 300000}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 1}
-  m_LocalScale: {x: 0.002, y: 0.002, z: 0.002}
+  m_LocalScale: {x: 0.0012, y: 0.0012, z: 0.0012}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 300101}
@@ -845,6 +769,24 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &300003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab551f4758162ad49919db05bace48eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objetivo: {fileID: 788700914}
+  distancia: 0.6
+  alturaRelativa: -0.05
+  desplazamientoLateral: 0
+  suavizado: 8
+  soloYaw: 1
 --- !u!1 &300004
 GameObject:
   m_ObjectHideFlags: 0
@@ -923,9 +865,9 @@ GameObject:
   m_Component:
   - component: {fileID: 300011}
   - component: {fileID: 300012}
-  - component: {fileID: 300013}
   - component: {fileID: 300014}
   - component: {fileID: 300015}
+  - component: {fileID: 300017}
   m_Layer: 0
   m_Name: Boton_Opcion1
   m_TagString: Untagged
@@ -983,62 +925,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &300013
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 300010}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 300012}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 200003}
-        m_TargetAssemblyTypeName: GestorNavegacionMenu, Assembly-CSharp
-        m_MethodName: IniciarSimulacionRCP
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!222 &300014
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1057,8 +943,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cb591fbb5dcda3a42b75cc60ab040466, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   colorNormal: {r: 0.047, g: 0.18, b: 0.204, a: 0.88}
   colorHover: {r: 0.09, g: 0.32, b: 0.36, a: 0.92}
   colorPresionado: {r: 0.02, g: 0.1, b: 0.12, a: 0.95}
@@ -1066,6 +952,38 @@ MonoBehaviour:
   glowAlphaNormal: 0.35
   glowAlphaHover: 1
   velocidad: 10
+--- !u!114 &300017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7616d4e096970984db9d07c947c88efe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profundidadToque: 0.05
+  capa: 0
+  feedbackVisual: {fileID: 300015}
+  duracionFlashSeleccion: 0.15
+  cooldownSeleccionSeg: 0.35
+  alSeleccionar:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 200003}
+        m_TargetAssemblyTypeName: GestorNavegacionMenu, Assembly-CSharp
+        m_MethodName: IniciarSimulacionRCP
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &300020
 GameObject:
   m_ObjectHideFlags: 0
@@ -1210,9 +1128,9 @@ GameObject:
   m_Component:
   - component: {fileID: 300031}
   - component: {fileID: 300032}
-  - component: {fileID: 300033}
   - component: {fileID: 300034}
   - component: {fileID: 300035}
+  - component: {fileID: 300037}
   m_Layer: 0
   m_Name: Boton_Opcion2
   m_TagString: Untagged
@@ -1270,62 +1188,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &300033
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 300030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 300032}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 200003}
-        m_TargetAssemblyTypeName: GestorNavegacionMenu, Assembly-CSharp
-        m_MethodName: IrARazonamientoClinico
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!222 &300034
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1344,8 +1206,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cb591fbb5dcda3a42b75cc60ab040466, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   colorNormal: {r: 0.047, g: 0.18, b: 0.204, a: 0.88}
   colorHover: {r: 0.09, g: 0.32, b: 0.36, a: 0.92}
   colorPresionado: {r: 0.02, g: 0.1, b: 0.12, a: 0.95}
@@ -1353,6 +1215,38 @@ MonoBehaviour:
   glowAlphaNormal: 0.35
   glowAlphaHover: 1
   velocidad: 10
+--- !u!114 &300037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7616d4e096970984db9d07c947c88efe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profundidadToque: 0.05
+  capa: 0
+  feedbackVisual: {fileID: 300035}
+  duracionFlashSeleccion: 0.15
+  cooldownSeleccionSeg: 0.35
+  alSeleccionar:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 200003}
+        m_TargetAssemblyTypeName: GestorNavegacionMenu, Assembly-CSharp
+        m_MethodName: IrARazonamientoClinico
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &300040
 GameObject:
   m_ObjectHideFlags: 0
@@ -1497,9 +1391,9 @@ GameObject:
   m_Component:
   - component: {fileID: 300051}
   - component: {fileID: 300052}
-  - component: {fileID: 300053}
   - component: {fileID: 300054}
   - component: {fileID: 300055}
+  - component: {fileID: 300057}
   m_Layer: 0
   m_Name: Boton_Opcion3
   m_TagString: Untagged
@@ -1557,62 +1451,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &300053
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 300050}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 300052}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 200003}
-        m_TargetAssemblyTypeName: GestorNavegacionMenu, Assembly-CSharp
-        m_MethodName: Salir
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!222 &300054
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1631,8 +1469,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cb591fbb5dcda3a42b75cc60ab040466, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   colorNormal: {r: 0.047, g: 0.18, b: 0.204, a: 0.88}
   colorHover: {r: 0.09, g: 0.32, b: 0.36, a: 0.92}
   colorPresionado: {r: 0.02, g: 0.1, b: 0.12, a: 0.95}
@@ -1640,6 +1478,38 @@ MonoBehaviour:
   glowAlphaNormal: 0.35
   glowAlphaHover: 1
   velocidad: 10
+--- !u!114 &300057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7616d4e096970984db9d07c947c88efe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profundidadToque: 0.05
+  capa: 0
+  feedbackVisual: {fileID: 300055}
+  duracionFlashSeleccion: 0.15
+  cooldownSeleccionSeg: 0.35
+  alSeleccionar:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 200003}
+        m_TargetAssemblyTypeName: GestorNavegacionMenu, Assembly-CSharp
+        m_MethodName: Salir
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &300060
 GameObject:
   m_ObjectHideFlags: 0
@@ -2318,6 +2188,12 @@ Transform:
   - {fileID: 1581785013}
   m_Father: {fileID: 100002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &788700914 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 400002, guid: 126d619cf4daa52469682f85c1378b4a,
+    type: 3}
+  m_PrefabInstance: {fileID: 100000}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1344325318
 GameObject:
   m_ObjectHideFlags: 0

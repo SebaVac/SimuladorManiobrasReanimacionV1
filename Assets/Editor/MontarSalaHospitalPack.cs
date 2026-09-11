@@ -163,14 +163,6 @@ public static class MontarSalaHospitalPack
                 new Vector3(-5.0f, 1.378f, az), Quaternion.Euler(0f, 90f, 0f), ENV_SCALE);
         }
 
-        // ── DESHABILITAR PASSTHROUGH (modo VR puro) ────────────────────────────
-        var passthrough = Object.FindObjectOfType<OVRPassthroughLayer>();
-        if (passthrough != null)
-        {
-            Undo.RecordObject(passthrough.gameObject, "Disable Passthrough");
-            passthrough.gameObject.SetActive(false);
-        }
-
         // ── DIRECTIONAL LIGHT → BAKED ──────────────────────────────────────────
         foreach (var light in Object.FindObjectsOfType<Light>())
         {

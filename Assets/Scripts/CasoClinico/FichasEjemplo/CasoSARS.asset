@@ -1,0 +1,166 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0059c866089bbe24c9d13b586730ee9e, type: 3}
+  m_Name: CasoSARS
+  m_EditorClassIdentifier:
+  idCaso: CASO-SARS
+  nombreCaso: 'Síndrome Respiratorio Agudo Grave (SARS)'
+  motivoConsulta: 'Tengo fiebre, me duele todo el cuerpo y hace unos días que me cuesta respirar.'
+  antecedentesRelevantes:
+  - 'Viaje reciente a zona con brote activo (o contacto con caso confirmado).'
+  - 'Sin comorbilidades relevantes.'
+  signosVitales:
+    frecuenciaCardiaca: 105
+    frecuenciaRespiratoria: 26
+    presionArterial: 115/75
+    saturacionO2: 90
+    temperatura: 38.2
+  hallazgosPorRegion:
+  - regionAnatomica: Cabeza y cuello
+    hallazgoTexto: 'Refiere cefalea; sin adenopatías.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Tórax anterior
+    hallazgoTexto: 'Taquipnea, leve uso de musculatura accesoria.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Tórax posterior
+    hallazgoTexto: 'Crépitos difusos bilaterales.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Precordio
+    hallazgoTexto: 'Taquicardia sinusal.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Abdomen
+    hallazgoTexto: 'Sin hallazgos relevantes.'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Extremidades
+    hallazgoTexto: 'Refiere mialgias; sin edema.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Piel y mucosas
+    hallazgoTexto: 'Cianosis peribucal leve; piel con calofríos.'
+    esHallazgoRelevante: 1
+  examenesDisponibles:
+  - nombreExamen: 'Pruebas de sangre'
+    resultado: 'Leucopenia con linfopenia, PCR elevada.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Secreción respiratoria (PCR viral)'
+    resultado: 'PCR positiva para el agente causal.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Radiografía de tórax'
+    resultado: 'Infiltrados bilaterales, patrón en vidrio esmerilado.'
+    esExamenPertinente: 1
+  preguntasClave:
+  - idPregunta: sars_nexo
+    preguntaSugerida: '¿Ha viajado recientemente o tenido contacto con alguien enfermo?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - viaj
+    - palabras:
+      - contact
+      - enferm
+    - palabras:
+      - brote
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Volví hace una semana de un viaje donde había un brote.'
+    esPreguntaClave: 1
+  - idPregunta: sars_fiebre
+    preguntaSugerida: '¿Tiene fiebre? ¿De cuánto?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - fiebr
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, como 38 grados, con calofríos.'
+    esPreguntaClave: 1
+  - idPregunta: sars_mialgias
+    preguntaSugerida: '¿Le duele el cuerpo?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - dol
+      - cuerpo
+    - palabras:
+      - mialgia
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, todo el cuerpo, sobre todo las piernas.'
+    esPreguntaClave: 1
+  - idPregunta: sars_cefalea
+    preguntaSugerida: '¿Le duele la cabeza?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - dol
+      - cabeza
+    - palabras:
+      - cefalea
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, harto.'
+    esPreguntaClave: 1
+  - idPregunta: sars_disnea
+    preguntaSugerida: '¿Ha notado que le cuesta respirar?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - cuesta
+      - respir
+    - palabras:
+      - falta
+      - aire
+    - palabras:
+      - disnea
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, sobre todo cuando camino.'
+    esPreguntaClave: 1
+  - idPregunta: sars_tos
+    preguntaSugerida: '¿Ha tenido tos?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - tos
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Un poco, seca.'
+    esPreguntaClave: 1
+  respuestaGenericaSinMatch: 'No estoy segura de a qué se refiere con eso.'
+  diagnosticoEsperado: 'Síndrome Respiratorio Agudo Grave (SARS).'
+  conjuntosPalabrasClaveDiagnostico:
+  - palabras:
+    - sars
+  - palabras:
+    - respiratorio
+    - agudo
+    - grave
+  - palabras:
+    - sindrome
+    - respiratorio
+  accionesCriticas:
+  - descripcion: 'Aislamiento / precauciones apenas se sospecha, con monitorización continua de SatO2'
+    tipo: 4
+    idReferencia: 'manejo_aislamiento_monitor_sato2'
+    peso: 50
+  - descripcion: 'Preparar manejo escalonado (oxigenoterapia y eventual intubación)'
+    tipo: 4
+    idReferencia: 'manejo_escalonado_via_aerea'
+    peso: 50
+  erroresFrecuentes:
+  - descripcion: 'No indagar el nexo epidemiológico'
+    idReferenciaCondicion: 'omitio:sars_nexo'
+    retroalimentacion: 'El antecedente de viaje o contacto en contexto de brote es el dato que dispara las precauciones y el estudio dirigido.'
+  - descripcion: 'No valorar la cianosis ni la disnea progresiva'
+    idReferenciaCondicion: 'omitio:Piel y mucosas'
+    retroalimentacion: 'La cianosis peribucal y la disnea de esfuerzo indican hipoxemia significativa y necesidad de oxígeno.'
+  - descripcion: 'Retrasar el inicio de la oxigenoterapia'
+    idReferenciaCondicion: ''
+    retroalimentacion: 'Con SatO2 90% y disnea progresiva, la oxigenoterapia no debe esperar a la confirmación diagnóstica.'
+  datosAdministrativos:
+    nombrePacienteFicticio: 'Torres Díaz, Valentina'
+    sexoPaciente: Femenino
+    edadPaciente: '29 años'
+    nombreEstablecimiento: 'Hospital Regional Simulado — Servicio de Urgencias'

@@ -1,0 +1,197 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0059c866089bbe24c9d13b586730ee9e, type: 3}
+  m_Name: CasoEPA
+  m_EditorClassIdentifier:
+  idCaso: CASO-EPA
+  nombreCaso: 'Edema Pulmonar Agudo (cardiogénico)'
+  motivoConsulta: 'Me cuesta mucho respirar, siento que me ahogo, sobre todo cuando estoy acostado.'
+  antecedentesRelevantes:
+  - 'Insuficiencia cardíaca conocida.'
+  - 'Hipertensión arterial.'
+  - 'Mal apego al tratamiento diurético en los últimos días.'
+  signosVitales:
+    frecuenciaCardiaca: 118
+    frecuenciaRespiratoria: 30
+    presionArterial: 160/95
+    saturacionO2: 87
+    temperatura: 36.7
+  hallazgosPorRegion:
+  - regionAnatomica: Cabeza y cuello
+    hallazgoTexto: 'Ingurgitación yugular presente.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Tórax anterior
+    hallazgoTexto: 'Uso de musculatura accesoria, tiraje intercostal, taquipnea.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Tórax posterior
+    hallazgoTexto: 'Crépitos bibasales bilaterales, matidez en las bases.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Precordio
+    hallazgoTexto: 'Taquicardia, tercer ruido (S3) audible.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Abdomen
+    hallazgoTexto: 'Reflujo hepatoyugular positivo.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Extremidades
+    hallazgoTexto: 'Edema bilateral con signo de fóvea en extremidades inferiores.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Piel y mucosas
+    hallazgoTexto: 'Piel fría y sudorosa, cianosis peribucal leve.'
+    esHallazgoRelevante: 1
+  examenesDisponibles:
+  - nombreExamen: 'Radiografía de tórax'
+    resultado: 'Infiltrado alveolar bilateral en "alas de mariposa", redistribución vascular, cardiomegalia.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Electrocardiograma'
+    resultado: 'Taquicardia sinusal, signos de sobrecarga ventricular izquierda.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Laboratorio'
+    resultado: 'BNP elevado (>500 pg/mL), troponina levemente elevada.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Ecocardiograma'
+    resultado: 'FEVI reducida (~35%), disfunción diastólica.'
+    esExamenPertinente: 1
+  preguntasClave:
+  - idPregunta: epa_inicio_disnea
+    preguntaSugerida: '¿Desde cuándo comenzó la dificultad para respirar?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - desde
+      - respir
+    - palabras:
+      - hace
+      - ahog
+    - palabras:
+      - empez
+      - respir
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Hace unas dos horas, y empeoró rápido.'
+    esPreguntaClave: 1
+  - idPregunta: epa_ortopnea
+    preguntaSugerida: '¿La dificultad empeora al acostarse?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - acost
+      - respir
+    - palabras:
+      - acost
+      - ahog
+    - palabras:
+      - dorm
+      - almohad
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, tengo que dormir sentado con varias almohadas.'
+    esPreguntaClave: 1
+  - idPregunta: epa_dpn
+    preguntaSugerida: '¿Se ha despertado en la noche con falta de aire?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - noch
+      - ahog
+    - palabras:
+      - noch
+      - aire
+    - palabras:
+      - despert
+      - ahog
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, anoche me desperté sintiendo que me ahogaba.'
+    esPreguntaClave: 1
+  - idPregunta: epa_tos
+    preguntaSugerida: '¿Tiene tos? ¿Cómo es?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - tos
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, con una flema rosada y espumosa.'
+    esPreguntaClave: 1
+  - idPregunta: epa_cardiopatia
+    preguntaSugerida: '¿Tiene antecedentes de enfermedades del corazón?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - cardi
+    - palabras:
+      - corazon
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, tengo insuficiencia cardíaca.'
+    esPreguntaClave: 1
+  - idPregunta: epa_adherencia
+    preguntaSugerida: '¿Ha tomado sus medicamentos como corresponde?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - medic
+    - palabras:
+      - diuretic
+    - palabras:
+      - tratamiento
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'La verdad, se me olvidó tomar el diurético estos últimos días.'
+    esPreguntaClave: 1
+  - idPregunta: epa_edema
+    preguntaSugerida: '¿Ha notado hinchazón en las piernas?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - hinch
+    - palabras:
+      - edema
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, se me hincharon harto los pies.'
+    esPreguntaClave: 1
+  respuestaGenericaSinMatch: 'No estoy segura de a qué se refiere con eso.'
+  diagnosticoEsperado: 'Edema pulmonar agudo de origen cardiogénico (descompensación de insuficiencia cardíaca).'
+  conjuntosPalabrasClaveDiagnostico:
+  - palabras:
+    - edema
+    - pulmonar
+  - palabras:
+    - edema
+    - cardiogenic
+  - palabras:
+    - insuficiencia
+    - cardiac
+  accionesCriticas:
+  - descripcion: 'Oxígeno suplementario inmediato y posición semisentada / Fowler alta'
+    tipo: 4
+    idReferencia: 'manejo_oxigeno_fowler'
+    peso: 50
+  - descripcion: 'Reconocer signos de sobrecarga de volumen (ingurgitación yugular, edema) como causa cardiogénica'
+    tipo: 4
+    idReferencia: 'reconocer_causa_cardiogenica'
+    peso: 50
+  erroresFrecuentes:
+  - descripcion: 'Omitir preguntar por ortopnea'
+    idReferenciaCondicion: 'omitio:epa_ortopnea'
+    retroalimentacion: 'La ortopnea es un dato clave de congestión pulmonar cardiogénica; siempre indagar la relación de la disnea con el decúbito.'
+  - descripcion: 'Omitir preguntar por disnea paroxística nocturna'
+    idReferenciaCondicion: 'omitio:epa_dpn'
+    retroalimentacion: 'Despertar de noche con falta de aire orienta fuertemente a insuficiencia cardíaca izquierda descompensada.'
+  - descripcion: 'No auscultar el tórax posterior'
+    idReferenciaCondicion: 'omitio:Tórax posterior'
+    retroalimentacion: 'Los crépitos bibasales bilaterales son un hallazgo central; auscultar ambos campos en su cara posterior.'
+  - descripcion: 'No valorar el edema de extremidades'
+    idReferenciaCondicion: 'omitio:Extremidades'
+    retroalimentacion: 'El edema con fóvea confirma sobrecarga de volumen y apoya el origen cardiogénico.'
+  - descripcion: 'Confundir el cuadro con una infección respiratoria pura'
+    idReferenciaCondicion: ''
+    retroalimentacion: 'La ausencia de fiebre, la ortopnea, las yugulares ingurgitadas y el edema orientan a causa cardiogénica, no infecciosa.'
+  datosAdministrativos:
+    nombrePacienteFicticio: 'Sepúlveda Rojas, Elena'
+    sexoPaciente: Femenino
+    edadPaciente: '68 años'
+    nombreEstablecimiento: 'Hospital Regional Simulado — Servicio de Urgencias'

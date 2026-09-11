@@ -79,22 +79,6 @@ public static class CrearEntornoSalaUrgencias
         Cubo(monitor, "Cuerpo_Monitor", pos(-1.4f,  1.4f,  1.0f), escala(0.06f,  0.34f, 0.44f), matMetal);
         Quad(monitor, "Pantalla",       pos(-1.37f, 1.4f,  1.0f), rot(0, 90, 0), escala(0.38f, 0.28f, 1), matScreen, ShadowCastingMode.Off);
 
-        // ── DESHABILITAR OVRPassthroughLayer ─────────────────────────────
-        // Cambio de MR a VR puro: el passthrough ya no se usará
-#pragma warning disable CS0618
-        var passthrough = Object.FindObjectOfType<OVRPassthroughLayer>();
-#pragma warning restore CS0618
-        if (passthrough != null)
-        {
-            Undo.RecordObject(passthrough, "Disable OVRPassthroughLayer");
-            passthrough.enabled = false;
-            Debug.Log("[EntornoSalaUrgencias] OVRPassthroughLayer deshabilitado.");
-        }
-        else
-        {
-            Debug.LogWarning("[EntornoSalaUrgencias] OVRPassthroughLayer no encontrado — deshabilitalo manualmente en el Inspector.");
-        }
-
         // ── DIRECTIONAL LIGHT → BAKED ─────────────────────────────────────
 #pragma warning disable CS0618
         foreach (var l in Object.FindObjectsOfType<Light>())

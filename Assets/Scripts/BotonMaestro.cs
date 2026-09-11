@@ -1,13 +1,21 @@
 using UnityEngine;
 using TMPro;
 
-public class BotonMaestro : MonoBehaviour
+/// <summary>
+/// Máquina de modo global de SceneSimulador: Calibración ↔ RCP. Ya NO vive en un
+/// botón físico (los cubos Boton_Start_RCP / Boton_Selector_Movimiento se
+/// eliminaron por diseño); este componente vive en un GO persistente (GestorRCP)
+/// y su <see cref="Start"/> deja la escena en modo Calibración. El cambio de modo
+/// se dispara desde el ítem "Cambiar de modo" del menú de pausa
+/// (<see cref="AlternarModo"/>, con etiqueta dinámica vía <see cref="IEtiquetaDinamica"/>).
+/// </summary>
+public class BotonMaestro : MonoBehaviour, IEtiquetaDinamica
 {
     [Header("Scripts a Controlar")]
     public CalibradorPosicion scriptCalibrador; // El que mueve el cuerpo
     public LogicaRCP scriptJuego;               // El que hace la simulación
 
-    [Header("Visuales del Botón")]
+    [Header("Visuales (opcional — hoy sin botón físico)")]
     public Renderer miRenderer;
     public Color colorModoConfig = Color.blue; // Azul = Configurando
     public Color colorModoJuego = Color.red;   // Rojo = Jugando (No tocar configuración)
@@ -23,13 +31,19 @@ public class BotonMaestro : MonoBehaviour
         AplicarEstado();
     }
 
-    // Se activa al tocar el cubo con la mano (dedo índice con física)
-    private void OnTriggerEnter(Collider other)
+    /// <summary>Alterna Configuración/RCP. Lo dispara el ítem "Cambiar de modo"
+    /// del menú de pausa (GestorMenuPausa).</summary>
+    public void AlternarModo()
     {
         enModoConfiguracion = !enModoConfiguracion;
         AplicarEstado();
         Debug.Log("Cambio de Modo Global: " + (enModoConfiguracion ? "CONFIGURACIÓN" : "RCP"));
     }
+
+    /// <summary>IEtiquetaDinamica: etiqueta del ítem de GestorMenuPausa, según
+    /// el modo al que se pasaría si se selecciona.</summary>
+    public string ObtenerEtiqueta() =>
+        enModoConfiguracion ? "Cambiar a modo Simulación" : "Cambiar a modo Calibración";
 
     void AplicarEstado()
     {
@@ -58,5 +72,9 @@ public class BotonMaestro : MonoBehaviour
             textoEstado.text  = enModoConfiguracion ? "Estado: CONFIGURACIÓN" : "Estado: RCP ACTIVO";
             textoEstado.color = enModoConfiguracion ? colorModoConfig : colorModoJuego;
         }
+
+        // NOTA: el ícono de pausa ya NO se gatea por modo. Ahora es el único
+        // acceso al cambio de modo, así que debe estar disponible siempre
+        // (GestorMenuPausa.pausaDisponible = true en la escena).
     }
 }

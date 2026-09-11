@@ -1,0 +1,150 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0059c866089bbe24c9d13b586730ee9e, type: 3}
+  m_Name: CasoBronquitisAguda
+  m_EditorClassIdentifier:
+  idCaso: CASO-BRONQ
+  nombreCaso: 'Bronquitis aguda'
+  motivoConsulta: 'Tengo tos hace unos días, al principio seca y ahora sale con flema, y me duele el pecho al toser.'
+  antecedentesRelevantes:
+  - 'Tabaquismo activo.'
+  - 'Cuadro viral / resfrío reciente o exposición al frío.'
+  signosVitales:
+    frecuenciaCardiaca: 88
+    frecuenciaRespiratoria: 18
+    presionArterial: 118/76
+    saturacionO2: 97
+    temperatura: 37.6
+  hallazgosPorRegion:
+  - regionAnatomica: Cabeza y cuello
+    hallazgoTexto: 'Congestión nasal leve, faringe levemente eritematosa.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Tórax anterior
+    hallazgoTexto: 'Roncus difusos, sin signos de consolidación.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Tórax posterior
+    hallazgoTexto: 'Murmullo conservado con roncus dispersos.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Precordio
+    hallazgoTexto: 'Sin alteraciones.'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Abdomen
+    hallazgoTexto: 'Sin hallazgos relevantes.'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Extremidades
+    hallazgoTexto: 'Mialgias leves, sin edema.'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Piel y mucosas
+    hallazgoTexto: 'Piel tibia, sin cianosis.'
+    esHallazgoRelevante: 0
+  examenesDisponibles:
+  - nombreExamen: 'Radiografía de tórax'
+    resultado: 'Sin infiltrados ni consolidación; campos pulmonares limpios (el diagnóstico es principalmente clínico).'
+    esExamenPertinente: 1
+  preguntasClave:
+  - idPregunta: bronq_inicio_tos
+    preguntaSugerida: '¿Cuándo comenzó la tos?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - cuando
+      - tos
+    - palabras:
+      - empez
+      - tos
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Hace unos cinco días.'
+    esPreguntaClave: 1
+  - idPregunta: bronq_tos_seca_a_productiva
+    preguntaSugerida: '¿La tos era seca al principio?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - tos
+      - seca
+    - palabras:
+      - seca
+      - flem
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, y ahora boto flema clara.'
+    esPreguntaClave: 1
+  - idPregunta: bronq_dolor_toracico
+    preguntaSugerida: '¿Le duele el pecho al toser?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - dol
+      - pecho
+    - palabras:
+      - tensa
+      - pecho
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, como que se me tensa el pecho.'
+    esPreguntaClave: 1
+  - idPregunta: bronq_fiebre
+    preguntaSugerida: '¿Tiene fiebre?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - fiebr
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Un poco, me he sentido afiebrado.'
+    esPreguntaClave: 1
+  - idPregunta: bronq_exposicion
+    preguntaSugerida: '¿Ha estado expuesto al frío o resfriado recientemente?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - frio
+    - palabras:
+      - resfri
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, hace una semana andaba resfriado.'
+    esPreguntaClave: 1
+  - idPregunta: bronq_tabaquismo
+    preguntaSugerida: '¿Fuma?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - fum
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, fumo desde hace varios años.'
+    esPreguntaClave: 1
+  respuestaGenericaSinMatch: 'No estoy segura de a qué se refiere con eso.'
+  diagnosticoEsperado: 'Bronquitis aguda.'
+  conjuntosPalabrasClaveDiagnostico:
+  - palabras:
+    - bronquitis
+  - palabras:
+    - bronquitis
+    - aguda
+  accionesCriticas:
+  - descripcion: 'Diferenciar de neumonía descartando consolidación o signos de gravedad'
+    tipo: 4
+    idReferencia: 'manejo_descartar_neumonia'
+    peso: 50
+  - descripcion: 'Entregar indicaciones de automanejo y señales de alarma para reconsultar'
+    tipo: 4
+    idReferencia: 'manejo_educacion_alarma'
+    peso: 50
+  erroresFrecuentes:
+  - descripcion: 'Indicar antibióticos sin justificación'
+    idReferenciaCondicion: ''
+    retroalimentacion: 'La bronquitis aguda es habitualmente viral; el antibiótico no acorta el curso y expone a efectos adversos y resistencia.'
+  - descripcion: 'No indagar el consumo de tabaco ni educar sobre su abandono'
+    idReferenciaCondicion: 'omitio:bronq_tabaquismo'
+    retroalimentacion: 'El tabaquismo perpetúa la inflamación bronquial; la consulta aguda es una oportunidad para la intervención breve.'
+  datosAdministrativos:
+    nombrePacienteFicticio: 'González Lagos, Patricia'
+    sexoPaciente: Femenino
+    edadPaciente: '41 años'
+    nombreEstablecimiento: 'Hospital Regional Simulado — Servicio de Urgencias'

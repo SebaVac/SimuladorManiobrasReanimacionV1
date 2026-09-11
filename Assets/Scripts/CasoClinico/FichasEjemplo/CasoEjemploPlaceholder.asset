@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0059c866089bbe24c9d13b586730ee9e, type: 3}
+  m_Name: CasoEjemploPlaceholder
+  m_EditorClassIdentifier:
+  idCaso: CASO-000
+  nombreCaso: Caso de ejemplo (placeholder)
+  motivoConsulta: 'PLACEHOLDER. Paciente de datos ficticios para validar la arquitectura
+    del modulo. No es un caso clinico real.'
+  antecedentesRelevantes:
+  - Antecedente ficticio 1 (placeholder)
+  - Antecedente ficticio 2 (placeholder)
+  signosVitales:
+    frecuenciaCardiaca: 92
+    frecuenciaRespiratoria: 18
+    presionArterial: 120/80
+    saturacionO2: 97
+    temperatura: 36.7
+  hallazgosPorRegion:
+  - regionAnatomica: Torax
+    hallazgoTexto: 'PLACEHOLDER: hallazgo de torax ficticio.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Abdomen
+    hallazgoTexto: 'PLACEHOLDER: hallazgo de abdomen ficticio.'
+    esHallazgoRelevante: 0
+  examenesDisponibles:
+  - nombreExamen: Hemograma
+    resultado: 'PLACEHOLDER: resultado de hemograma ficticio.'
+    esExamenPertinente: 1
+  - nombreExamen: Radiografia de torax
+    resultado: 'PLACEHOLDER: informe radiologico ficticio.'
+    esExamenPertinente: 1
+  preguntasClave:
+  - idPregunta: preg_dolor
+    preguntaSugerida: Donde le duele y desde cuando?
+    conjuntosPalabrasClave:
+    - palabras:
+      - dolor
+      - donde
+    - palabras:
+      - duele
+      - cuando
+    - palabras:
+      - localizacion
+      - dolor
+    palabrasClave:
+    - dolor
+    - duele
+    sinonimos:
+    - molestia
+    respuestaPaciente: 'PLACEHOLDER: el paciente describe el dolor (ficticio).'
+    esPreguntaClave: 1
+  - idPregunta: preg_alergias
+    preguntaSugerida: Tiene alergias a medicamentos?
+    conjuntosPalabrasClave:
+    - palabras:
+      - alergia
+      - medicamento
+    - palabras:
+      - alergias
+    - palabras:
+      - reaccion
+      - farmaco
+    palabrasClave:
+    - alergia
+    - alergias
+    sinonimos:
+    - reaccion
+    respuestaPaciente: 'PLACEHOLDER: el paciente niega alergias (ficticio).'
+    esPreguntaClave: 1
+  respuestaGenericaSinMatch: 'No estoy segura de a que se refiere con eso.'
+  diagnosticoEsperado: Diagnostico placeholder
+  conjuntosPalabrasClaveDiagnostico:
+  - palabras:
+    - diagnostico
+    - placeholder
+  - palabras:
+    - caso
+    - ejemplo
+  accionesCriticas:
+  - descripcion: Preguntar por el dolor (anamnesis)
+    tipo: 0
+    idReferencia: preg_dolor
+    peso: 20
+  - descripcion: Examinar el torax
+    tipo: 1
+    idReferencia: Torax
+    peso: 20
+  - descripcion: Solicitar hemograma
+    tipo: 2
+    idReferencia: Hemograma
+    peso: 15
+  - descripcion: Iniciar manejo con oxigeno
+    tipo: 4
+    idReferencia: manejo_oxigeno
+    peso: 25
+  - descripcion: Solicitar TAC (accion que el jugador de prueba NO realiza)
+    tipo: 2
+    idReferencia: TAC
+    peso: 20
+  erroresFrecuentes:
+  - descripcion: No se solicito la TAC indicada
+    idReferenciaCondicion: 'omitio:TAC'
+    retroalimentacion: 'PLACEHOLDER: recordar solicitar imagen avanzada cuando corresponde.'

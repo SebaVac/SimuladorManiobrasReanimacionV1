@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0059c866089bbe24c9d13b586730ee9e, type: 3}
+  m_Name: CasoNeumonia
+  m_EditorClassIdentifier:
+  idCaso: CASO-NAC
+  nombreCaso: 'Neumonía adquirida en la comunidad'
+  motivoConsulta: 'Tengo fiebre alta, me cuesta respirar y tengo un dolor fuerte en el pecho al respirar hondo.'
+  antecedentesRelevantes:
+  - 'Adulto mayor (o inmunosupresión).'
+  - 'EPOC previo / tabaquismo.'
+  - 'Sin hospitalización reciente (neumonía de la comunidad).'
+  signosVitales:
+    frecuenciaCardiaca: 112
+    frecuenciaRespiratoria: 28
+    presionArterial: 105/68
+    saturacionO2: 90
+    temperatura: 39.1
+  hallazgosPorRegion:
+  - regionAnatomica: Cabeza y cuello
+    hallazgoTexto: 'Sin adenopatías relevantes.'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Tórax anterior
+    hallazgoTexto: 'Crépitos localizados, murmullo disminuido en la zona afectada.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Tórax posterior
+    hallazgoTexto: 'Matidez y broncofonía/egofonía en la zona de consolidación.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Precordio
+    hallazgoTexto: 'Taquicardia.'
+    esHallazgoRelevante: 1
+  - regionAnatomica: Abdomen
+    hallazgoTexto: 'Sin hallazgos relevantes (posible dolor referido si la base derecha está comprometida).'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Extremidades
+    hallazgoTexto: 'Sin edema; posible cianosis distal si hay hipoxemia severa.'
+    esHallazgoRelevante: 0
+  - regionAnatomica: Piel y mucosas
+    hallazgoTexto: 'Piel caliente y sudorosa; cianosis peribucal si el cuadro es grave.'
+    esHallazgoRelevante: 1
+  examenesDisponibles:
+  - nombreExamen: 'Radiografía de tórax'
+    resultado: 'Consolidación con broncograma aéreo en lóbulo inferior derecho.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Hemograma'
+    resultado: 'Leucocitosis con desviación a izquierda.'
+    esExamenPertinente: 1
+  - nombreExamen: 'Cultivo de secreción'
+    resultado: 'Pendiente / positivo según el agente causal.'
+    esExamenPertinente: 1
+  preguntasClave:
+  - idPregunta: nac_inicio_fiebre
+    preguntaSugerida: '¿Hace cuánto tiene fiebre?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - hace
+      - fiebr
+    - palabras:
+      - desde
+      - fiebr
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Desde ayer, muy alta, con calofríos.'
+    esPreguntaClave: 1
+  - idPregunta: nac_tos_productiva
+    preguntaSugerida: '¿Tiene tos? ¿Con flema?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - tos
+      - flem
+    - palabras:
+      - flem
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, con flema amarillo-verdosa.'
+    esPreguntaClave: 1
+  - idPregunta: nac_dolor_pleuritico
+    preguntaSugerida: '¿Le duele el pecho al respirar o toser?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - dol
+      - pecho
+    - palabras:
+      - punzante
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, un dolor punzante de este lado.'
+    esPreguntaClave: 1
+  - idPregunta: nac_disnea
+    preguntaSugerida: '¿Le cuesta respirar?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - cuesta
+      - respir
+    - palabras:
+      - falta
+      - aire
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Sí, respiro rápido y corto.'
+    esPreguntaClave: 1
+  - idPregunta: nac_contacto
+    preguntaSugerida: '¿Ha tenido contacto con alguien enfermo?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - contact
+      - enferm
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'No que yo sepa.'
+    esPreguntaClave: 1
+  - idPregunta: nac_comorbilidad
+    preguntaSugerida: '¿Tiene alguna enfermedad crónica?'
+    conjuntosPalabrasClave:
+    - palabras:
+      - enfermedad
+      - cronic
+    - palabras:
+      - epoc
+    palabrasClave: []
+    sinonimos: []
+    respuestaPaciente: 'Tengo EPOC.'
+    esPreguntaClave: 1
+  respuestaGenericaSinMatch: 'No estoy segura de a qué se refiere con eso.'
+  diagnosticoEsperado: 'Neumonía adquirida en la comunidad.'
+  conjuntosPalabrasClaveDiagnostico:
+  - palabras:
+    - neumonia
+  - palabras:
+    - neumonia
+    - comunidad
+  - palabras:
+    - pulmonia
+  accionesCriticas:
+  - descripcion: 'Posicionar en semifowler e iniciar oxigenoterapia si hay hipoxemia'
+    tipo: 4
+    idReferencia: 'manejo_semifowler_o2'
+    peso: 50
+  - descripcion: 'Reconocer signos de gravedad (confusión, hipotensión, taquipnea severa)'
+    tipo: 4
+    idReferencia: 'manejo_reconocer_gravedad'
+    peso: 50
+  erroresFrecuentes:
+  - descripcion: 'No auscultar comparativamente ambos campos pulmonares'
+    idReferenciaCondicion: 'omitio:Tórax anterior'
+    retroalimentacion: 'La comparación entre ambos hemitórax hace evidente la asimetría del murmullo y localiza la consolidación.'
+  - descripcion: 'Omitir preguntar por dolor pleurítico'
+    idReferenciaCondicion: 'omitio:nac_dolor_pleuritico'
+    retroalimentacion: 'El dolor que aumenta con la inspiración profunda orienta a compromiso pleural por la consolidación.'
+  - descripcion: 'No solicitar la radiografía de tórax'
+    idReferenciaCondicion: 'omitio:Radiografía de tórax'
+    retroalimentacion: 'La radiografía confirma la consolidación y es el examen de referencia para el diagnóstico.'
+  - descripcion: 'No solicitar hemograma'
+    idReferenciaCondicion: 'omitio:Hemograma'
+    retroalimentacion: 'La leucocitosis con desviación a izquierda apoya el origen bacteriano y ayuda a la estratificación.'
+  datosAdministrativos:
+    nombrePacienteFicticio: 'Fernández Soto, Eduardo'
+    sexoPaciente: Masculino
+    edadPaciente: '72 años'
+    nombreEstablecimiento: 'Hospital Regional Simulado — Servicio de Urgencias'
