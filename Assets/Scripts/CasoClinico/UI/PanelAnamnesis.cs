@@ -52,8 +52,14 @@ public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
     [SerializeField] private SeleccionableToque botonContinuar;
     [Tooltip("Fondo del botón Continuar, para atenuarlo mientras está bloqueado.")]
     [SerializeField] private Image fondoBotonContinuar;
-    [SerializeField] private Color colorContinuarActivo   = new Color(0.047f, 0.180f, 0.204f, 0.90f);
-    [SerializeField] private Color colorContinuarBloqueado = new Color(0.05f, 0.09f, 0.10f, 0.55f);
+    [SerializeField] private Color colorContinuarActivo    = new Color(0.047f, 0.180f, 0.204f, 0.90f);
+    [Tooltip("Gris desaturado a propósito (2026-09-16): con el teal oscuro anterior el " +
+             "estado bloqueado se leía como 'una versión más oscura del botón activo' y no " +
+             "como 'inactivo' — pasaba desapercibido en visor.")]
+    [SerializeField] private Color colorContinuarBloqueado = new Color(0.32f, 0.32f, 0.32f, 0.65f);
+    [Tooltip("Texto de ayuda breve, visible solo mientras el botón Continuar está bloqueado.")]
+    [SerializeField] private TMP_Text textoAyudaBloqueado;
+    [SerializeField] private string mensajeAyudaBloqueado = "Hacé al menos una pregunta para continuar.";
 
     [Header("Sistema")]
     [SerializeField] private GestorCasoClinico gestorCaso;
@@ -72,6 +78,7 @@ public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
     {
         if (raiz != null) raiz.SetActive(false);
         if (botonContinuar != null) _feedbackContinuar = botonContinuar.GetComponent<BotonMenuFeedback>();
+        if (textoAyudaBloqueado != null) textoAyudaBloqueado.text = mensajeAyudaBloqueado;
         Reiniciar();
     }
 
@@ -198,6 +205,7 @@ public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
         if (_feedbackContinuar != null) _feedbackContinuar.enabled = habilitado;
         if (fondoBotonContinuar != null)
             fondoBotonContinuar.color = habilitado ? colorContinuarActivo : colorContinuarBloqueado;
+        if (textoAyudaBloqueado != null) textoAyudaBloqueado.gameObject.SetActive(!habilitado);
     }
 
     private void Continuar()

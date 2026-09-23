@@ -5,8 +5,9 @@ using UnityEngine;
 /// a CenterEyeAnchor (vía <see cref="AnclajeCabeza"/> en <see cref="raiz"/>),
 /// mismo tratamiento que el Panel de Introducción.
 ///
-/// Tres tarjetas (SeleccionableToque + BotonMenuFeedback) fijan el SubmodoCaso y
-/// disparan la selección aleatoria de caso; un botón "Volver" regresa a SceneInicio.
+/// Dos tarjetas (SeleccionableToque + BotonMenuFeedback) fijan el SubmodoCaso —
+/// "Guiado" se eliminó (2026-09-22): no tenía efecto propio, ver SubmodoCaso —
+/// y disparan la selección aleatoria de caso; un botón "Volver" regresa a SceneInicio.
 ///
 /// Controlador siempre activo; alterna la visibilidad de <see cref="raiz"/> según
 /// el estado del caso (visible solo mientras EstadoActual == Inactivo).
@@ -21,7 +22,6 @@ public class PanelSeleccionSubmodo : MonoBehaviour, IPanelOcultable
 
     [Header("Tarjetas (SeleccionableToque)")]
     [SerializeField] private SeleccionableToque tarjetaTutorial;
-    [SerializeField] private SeleccionableToque tarjetaGuiado;
     [SerializeField] private SeleccionableToque tarjetaEvaluacion;
     [SerializeField] private SeleccionableToque botonVolver;
 
@@ -38,7 +38,6 @@ public class PanelSeleccionSubmodo : MonoBehaviour, IPanelOcultable
     void OnEnable()
     {
         Suscribir(tarjetaTutorial,   ElegirTutorial,   true);
-        Suscribir(tarjetaGuiado,     ElegirGuiado,     true);
         Suscribir(tarjetaEvaluacion, ElegirEvaluacion, true);
         Suscribir(botonVolver,       Volver,           true);
         if (gestorCaso != null) gestorCaso.OnCambioEstado += AplicarVisibilidad;
@@ -47,7 +46,6 @@ public class PanelSeleccionSubmodo : MonoBehaviour, IPanelOcultable
     void OnDisable()
     {
         Suscribir(tarjetaTutorial,   ElegirTutorial,   false);
-        Suscribir(tarjetaGuiado,     ElegirGuiado,     false);
         Suscribir(tarjetaEvaluacion, ElegirEvaluacion, false);
         Suscribir(botonVolver,       Volver,           false);
         if (gestorCaso != null) gestorCaso.OnCambioEstado -= AplicarVisibilidad;
@@ -63,7 +61,6 @@ public class PanelSeleccionSubmodo : MonoBehaviour, IPanelOcultable
     // ── Selección de submodo ────────────────────────────────────────────────
 
     private void ElegirTutorial()   => Elegir(SubmodoCaso.Tutorial);
-    private void ElegirGuiado()     => Elegir(SubmodoCaso.Guiado);
     private void ElegirEvaluacion() => Elegir(SubmodoCaso.Evaluacion);
 
     private void Elegir(SubmodoCaso submodo)

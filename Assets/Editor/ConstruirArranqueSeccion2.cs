@@ -11,7 +11,7 @@ using UnityEngine.UI;
 ///   - SistemaCasoClinico (GestorCasoClinico + MotorEvaluacion + InteraccionPaciente)
 ///   - GestorNavegacion (GestorNavegacionMenu)
 ///   - SelectorCasoAleatorio (pool = [CasoEjemploPlaceholder])
-///   - PanelSeleccionSubmodo (3 tarjetas + volver, World Space fijo)
+///   - PanelSeleccionSubmodo (2 tarjetas + volver, World Space fijo)
 ///   - PanelIntroduccion (head-locked, solo motivoConsulta + tutorial condicional + Comenzar)
 ///
 /// Idempotente: borra las versiones previas antes de reconstruir.
@@ -122,13 +122,13 @@ public static class ConstruirArranqueSeccion2
               FontStyles.Normal, COLOR_TENUE, TextAlignmentOptions.Center,
               new Vector2(0f, 356f), new Vector2(840f, 30f));
 
-        // Tarjetas (separación 210 u ≈ 0.21 m para que no se solapen las zonas de pinch)
+        // Tarjetas (2, tras eliminar "Guiado" el 2026-09-22 — no tenía efecto propio,
+        // ver SubmodoCaso). Mismo espaciado de 210u que antes, centradas en el hueco
+        // que ocupaba la tercera tarjeta en vez de dejarlo vacío.
         var tTut = Tarjeta(canvas.transform, "TarjetaTutorial", "◆", "TUTORIAL",
-            "Introducción guiada a la interacción con el paciente virtual", 210f);
-        var tGui = Tarjeta(canvas.transform, "TarjetaGuiado", "◈", "GUIADO",
-            "Resolución de casos con asistencia y retroalimentación en tiempo real", 0f);
+            "Introducción guiada a la interacción con el paciente virtual", 105f);
         var tEva = Tarjeta(canvas.transform, "TarjetaEvaluacion", "◉", "EVALUACIÓN",
-            "Resolución sin asistencia · desempeño registrado para el resumen final", -210f);
+            "Resolución sin asistencia · desempeño registrado para el resumen final", -105f);
 
         // Volver
         var volver = BotonSimple(canvas.transform, "BotonVolver", "↩  VOLVER AL MENÚ PRINCIPAL",
@@ -144,7 +144,6 @@ public static class ConstruirArranqueSeccion2
 
         Set(comp, "raiz", raiz);
         Set(comp, "tarjetaTutorial", tTut);
-        Set(comp, "tarjetaGuiado", tGui);
         Set(comp, "tarjetaEvaluacion", tEva);
         Set(comp, "botonVolver", volver);
         Set(comp, "selectorCaso", selector);

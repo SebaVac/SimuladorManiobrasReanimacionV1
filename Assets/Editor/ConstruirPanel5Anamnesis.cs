@@ -23,9 +23,9 @@ public static class ConstruirPanel5Anamnesis
     static readonly Color COLOR_PANEL   = new Color(0.03f, 0.09f, 0.11f, 0.92f);
     static readonly Color COLOR_HISTORIAL = new Color(0.02f, 0.06f, 0.07f, 0.85f);
     static readonly Color COLOR_TARJETA = new Color(0.047f, 0.180f, 0.204f, 0.90f);
-    static readonly Color COLOR_BLOQUEADO = new Color(0.05f, 0.09f, 0.10f, 0.55f);
     static readonly Color COLOR_TEXTO   = new Color(0.90f, 0.96f, 0.97f, 1f);
     static readonly Color COLOR_ACENTO  = new Color(0.35f, 0.80f, 0.85f, 1f);
+    static readonly Color COLOR_TENUE   = new Color(0.62f, 0.74f, 0.78f, 1f);
 
     [MenuItem("Tools/Razonamiento Clínico/Construir Panel 5 (Anamnesis)")]
     public static void Construir()
@@ -56,7 +56,10 @@ public static class ConstruirPanel5Anamnesis
         SetFloat(anclaje, "distancia", 0.60f);
         SetFloat(anclaje, "alturaRelativa", -0.05f);
 
-        var canvas = NuevoCanvas("Canvas", raiz.transform, 700f, 620f);
+        // Alto 660 (era 620): +40 simétrico solo para dejar hueco debajo de
+        // BotonContinuar para el texto de ayuda del estado bloqueado (2026-09-16).
+        // No mueve ningún elemento existente, solo agranda el margen.
+        var canvas = NuevoCanvas("Canvas", raiz.transform, 700f, 660f);
         Fondo(canvas.transform, COLOR_PANEL);
 
         Texto(canvas.transform, "Titulo", "ANAMNESIS", 30, FontStyles.Bold, COLOR_TEXTO,
@@ -83,6 +86,10 @@ public static class ConstruirPanel5Anamnesis
               new Vector2(0f, -262f), new Vector2(580f, 48f), 20);
         var fondoContinuar = botonContinuar.GetComponent<Image>();
 
+        // Ayuda visible solo mientras Continuar está bloqueado (hueco nuevo del canvas).
+        var textoAyuda = Texto(canvas.transform, "TextoAyudaBloqueado", "", 16, FontStyles.Italic,
+              COLOR_TENUE, TextAlignmentOptions.Center, new Vector2(0f, -308f), new Vector2(580f, 26f));
+
         // ── Cableado ──────────────────────────────────────────────────────
         Set(comp, "raiz", raiz);
         Set(comp, "scroll", scroll);
@@ -92,6 +99,7 @@ public static class ConstruirPanel5Anamnesis
         Set(comp, "botonPreguntar", botonPreguntar);
         Set(comp, "botonContinuar", botonContinuar);
         Set(comp, "fondoBotonContinuar", fondoContinuar);
+        Set(comp, "textoAyudaBloqueado", textoAyuda);
         Set(comp, "gestorCaso", gestor);
         Set(comp, "interaccionPaciente", interaccion);
 

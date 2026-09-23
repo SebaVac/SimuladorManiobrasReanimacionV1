@@ -19,7 +19,7 @@ public class GestorCasoClinico : MonoBehaviour
 {
     [Header("Configuración del caso")]
     [SerializeField] private FichaCaso casoActual;
-    [SerializeField] private SubmodoCaso submodoActual = SubmodoCaso.Guiado;
+    [SerializeField] private SubmodoCaso submodoActual = SubmodoCaso.Tutorial;
 
     [Header("Subsistemas (asignar en Inspector)")]
     [SerializeField] private InteraccionPaciente interaccionPaciente;

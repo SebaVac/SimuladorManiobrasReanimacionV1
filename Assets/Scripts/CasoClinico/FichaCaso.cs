@@ -26,11 +26,13 @@ public enum TipoAccion
 }
 
 /// <summary>Submodo pedagógico con el que se juega un caso. Afecta el nivel de
-/// ayuda que muestra la UI, no la lógica de evaluación.</summary>
+/// ayuda que muestra la UI, no la lógica de evaluación.
+/// "Guiado" existió y se eliminó (2026-09-22): no tenía ningún efecto de
+/// comportamiento propio en ningún panel/gestor — era indistinguible de
+/// Evaluacion en todo el código, mantenerlo era complejidad sin función.</summary>
 public enum SubmodoCaso
 {
     Tutorial,    // explica las fases y guía paso a paso
-    Guiado,      // pistas contextuales sin revelar aciertos
     Evaluacion   // sin ayudas; evaluación pura
 }
 

@@ -24,7 +24,7 @@ public class ValidadorFlujoCasoClinico : MonoBehaviour
     public FichaCaso casoDePrueba;
 
     [Header("Submodo")]
-    public SubmodoCaso submodo = SubmodoCaso.Guiado;
+    public SubmodoCaso submodo = SubmodoCaso.Tutorial;
 
     private GestorCasoClinico gestor;
     private InteraccionPaciente interaccion;

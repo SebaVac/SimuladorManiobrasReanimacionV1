@@ -6,19 +6,20 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Construye en SceneDiagnostico el Panel 6 — Exámenes Complementarios
-/// (GameObject <c>Panel_ExamenesComplementarios</c>).
+/// Construye en SceneDiagnostico el Panel 9 — Debriefing (GameObject
+/// <c>Panel_Debriefing</c>).
 ///
-/// Estética teal diegética. Head-locked (AnclajeCabeza en Raiz, misma posición que
-/// Paneles 1/2/5/7). Lista de exámenes DINÁMICA: el builder deja un contenedor con
-/// VerticalLayoutGroup + un botón-template desactivado; PanelExamenesComplementarios
-/// instancia un botón por examen del caso en runtime. Área de resultados acumulativos
-/// con el mismo patrón de scroll del Panel 5 (ScrollRect + RectMask2D + ContentSizeFitter
-/// sobre un TMP que crece). Se activa solo en EstadoCasoClinico.ExamenesComplementarios.
+/// Estética teal diegética (consistente con el resto del módulo — a diferencia
+/// del Panel 7, que rompe estilo a propósito). Head-locked, mismo
+/// distancia/alturaRelativa que la mayoría de los paneles principales (0.60 /
+/// -0.05): a diferencia del ícono de pausa y la hoja de notas, este panel NO
+/// necesita esquivar a los demás porque nunca coexiste con ellos — Debriefing
+/// es un estado exclusivo, todos los demás paneles del módulo ya están
+/// ocultos para cuando este se muestra.
 ///
-/// Idempotente. Menú: Tools/Razonamiento Clínico/Construir Panel 6 (Exámenes)
+/// Idempotente. Menú: Tools/Razonamiento Clínico/Construir Panel 9 (Debriefing)
 /// </summary>
-public static class ConstruirPanel6Examenes
+public static class ConstruirPanel9Debriefing
 {
     static readonly Color COLOR_PANEL     = new Color(0.03f, 0.09f, 0.11f, 0.92f);
     static readonly Color COLOR_HISTORIAL = new Color(0.02f, 0.06f, 0.07f, 0.85f);
@@ -27,7 +28,7 @@ public static class ConstruirPanel6Examenes
     static readonly Color COLOR_TENUE     = new Color(0.62f, 0.74f, 0.78f, 1f);
     static readonly Color COLOR_ACENTO    = new Color(0.35f, 0.80f, 0.85f, 1f);
 
-    [MenuItem("Tools/Razonamiento Clínico/Construir Panel 6 (Exámenes)")]
+    [MenuItem("Tools/Razonamiento Clínico/Construir Panel 9 (Debriefing)")]
     public static void Construir()
     {
         var escena = EditorSceneManager.GetActiveScene();
@@ -38,16 +39,15 @@ public static class ConstruirPanel6Examenes
             return;
         }
 
-        Limpiar("Panel_ExamenesComplementarios");
+        Limpiar("Panel_Debriefing");
 
-        var gestor      = Object.FindObjectOfType<GestorCasoClinico>();
-        var interaccion = Object.FindObjectOfType<InteraccionPaciente>();
+        var gestor = Object.FindObjectOfType<GestorCasoClinico>();
         Transform centerEye = BuscarPorRuta("OVRCameraRig/TrackingSpace/CenterEyeAnchor");
-        if (gestor == null || interaccion == null)
-            Debug.LogWarning("[Panel6] No se encontró GestorCasoClinico / InteraccionPaciente.");
+        if (gestor == null)
+            Debug.LogWarning("[Panel9] No se encontró GestorCasoClinico en la escena.");
 
-        var ctrl = new GameObject("Panel_ExamenesComplementarios");
-        var comp = ctrl.AddComponent<PanelExamenesComplementarios>();
+        var ctrl = new GameObject("Panel_Debriefing");
+        var comp = ctrl.AddComponent<PanelDebriefing>();
 
         var raiz = new GameObject("Raiz");
         raiz.transform.SetParent(ctrl.transform, false);
@@ -56,114 +56,68 @@ public static class ConstruirPanel6Examenes
         SetFloat(anclaje, "distancia", 0.60f);
         SetFloat(anclaje, "alturaRelativa", -0.05f);
 
-        // Alto 720 (era 660): +60 simétrico solo para dejar hueco debajo de
-        // BotonContinuar para el texto de ayuda del estado bloqueado (2026-09-16).
-        // No mueve ningún elemento existente, solo agranda el margen. Mismo
-        // criterio que ConstruirPanel5Anamnesis, para consistencia entre ambos.
-        var canvas = NuevoCanvas("Canvas", raiz.transform, 760f, 720f);
+        var canvas = NuevoCanvas("Canvas", raiz.transform, 760f, 680f);
         Fondo(canvas.transform, COLOR_PANEL);
 
-        Texto(canvas.transform, "Titulo", "EXÁMENES COMPLEMENTARIOS", 26, FontStyles.Bold, COLOR_TEXTO,
-              TextAlignmentOptions.Center, new Vector2(0f, 292f), new Vector2(720f, 42f));
-        Linea(canvas.transform, "Regla", new Vector2(0f, 266f), 720f, COLOR_ACENTO);
+        // Jerarquía visual (2026-09-23): el diagnóstico es el titular del
+        // resumen (grande, arriba) — el puntaje bajó de tamaño y se movió
+        // debajo, con la aclaración de que el manejo terapéutico está
+        // pendiente (siempre puntúa 0 hoy; sin esto se leía como "el sistema
+        // está roto" en validación con usuarios). Ver PanelDebriefing.Poblar().
+        Texto(canvas.transform, "Titulo", "DEBRIEFING", 24, FontStyles.Bold, COLOR_TEXTO,
+              TextAlignmentOptions.Center, new Vector2(0f, 300f), new Vector2(700f, 40f));
+        Linea(canvas.transform, "Regla1", new Vector2(0f, 276f), 700f, COLOR_ACENTO);
 
-        // ── Columna izquierda: lista dinámica de exámenes ─────────────────
-        Texto(canvas.transform, "LblDisponibles", "DISPONIBLES", 16, FontStyles.Bold, COLOR_TENUE,
-              TextAlignmentOptions.Center, new Vector2(-185f, 230f), new Vector2(320f, 24f));
+        var diagnostico = Texto(canvas.transform, "TextoDiagnostico", "Diagnóstico: —", 32, FontStyles.Bold,
+              COLOR_TEXTO, TextAlignmentOptions.Center, new Vector2(0f, 225f), new Vector2(700f, 70f));
 
-        var contenedor = new GameObject("ContenedorExamenes", typeof(RectTransform));
-        contenedor.transform.SetParent(canvas.transform, false);
-        var rtCont = (RectTransform)contenedor.transform;
-        rtCont.anchoredPosition = new Vector2(-185f, 30f);
-        rtCont.sizeDelta = new Vector2(320f, 380f);
-        var vlg = contenedor.AddComponent<VerticalLayoutGroup>();
-        vlg.padding = new RectOffset(4, 4, 4, 4);
-        vlg.spacing = 12f;
-        vlg.childAlignment = TextAnchor.UpperCenter;
-        vlg.childControlWidth = true;  vlg.childForceExpandWidth = true;
-        vlg.childControlHeight = false; vlg.childForceExpandHeight = false;
+        var puntaje = Texto(canvas.transform, "TextoPuntaje", "Puntaje: — / —", 18, FontStyles.Normal,
+              COLOR_TENUE, TextAlignmentOptions.Center, new Vector2(0f, 150f), new Vector2(700f, 60f));
+        Linea(canvas.transform, "Regla2", new Vector2(0f, 110f), 700f, COLOR_ACENTO);
 
-        var prefab = CrearBotonExamenTemplate(canvas.transform);
-
-        // ── Columna derecha: resultados acumulativos scrolleables ─────────
-        Texto(canvas.transform, "LblResultados", "RESULTADOS", 16, FontStyles.Bold, COLOR_TENUE,
-              TextAlignmentOptions.Center, new Vector2(175f, 230f), new Vector2(360f, 24f));
-
-        TMP_Text textoResultados;
-        var scroll = ConstruirScroll(canvas.transform, new Vector2(175f, 35f), new Vector2(360f, 370f),
-                                     out textoResultados);
+        TMP_Text textoResumen;
+        var scroll = ConstruirScroll(canvas.transform, new Vector2(0f, -40f), new Vector2(680f, 280f),
+                                     out textoResumen);
 
         var scrollArriba = BotonSimple(canvas.transform, "BotonScrollArriba", "ANTERIORES",
-              new Vector2(105f, -175f), new Vector2(140f, 34f), 16);
+              new Vector2(-110f, -190f), new Vector2(140f, 34f), 16);
         var scrollAbajo  = BotonSimple(canvas.transform, "BotonScrollAbajo", "RECIENTES",
-              new Vector2(250f, -175f), new Vector2(140f, 34f), 16);
+              new Vector2(110f, -190f), new Vector2(140f, 34f), 16);
 
-        // ── Continuar ─────────────────────────────────────────────────────
-        var botonContinuar = BotonSimple(canvas.transform, "BotonContinuar", "CONTINUAR A REGISTRO DE DIAGNÓSTICO",
-              new Vector2(0f, -295f), new Vector2(560f, 46f), 20);
-        var fondoContinuar = botonContinuar.GetComponent<Image>();
+        var botonReintentar = BotonSimple(canvas.transform, "BotonReintentar", "REINTENTAR ESTE CASO",
+              new Vector2(-180f, -250f), new Vector2(330f, 54f), 18);
+        // Vuelve a PanelSeleccionSubmodo (Panel 2), no a SceneInicio — renombrado
+        // para no confundirse con "Salir al menú principal" del menú de pausa,
+        // que sí sigue yendo a SceneInicio (GestorMenuPausa.VolverAlMenuPrincipal).
+        var botonVolver = BotonSimple(canvas.transform, "BotonVolver", "VOLVER A SELECCIÓN DE CASO",
+              new Vector2(180f, -250f), new Vector2(330f, 54f), 18);
 
-        // Ayuda visible solo mientras Continuar está bloqueado (hueco nuevo del canvas).
-        var textoAyuda = Texto(canvas.transform, "TextoAyudaBloqueado", "", 15, FontStyles.Italic,
-              COLOR_TENUE, TextAlignmentOptions.Center, new Vector2(0f, -339f), new Vector2(560f, 24f));
-
-        // ── Cableado ──────────────────────────────────────────────────────
         Set(comp, "raiz", raiz);
-        Set(comp, "contenedorExamenes", contenedor.transform);
-        Set(comp, "prefabBotonExamen", prefab);
+        Set(comp, "textoPuntaje", puntaje);
+        Set(comp, "textoDiagnostico", diagnostico);
         Set(comp, "scroll", scroll);
-        Set(comp, "textoResultados", textoResultados);
+        Set(comp, "textoResumen", textoResumen);
         Set(comp, "botonScrollArriba", scrollArriba);
         Set(comp, "botonScrollAbajo", scrollAbajo);
-        Set(comp, "botonContinuar", botonContinuar);
-        Set(comp, "fondoBotonContinuar", fondoContinuar);
-        Set(comp, "textoAyudaBloqueado", textoAyuda);
+        Set(comp, "botonReintentar", botonReintentar);
+        Set(comp, "botonVolver", botonVolver);
         Set(comp, "gestorCaso", gestor);
-        Set(comp, "interaccionPaciente", interaccion);
 
         raiz.SetActive(false);
 
         EditorSceneManager.MarkSceneDirty(escena);
         EditorSceneManager.SaveScene(escena);
         Selection.activeGameObject = ctrl;
-        Debug.Log("[Panel6] Panel_ExamenesComplementarios construido y guardado en SceneDiagnostico.");
+        Debug.Log("[Panel9] Panel_Debriefing construido y guardado en SceneDiagnostico.");
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  Botón-template de examen (desactivado; se clona en runtime)
-    // ═══════════════════════════════════════════════════════════════════════
-
-    static GameObject CrearBotonExamenTemplate(Transform padre)
-    {
-        var go = new GameObject("PrefabBotonExamen", typeof(RectTransform), typeof(Image));
-        go.transform.SetParent(padre, false);
-        var rt = (RectTransform)go.transform;
-        rt.sizeDelta = new Vector2(300f, 48f);
-        go.GetComponent<Image>().color = COLOR_TARJETA;
-
-        var le = go.AddComponent<LayoutElement>();
-        le.preferredHeight = 48f;
-        le.minHeight = 40f;
-
-        var fb  = go.AddComponent<BotonMenuFeedback>();
-        var sel = go.AddComponent<SeleccionableToque>();
-        Set(sel, "feedbackVisual", fb);
-        SetFloat(sel, "profundidadToque", 0.05f);
-
-        Texto(go.transform, "Etiqueta", "(examen)", 17, FontStyles.Bold, COLOR_TEXTO,
-              TextAlignmentOptions.Center, Vector2.zero, new Vector2(280f, 40f));
-
-        go.SetActive(false);
-        return go;
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    //  Scroll (idéntico a ConstruirPanel5Anamnesis)
+    //  Scroll World Space (mismo patrón que los demás paneles del módulo)
     // ═══════════════════════════════════════════════════════════════════════
 
     static ScrollRect ConstruirScroll(Transform padre, Vector2 pos, Vector2 size, out TMP_Text texto)
     {
-        var go = new GameObject("Historial", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+        var go = new GameObject("Resumen", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
         go.transform.SetParent(padre, false);
         var rt = (RectTransform)go.transform;
         rt.anchoredPosition = pos;
@@ -173,7 +127,7 @@ public static class ConstruirPanel6Examenes
         img.color = COLOR_HISTORIAL;
         img.raycastTarget = false;
 
-        var goTxt = new GameObject("TextoResultados", typeof(RectTransform), typeof(ContentSizeFitter));
+        var goTxt = new GameObject("TextoResumen", typeof(RectTransform), typeof(ContentSizeFitter));
         goTxt.transform.SetParent(go.transform, false);
         var rtTxt = (RectTransform)goTxt.transform;
         rtTxt.anchorMin = new Vector2(0f, 1f);
@@ -185,7 +139,7 @@ public static class ConstruirPanel6Examenes
 
         var t = goTxt.AddComponent<TextMeshProUGUI>();
         t.text = string.Empty;
-        t.fontSize = 18;
+        t.fontSize = 19;
         t.color = COLOR_TEXTO;
         t.alignment = TextAlignmentOptions.TopLeft;
         t.enableWordWrapping = true;
@@ -212,7 +166,7 @@ public static class ConstruirPanel6Examenes
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  Helpers UI
+    //  HELPERS DE UI
     // ═══════════════════════════════════════════════════════════════════════
 
     static Canvas NuevoCanvas(string nombre, Transform padre, float w, float h)
@@ -306,7 +260,7 @@ public static class ConstruirPanel6Examenes
     static Transform BuscarPorRuta(string ruta)
     {
         var go = GameObject.Find(ruta);
-        if (go == null) Debug.LogWarning("[Panel6] No se encontró: " + ruta);
+        if (go == null) Debug.LogWarning("[Panel9] No se encontró: " + ruta);
         return go != null ? go.transform : null;
     }
 
@@ -314,7 +268,7 @@ public static class ConstruirPanel6Examenes
     {
         var so = new SerializedObject(comp);
         var p = so.FindProperty(campo);
-        if (p == null) { Debug.LogError("[Panel6] Campo no encontrado: " + campo + " en " + comp.GetType().Name); return; }
+        if (p == null) { Debug.LogError("[Panel9] Campo no encontrado: " + campo + " en " + comp.GetType().Name); return; }
         p.objectReferenceValue = valor;
         so.ApplyModifiedPropertiesWithoutUndo();
     }
@@ -323,7 +277,7 @@ public static class ConstruirPanel6Examenes
     {
         var so = new SerializedObject(comp);
         var p = so.FindProperty(campo);
-        if (p == null) { Debug.LogError("[Panel6] Campo no encontrado: " + campo); return; }
+        if (p == null) { Debug.LogError("[Panel9] Campo no encontrado: " + campo); return; }
         p.floatValue = valor;
         so.ApplyModifiedPropertiesWithoutUndo();
     }

@@ -56,7 +56,12 @@ public class PanelExamenesComplementarios : MonoBehaviour, IPanelOcultable
     [SerializeField] private SeleccionableToque botonContinuar;
     [SerializeField] private Image fondoBotonContinuar;
     [SerializeField] private Color colorContinuarActivo    = new Color(0.047f, 0.180f, 0.204f, 0.90f);
-    [SerializeField] private Color colorContinuarBloqueado = new Color(0.05f, 0.09f, 0.10f, 0.55f);
+    // Gris desaturado a propósito (2026-09-16), mismo criterio que PanelAnamnesis —
+    // ver su comentario para el porqué.
+    [SerializeField] private Color colorContinuarBloqueado = new Color(0.32f, 0.32f, 0.32f, 0.65f);
+    [Tooltip("Texto de ayuda breve, visible solo mientras el botón Continuar está bloqueado.")]
+    [SerializeField] private TMP_Text textoAyudaBloqueado;
+    [SerializeField] private string mensajeAyudaBloqueado = "Solicitá al menos un examen para continuar.";
 
     [Header("Sistema")]
     [SerializeField] private GestorCasoClinico gestorCaso;
@@ -75,6 +80,7 @@ public class PanelExamenesComplementarios : MonoBehaviour, IPanelOcultable
         if (raiz != null) raiz.SetActive(false);
         if (prefabBotonExamen != null) prefabBotonExamen.SetActive(false);
         if (botonContinuar != null) _feedbackContinuar = botonContinuar.GetComponent<BotonMenuFeedback>();
+        if (textoAyudaBloqueado != null) textoAyudaBloqueado.text = mensajeAyudaBloqueado;
         Reiniciar();
     }
 
@@ -240,6 +246,7 @@ public class PanelExamenesComplementarios : MonoBehaviour, IPanelOcultable
         if (_feedbackContinuar != null) _feedbackContinuar.enabled = habilitado;
         if (fondoBotonContinuar != null)
             fondoBotonContinuar.color = habilitado ? colorContinuarActivo : colorContinuarBloqueado;
+        if (textoAyudaBloqueado != null) textoAyudaBloqueado.gameObject.SetActive(!habilitado);
     }
 
     private void Continuar()
