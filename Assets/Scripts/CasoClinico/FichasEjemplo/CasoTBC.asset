@@ -11,14 +11,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0059c866089bbe24c9d13b586730ee9e, type: 3}
   m_Name: CasoTBC
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   idCaso: CASO-TBC
-  nombreCaso: 'Tuberculosis pulmonar'
-  motivoConsulta: 'Llevo varias semanas con una tos que no se me quita, y he bajado de peso sin querer.'
+  nombreCaso: Tuberculosis pulmonar
+  motivoConsulta: Llevo varias semanas con una tos que no se me quita, y he bajado
+    de peso sin querer.
   antecedentesRelevantes:
-  - 'Contacto reciente con persona con TBC confirmada.'
-  - 'Hacinamiento en el domicilio.'
-  - 'Sin antecedente documentado de vacunación BCG.'
+  - Contacto reciente con persona con TBC confirmada.
+  - Hacinamiento en el domicilio.
+  - "Sin antecedente documentado de vacunaci\xF3n BCG."
   signosVitales:
     frecuenciaCardiaca: 95
     frecuenciaRespiratoria: 20
@@ -27,42 +28,48 @@ MonoBehaviour:
     temperatura: 37.8
   hallazgosPorRegion:
   - regionAnatomica: Cabeza y cuello
-    hallazgoTexto: 'Adenopatías cervicales palpables, no dolorosas.'
+    hallazgoTexto: "Adenopat\xEDas cervicales palpables, no dolorosas."
     esHallazgoRelevante: 1
-  - regionAnatomica: Tórax anterior
-    hallazgoTexto: 'Murmullo pulmonar disminuido en los vértices.'
+  - regionAnatomica: "T\xF3rax anterior"
+    hallazgoTexto: "Murmullo pulmonar disminuido en los v\xE9rtices."
     esHallazgoRelevante: 1
-  - regionAnatomica: Tórax posterior
-    hallazgoTexto: 'Crépitos en los vértices, matidez apical.'
+  - regionAnatomica: "T\xF3rax posterior"
+    hallazgoTexto: "Cr\xE9pitos en los v\xE9rtices, matidez apical."
     esHallazgoRelevante: 1
   - regionAnatomica: Precordio
-    hallazgoTexto: 'Sin alteraciones.'
+    hallazgoTexto: Sin alteraciones.
     esHallazgoRelevante: 0
   - regionAnatomica: Abdomen
-    hallazgoTexto: 'Sin hallazgos relevantes.'
+    hallazgoTexto: Sin hallazgos relevantes.
     esHallazgoRelevante: 0
   - regionAnatomica: Extremidades
-    hallazgoTexto: 'Pérdida de masa muscular, aspecto caquéctico.'
+    hallazgoTexto: "P\xE9rdida de masa muscular, aspecto caqu\xE9ctico."
     esHallazgoRelevante: 1
   - regionAnatomica: Piel y mucosas
-    hallazgoTexto: 'Palidez, mucosas secas; refiere sudoración nocturna.'
+    hallazgoTexto: "Palidez, mucosas secas; refiere sudoraci\xF3n nocturna."
     esHallazgoRelevante: 1
   examenesDisponibles:
-  - nombreExamen: 'Baciloscopia de esputo'
-    resultado: 'Positiva (++), presencia de bacilos ácido-alcohol resistentes.'
-    esExamenPertinente: 1
-  - nombreExamen: 'Cultivo de esputo'
-    resultado: 'Positivo para Mycobacterium tuberculosis (resultado diferido).'
-    esExamenPertinente: 1
-  - nombreExamen: 'Radiografía de tórax'
-    resultado: 'Infiltrado cavitado en lóbulo superior derecho.'
-    esExamenPertinente: 1
-  - nombreExamen: 'PPD (derivado proteico purificado)'
-    resultado: 'Induración >15 mm, positiva.'
-    esExamenPertinente: 1
+  - nombreExamen: Baciloscopia
+    resultado: "Positiva (++), presencia de bacilos \xE1cido-alcohol resistentes."
+    clasificacion: 1
+  - nombreExamen: "Cultivo de expectoraci\xF3n"
+    resultado: Positivo para Mycobacterium tuberculosis (resultado diferido).
+    clasificacion: 1
+  - nombreExamen: "Radiograf\xEDa de t\xF3rax"
+    resultado: "Infiltrado cavitado en l\xF3bulo superior derecho."
+    clasificacion: 1
+  - nombreExamen: PPD
+    resultado: "Induraci\xF3n >15 mm, positiva."
+    clasificacion: 1
+  - nombreExamen: Hemograma
+    resultado: Anemia leve (Hb aprox. 11 g/dL), sin leucocitosis.
+    clasificacion: 2
+  - nombreExamen: "Exploraci\xF3n cl\xEDnica del dolor"
+    resultado: Sin dolor referido en reposo (EVA 0/10).
+    clasificacion: 2
   preguntasClave:
   - idPregunta: tbc_hemoptisis
-    preguntaSugerida: '¿Ha notado sangre en el esputo?'
+    preguntaSugerida: "\xBFHa notado sangre en el esputo?"
     conjuntosPalabrasClave:
     - palabras:
       - sangre
@@ -77,10 +84,10 @@ MonoBehaviour:
       - hemoptisis
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, un par de veces vi como hilos de sangre.'
+    respuestaPaciente: "S\xED, un par de veces vi como hilos de sangre."
     esPreguntaClave: 1
   - idPregunta: tbc_duracion_tos
-    preguntaSugerida: '¿Cuánto tiempo lleva con tos?'
+    preguntaSugerida: "\xBFCu\xE1nto tiempo lleva con tos?"
     conjuntosPalabrasClave:
     - palabras:
       - cuanto
@@ -93,10 +100,10 @@ MonoBehaviour:
       - tos
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Como tres semanas; antes era seca y ahora sale con flema.'
+    respuestaPaciente: Como tres semanas; antes era seca y ahora sale con flema.
     esPreguntaClave: 1
   - idPregunta: tbc_baja_peso
-    preguntaSugerida: '¿Ha bajado de peso?'
+    preguntaSugerida: "\xBFHa bajado de peso?"
     conjuntosPalabrasClave:
     - palabras:
       - baj
@@ -107,10 +114,10 @@ MonoBehaviour:
       - kilos
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, unos cinco kilos sin hacer dieta.'
+    respuestaPaciente: "S\xED, unos cinco kilos sin hacer dieta."
     esPreguntaClave: 1
   - idPregunta: tbc_sudor_nocturno
-    preguntaSugerida: '¿Suda en la noche?'
+    preguntaSugerida: "\xBFSuda en la noche?"
     conjuntosPalabrasClave:
     - palabras:
       - sud
@@ -120,10 +127,10 @@ MonoBehaviour:
       - saban
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, a veces empapo las sábanas.'
+    respuestaPaciente: "S\xED, a veces empapo las s\xE1banas."
     esPreguntaClave: 1
   - idPregunta: tbc_contacto
-    preguntaSugerida: '¿Ha estado en contacto con alguien con tuberculosis?'
+    preguntaSugerida: "\xBFHa estado en contacto con alguien con tuberculosis?"
     conjuntosPalabrasClave:
     - palabras:
       - contact
@@ -133,19 +140,19 @@ MonoBehaviour:
       - vecino
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Mi vecino tuvo tuberculosis hace unos meses.'
+    respuestaPaciente: Mi vecino tuvo tuberculosis hace unos meses.
     esPreguntaClave: 1
   - idPregunta: tbc_fiebre
-    preguntaSugerida: '¿Tiene fiebre?'
+    preguntaSugerida: "\xBFTiene fiebre?"
     conjuntosPalabrasClave:
     - palabras:
       - fiebr
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'En las tardes me siento afiebrado.'
+    respuestaPaciente: En las tardes me siento afiebrado.
     esPreguntaClave: 1
   - idPregunta: tbc_hacinamiento
-    preguntaSugerida: '¿Vive con muchas personas en su casa?'
+    preguntaSugerida: "\xBFVive con muchas personas en su casa?"
     conjuntosPalabrasClave:
     - palabras:
       - personas
@@ -154,10 +161,10 @@ MonoBehaviour:
       - hacinamiento
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, somos siete en una casa chica.'
+    respuestaPaciente: "S\xED, somos siete en una casa chica."
     esPreguntaClave: 1
-  respuestaGenericaSinMatch: 'No estoy segura de a qué se refiere con eso.'
-  diagnosticoEsperado: 'Tuberculosis pulmonar activa.'
+  respuestaGenericaSinMatch: "No estoy segura de a qu\xE9 se refiere con eso."
+  diagnosticoEsperado: Tuberculosis pulmonar activa.
   conjuntosPalabrasClaveDiagnostico:
   - palabras:
     - tuberculosis
@@ -166,29 +173,57 @@ MonoBehaviour:
   - palabras:
     - bacilo
   accionesCriticas:
-  - descripcion: 'Instaurar aislamiento respiratorio apenas se sospecha'
+  - descripcion: Instaurar aislamiento respiratorio apenas se sospecha
     tipo: 4
-    idReferencia: 'manejo_aislamiento_respiratorio'
+    idReferencia: manejo_aislamiento_respiratorio
     peso: 50
-  - descripcion: 'Reconocer que es una enfermedad de notificación obligatoria'
+    conjuntosPalabrasClave:
+    - palabras:
+      - aisl
+    - palabras:
+      - n95
+    - palabras:
+      - presion
+      - negativa
+  - descripcion: "Reconocer que es una enfermedad de notificaci\xF3n obligatoria"
     tipo: 4
-    idReferencia: 'reconocer_notificacion_obligatoria'
+    idReferencia: reconocer_notificacion_obligatoria
     peso: 50
+    conjuntosPalabrasClave:
+    - palabras:
+      - notific
+      - obligator
+    - palabras:
+      - notific
+      - autoridad
+    - palabras:
+      - notific
+      - seremi
+    - palabras:
+      - notific
+      - epidemiolog
+    - palabras:
+      - declaracion
+      - obligatoria
   erroresFrecuentes:
-  - descripcion: 'No indagar el contacto epidemiológico'
-    idReferenciaCondicion: 'omitio:tbc_contacto'
-    retroalimentacion: 'El antecedente de contacto con un caso confirmado es determinante para la sospecha diagnóstica.'
-  - descripcion: 'No indagar el hacinamiento'
-    idReferenciaCondicion: 'omitio:tbc_hacinamiento'
-    retroalimentacion: 'El hacinamiento es un factor de riesgo y de transmisión intradomiciliaria que orienta el estudio de contactos.'
-  - descripcion: 'Omitir preguntar por hemoptisis'
-    idReferenciaCondicion: 'omitio:tbc_hemoptisis'
-    retroalimentacion: 'La hemoptisis, aunque poco frecuente, es un dato de alarma y de alta especificidad en este contexto.'
-  - descripcion: 'No usar EPP (mascarilla de alta eficiencia) antes de examinar'
-    idReferenciaCondicion: ''
-    retroalimentacion: 'Ante la sospecha de TBC bacilífera, la protección respiratoria del examinador debe colocarse ANTES del contacto.'
+  - descripcion: "No indagar el contacto epidemiol\xF3gico"
+    idReferenciaCondicion: omitio:tbc_contacto
+    retroalimentacion: "El antecedente de contacto con un caso confirmado es determinante
+      para la sospecha diagn\xF3stica."
+  - descripcion: No indagar el hacinamiento
+    idReferenciaCondicion: omitio:tbc_hacinamiento
+    retroalimentacion: "El hacinamiento es un factor de riesgo y de transmisi\xF3n
+      intradomiciliaria que orienta el estudio de contactos."
+  - descripcion: Omitir preguntar por hemoptisis
+    idReferenciaCondicion: omitio:tbc_hemoptisis
+    retroalimentacion: La hemoptisis, aunque poco frecuente, es un dato de alarma
+      y de alta especificidad en este contexto.
+  - descripcion: No usar EPP (mascarilla de alta eficiencia) antes de examinar
+    idReferenciaCondicion: 
+    retroalimentacion: "Ante la sospecha de TBC bacil\xEDfera, la protecci\xF3n respiratoria
+      del examinador debe colocarse ANTES del contacto."
   datosAdministrativos:
-    nombrePacienteFicticio: 'Muñoz Paredes, Carlos'
+    nombrePacienteFicticio: "Mu\xF1oz Paredes, Carlos"
     sexoPaciente: Masculino
-    edadPaciente: '34 años'
-    nombreEstablecimiento: 'Hospital Regional Simulado — Servicio de Urgencias'
+    edadPaciente: "34 a\xF1os"
+    nombreEstablecimiento: "Hospital Regional Simulado \u2014 Servicio de Urgencias"

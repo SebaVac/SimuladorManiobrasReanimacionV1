@@ -28,6 +28,12 @@ public class InteraccionPaciente : MonoBehaviour
     [SerializeField] private Transform manoIzquierda;
     [SerializeField] private Transform manoDerecha;
 
+    [Header("Controles Touch (opcional)")]
+    [Tooltip("Si se asigna y la entrada activa son los controles, la detección de proximidad usa la punta virtual " +
+             "de cada control (a EntradaControlesTouch.DistanciaPuntaVirtual delante) EN LUGAR de las manos. " +
+             "Mismo radio, cooldown y registro. Con manos activas no cambia nada.")]
+    [SerializeField] private EntradaControlesTouch entradaControles;
+
     [Header("Detección de examen físico")]
     [Tooltip("Distancia mano↔región para contar como 'examinada', en metros. Ajustar en pruebas.")]
     [SerializeField] private float umbralProximidadRegion = 0.15f;
@@ -42,6 +48,7 @@ public class InteraccionPaciente : MonoBehaviour
     public event Action<string> OnPreguntaAlternativaSeleccionada;
     public event Action<string> OnTextoLibreEnviado;        // pregunta de anamnesis (texto libre)
     public event Action<string> OnDiagnosticoTextoEnviado;  // diagnóstico registrado (texto libre)
+    public event Action<string> OnManejoTextoEnviado;       // indicaciones / manejo (texto libre)
     public event Action<string> OnExamenSolicitado;
 
     /// <summary>true entre Inicializar() y el fin del caso. Fuera de eso, Update() no evalúa proximidad.</summary>
@@ -142,6 +149,15 @@ public class InteraccionPaciente : MonoBehaviour
         AbrirTeclado(texto => OnDiagnosticoTextoEnviado?.Invoke(texto));
     }
 
+    /// <summary>Abre el teclado nativo del sistema para escribir las indicaciones /
+    /// manejo del caso. Al confirmar (con texto no vacío) dispara
+    /// <see cref="OnManejoTextoEnviado"/>; al cancelar o con texto vacío, nada.</summary>
+    public void AbrirTecladoManejo()
+    {
+        Debug.Log("[InteraccionPaciente] AbrirTecladoManejo() llamado.", this);
+        AbrirTeclado(texto => OnManejoTextoEnviado?.Invoke(texto));
+    }
+
     /// <summary>Entrada directa de texto libre (tests / teclado diegético alterno).
     /// Equivale a confirmar el teclado de anamnesis.</summary>
     public void EnviarTextoLibre(string texto)
@@ -175,7 +191,7 @@ public class InteraccionPaciente : MonoBehaviour
             multiline: false,
             secure: false,
             alert: false,
-            textPlaceholder: "Escribí aquí…");
+            textPlaceholder: "Escribe aquí…");
         _ultimoStatusLogueado = (TouchScreenKeyboard.Status)(-1); // fuerza el log de la 1ª transición
 
         Debug.Log($"[InteraccionPaciente] AbrirTeclado: Open() retornó. teclado={(_teclado != null ? "no-null" : "NULL")} " +
@@ -226,12 +242,22 @@ public class InteraccionPaciente : MonoBehaviour
     {
         if (regionesAnatomicas == null) return;
 
-        bool hayIzq = manoIzquierda != null;
-        bool hayDer = manoDerecha != null;
+        bool hayIzq, hayDer;
+        Vector3 posIzq, posDer;
+        if (entradaControles != null && entradaControles.Modo == ModoEntrada.Controles)
+        {
+            // Punta virtual de cada control: alimenta EXACTAMENTE la misma detección que las manos.
+            hayIzq = entradaControles.TryPuntaVirtual(0, out posIzq);
+            hayDer = entradaControles.TryPuntaVirtual(1, out posDer);
+        }
+        else
+        {
+            hayIzq = manoIzquierda != null;
+            hayDer = manoDerecha != null;
+            posIzq = hayIzq ? manoIzquierda.position : Vector3.zero;
+            posDer = hayDer ? manoDerecha.position   : Vector3.zero;
+        }
         if (!hayIzq && !hayDer) return;
-
-        Vector3 posIzq = hayIzq ? manoIzquierda.position : Vector3.zero;
-        Vector3 posDer = hayDer ? manoDerecha.position   : Vector3.zero;
 
         for (int i = 0; i < regionesAnatomicas.Length; i++)
         {
@@ -256,6 +282,7 @@ public class InteraccionPaciente : MonoBehaviour
                 continue;
 
             _ultimoAvisoRegion[nombre] = Time.time;
+            if (entradaControles != null) entradaControles.RegistrarUso();
             OnRegionExaminada?.Invoke(nombre);
         }
     }

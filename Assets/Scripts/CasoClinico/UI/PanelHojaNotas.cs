@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Hoja de notas del jugador — espacio personal, sin evaluación ni conexión a
-/// MotorEvaluacion. Head-locked (AnclajeCabeza en <see cref="raiz"/>), mismo
+/// MotorEvaluacion. Anclado a un slot fijo de la sala (SlotPanel; <see cref="raiz"/> es hija del slot), mismo
 /// patrón de activación que los demás paneles del módulo.
 ///
 /// Teclado nativo AUTOCONTENIDO en este mismo componente (no en
@@ -30,7 +30,7 @@ using UnityEngine.UI;
 /// </summary>
 public class PanelHojaNotas : MonoBehaviour, IPanelOcultable
 {
-    [Header("Visual (con AnclajeCabeza)")]
+    [Header("Visual (raíz hija de un SlotPanel)")]
     [SerializeField] private GameObject raiz;
 
     // Ver PanelIntroduccion._visibleSegunEstado — mismo criterio (IPanelOcultable).
@@ -139,7 +139,7 @@ public class PanelHojaNotas : MonoBehaviour, IPanelOcultable
             multiline: true,
             secure: false,
             alert: false,
-            textPlaceholder: "Escribí tu nota…");
+            textPlaceholder: "Escribe tu nota…");
     }
 
     private void ProcesarTeclado()

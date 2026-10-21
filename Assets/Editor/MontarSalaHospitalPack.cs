@@ -10,12 +10,14 @@ using UnityEngine.SceneManagement;
 ///
 /// Construye la sala de urgencias VR con los FBX del pack Atomic Realm.
 /// Constraints no negociables:
-///   - globalScale de todos los FBX queda en 1 (sin corrección de escala).
+///   - globalScale de todos los FBX queda en 1 en el importador (sin corrección de escala); la sala y el
+///     mobiliario se escalan en la escena con ENV_SCALE (2,0), no en el FBX.
 ///   - Ninguna cama del pack se usa bajo el maniquí: se coloca Plataforma_Entrenamiento
 ///     (Cube primitivo, top en Y=0.300 = alturaSuelo de CalibradorPosicion).
 ///   - No se agrega Rigidbody ni Collider a nada dentro del volumen de hand-tracking.
 ///   - No se toca Paciente_Completo, LogicaRCP.cs ni CalibradorPosicion.cs.
-///   - overhead_light (Y=2.338 m) NO se instancia — no cabe en sala de 2 m.
+///   - overhead_light NO se instancia (se omitió de esta versión). Con ENV_SCALE = 2 la sala mide 4 m de alto,
+///     así que el motivo ya no es la altura (ver el comentario de overhead_light más abajo).
 /// </summary>
 public static class MontarSalaHospitalPack
 {
@@ -25,13 +27,17 @@ public static class MontarSalaHospitalPack
     const string MATERIAL_PATH = "Assets/Enviroment/HospitalAssets/Materials/hospital_gradient_uv.mat";
 
     // ── Layout ─────────────────────────────────────────────────────────────────
-    // Escala cosmética del entorno (room shell + mobiliario decorativo).
-    // Plataforma_Entrenamiento y Paciente_Completo NO se ven afectados (ver InstanciarPack).
+    // Escala del entorno (cáscara de la sala + mobiliario decorativo): 2,0 uniforme sobre piezas de 2 m, es decir
+    // módulos de 4 m. Plataforma_Entrenamiento y Paciente_Completo NO se ven afectados (ver InstanciarPack).
+    // OBSOLETO: este script y su sala (EntornoSalaUrgencias) fueron reemplazados por ConstruirSalaRCP (escala 1,25,
+    // 7,5 x 7,5 x 2,5 m). La escena guardada difiere además de este script: algunas paredes tenían escala X de
+    // 2,60 a 2,67 en vez de 2,0.
     const float ENV_SCALE = 2f;
 
-    // Sala (ENV_SCALE=2): X[-6,+6] × Z[-2,+14] × Y[0,+4]  → 12 m × 16 m × 4 m
+    // Sala con ENV_SCALE = 2: X[-6,+6] × Z[-2,+14] × Y[0,+4]  → 12 m × 16 m × 4 m (paredes de 4 m de alto).
     // Maniquí runtime: (0.95, 0.3, 2.05)  [Paciente_Completo(0,0,1.025) + BananaMan offset(0.95,0,1.027)]
-    // Plataforma top = Y 0.300 = CalibradorPosicion.alturaSuelo  ✓ (intacta)
+    // Plataforma top = Y 0.300 = CalibradorPosicion.alturaSuelo (intacta). Esa plataforma ya no existe en la
+    // escena: la superficie bajo el paciente la coloca ahora SuperficiePaciente.
 
     [MenuItem("Tools/Montar Sala Urgencias (Hospital Pack)")]
     static void Montar()
@@ -103,7 +109,7 @@ public static class MontarSalaHospitalPack
             "Mat_Sala_Techo", new Color(0.88f, 0.88f, 0.86f));
 
         // LUZ — Point Light baked centrado en la sala ampliada
-        // overhead_light FBX excluido (Y=2.338 m — no cabe en sala de 4 m sin escalar el asset)
+        // overhead_light FBX excluido de esta versión (con ENV_SCALE = 2 la sala mide 4 m de alto; no es un problema de altura)
         var goLuzGO = new GameObject("Luz_Sala_Point");
         Undo.RegisterCreatedObjectUndo(goLuzGO, "Luz Sala");
         goLuzGO.transform.SetParent(geoSala.transform, false);

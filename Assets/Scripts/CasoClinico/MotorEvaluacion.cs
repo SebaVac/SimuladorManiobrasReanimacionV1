@@ -19,7 +19,29 @@ using UnityEngine;
 /// </summary>
 public class MotorEvaluacion : MonoBehaviour
 {
+    [Header("Puntaje (modo Evaluación)")]
+    [Tooltip("Pesos y parámetros del modelo de puntaje. Único lugar donde viven esos números.")]
+    [SerializeField] private ConfigPuntaje config;
+
     private FichaCaso fichaActiva;
+
+    // Respaldo si el asset no está cableado: instancia con los valores por defecto
+    // de ConfigPuntaje (que SON el modelo vigente). Se loguea el error una sola vez.
+    private ConfigPuntaje _configRespaldo;
+    private ConfigPuntaje Config
+    {
+        get
+        {
+            if (config != null) return config;
+            if (_configRespaldo == null)
+            {
+                Debug.LogError("[MotorEvaluacion] Falta asignar ConfigPuntaje en el Inspector; " +
+                               "se usan los valores por defecto del modelo.", this);
+                _configRespaldo = ScriptableObject.CreateInstance<ConfigPuntaje>();
+            }
+            return _configRespaldo;
+        }
+    }
 
     private readonly HashSet<string> regionesExaminadas  = new HashSet<string>();
     private readonly HashSet<string> preguntasRealizadas = new HashSet<string>();
@@ -137,14 +159,26 @@ public class MotorEvaluacion : MonoBehaviour
         }
     }
 
-    /// <summary>Evaluación final. Único punto que produce resultado visible.</summary>
-    public ResultadoCaso EvaluarCasoCompleto(string diagnosticoJugador, List<string> manejoJugador)
+    /// <summary>
+    /// Evaluación final. Único punto que produce resultado visible.
+    /// <paramref name="manejoTexto"/> es el texto libre de "Indicaciones / manejo" que
+    /// escribió el jugador (puede ser null o vacío: el componente Manejo suma 0).
+    /// <paramref name="submodo"/> solo se anota en el resultado (Tutorial no muestra
+    /// puntaje total); el motor no ramifica su cálculo por submodo.
+    /// </summary>
+    public ResultadoCaso EvaluarCasoCompleto(string diagnosticoJugador, string manejoTexto, SubmodoCaso submodo)
     {
         var resultado = new ResultadoCaso
         {
             accionesCumplidas = new List<AccionCritica>(),
             accionesOmitidas  = new List<AccionCritica>(),
-            erroresDetectados = new List<ErrorFrecuente>()
+            erroresDetectados = new List<ErrorFrecuente>(),
+            submodo           = submodo,
+            diagnostico       = new ComponentePuntaje(),
+            manejo            = new ComponentePuntaje(),
+            examenes          = new ComponentePuntaje(),
+            anamnesis         = new ComponentePuntaje(),
+            examenFisico      = new ComponentePuntaje()
         };
 
         if (fichaActiva == null)
@@ -153,21 +187,29 @@ public class MotorEvaluacion : MonoBehaviour
             return resultado;
         }
 
-        var manejo = manejoJugador ?? new List<string>();
+        var cfg = Config;
+        string manejo = manejoTexto ?? string.Empty;
 
+        // ── Acciones críticas (listas del debriefing) + base del componente Manejo ──
+        float pesoManejoTotal = 0f, pesoManejoCumplido = 0f;
         foreach (var accion in fichaActiva.accionesCriticas)
         {
+            if (accion == null) continue;
+
+            bool esManejo = accion.tipo == TipoAccion.Manejo;
+            if (esManejo && (accion.conjuntosPalabrasClave == null || accion.conjuntosPalabrasClave.Count == 0))
+                Debug.LogWarning($"[MotorEvaluacion] La acción de Manejo '{accion.idReferencia}' del caso " +
+                                 $"'{fichaActiva.idCaso}' no tiene conjuntosPalabrasClave: no puede cumplirse.", this);
+
             bool cumplida = EvaluarSiAccionFueCumplida(accion, manejo);
-            if (cumplida)
+            if (cumplida) resultado.accionesCumplidas.Add(accion);
+            else          resultado.accionesOmitidas.Add(accion);
+
+            if (esManejo)
             {
-                resultado.accionesCumplidas.Add(accion);
-                resultado.puntajeTotal += accion.peso;
+                pesoManejoTotal += accion.peso;
+                if (cumplida) pesoManejoCumplido += accion.peso;
             }
-            else
-            {
-                resultado.accionesOmitidas.Add(accion);
-            }
-            resultado.puntajeMaximo += accion.peso;
         }
 
         foreach (var error in fichaActiva.erroresFrecuentes)
@@ -175,24 +217,115 @@ public class MotorEvaluacion : MonoBehaviour
             if (SeDetectaError(error, manejo)) resultado.erroresDetectados.Add(error);
         }
 
+        // ── Diagnóstico: todo o nada ──────────────────────────────────────────
         var conjuntosDx = fichaActiva.conjuntosPalabrasClaveDiagnostico;
         resultado.diagnosticoCorrecto = (conjuntosDx != null && conjuntosDx.Count > 0)
             ? ContienePalabraClave(diagnosticoJugador, conjuntosDx)
             : NormalizarTexto(diagnosticoJugador) == NormalizarTexto(fichaActiva.diagnosticoEsperado);
+
+        resultado.diagnostico.maximo   = cfg.pesoDiagnostico;
+        resultado.diagnostico.obtenido = resultado.diagnosticoCorrecto ? cfg.pesoDiagnostico : 0f;
+
+        // ── Manejo: proporcional al peso de las acciones de Manejo cumplidas ──────
+        if (pesoManejoTotal > 0f)
+        {
+            resultado.manejo.maximo   = cfg.pesoManejo;
+            resultado.manejo.obtenido = cfg.pesoManejo * (pesoManejoCumplido / pesoManejoTotal);
+        }
+
+        // ── Exámenes: pertinentes pedidos − penalización por no pertinentes ───────
+        // Tres estados (ClasificacionExamen): Pertinente suma y entra en el denominador;
+        // Indiferente no cuenta ni en el denominador ni en la penalización; NoPertinente
+        // resta si se pidió. Además, todo examen PEDIDO que la ficha no trae (el resto del
+        // catálogo ampliado en modo Evaluación) es NoPertinente por defecto.
+        int pertinentesTotales = 0, pertinentesPedidos = 0, noPertinentesPedidos = 0;
+        var nombresDeLaFicha = new HashSet<string>();
+        foreach (var examen in fichaActiva.examenesDisponibles)
+        {
+            if (examen == null) continue;
+            nombresDeLaFicha.Add(examen.nombreExamen);
+            bool pedido = examenesSolicitados.Contains(examen.nombreExamen);
+            switch (examen.clasificacion)
+            {
+                case ClasificacionExamen.Pertinente:
+                    pertinentesTotales++;
+                    if (pedido) pertinentesPedidos++;
+                    break;
+                case ClasificacionExamen.NoPertinente:
+                    if (pedido) noPertinentesPedidos++;
+                    break;
+                // Indiferente: no hace nada a propósito.
+            }
+        }
+        foreach (var pedidoId in examenesSolicitados)
+            if (!nombresDeLaFicha.Contains(pedidoId)) noPertinentesPedidos++;
+        if (pertinentesTotales > 0)
+        {
+            float valorPorExamen = cfg.pesoExamenes / pertinentesTotales;
+            float bruto = valorPorExamen * pertinentesPedidos
+                        - cfg.factorPenalizacionExamenNoPertinente * valorPorExamen * noPertinentesPedidos;
+            resultado.examenes.maximo   = cfg.pesoExamenes;
+            resultado.examenes.obtenido = Mathf.Max(0f, bruto);
+        }
+
+        // ── Anamnesis: preguntas clave reconocidas (distintas) ────────────────────
+        int clavesTotales = 0, clavesRealizadas = 0;
+        foreach (var pregunta in fichaActiva.preguntasClave)
+        {
+            if (pregunta == null || !pregunta.esPreguntaClave) continue;
+            clavesTotales++;
+            if (preguntasRealizadas.Contains(pregunta.idPregunta)) clavesRealizadas++;
+        }
+        if (clavesTotales > 0)
+        {
+            resultado.anamnesis.maximo   = cfg.pesoAnamnesis;
+            resultado.anamnesis.obtenido = cfg.pesoAnamnesis * clavesRealizadas / clavesTotales;
+        }
+
+        // ── Examen físico: regiones relevantes examinadas (nombres distintos) ─────
+        var regionesRelevantes = new HashSet<string>();
+        foreach (var hallazgo in fichaActiva.hallazgosPorRegion)
+            if (hallazgo != null && hallazgo.esHallazgoRelevante && !string.IsNullOrEmpty(hallazgo.regionAnatomica))
+                regionesRelevantes.Add(hallazgo.regionAnatomica);
+        if (regionesRelevantes.Count > 0)
+        {
+            int examinadas = 0;
+            foreach (var region in regionesRelevantes)
+                if (regionesExaminadas.Contains(region)) examinadas++;
+            resultado.examenFisico.maximo   = cfg.pesoExamenFisico;
+            resultado.examenFisico.obtenido = cfg.pesoExamenFisico * examinadas / regionesRelevantes.Count;
+        }
+
+        // ── Errores frecuentes: resta con tope ────────────────────────────────────
+        resultado.penalizacionErrores = Mathf.Min(
+            resultado.erroresDetectados.Count * cfg.penalizacionPorError,
+            cfg.topePenalizacionErrores);
+
+        // ── Total ─────────────────────────────────────────────────────────────────
+        float maximoTotal = resultado.diagnostico.maximo + resultado.manejo.maximo + resultado.examenes.maximo
+                          + resultado.anamnesis.maximo + resultado.examenFisico.maximo;
+        float bruto2 = resultado.diagnostico.obtenido + resultado.manejo.obtenido + resultado.examenes.obtenido
+                     + resultado.anamnesis.obtenido + resultado.examenFisico.obtenido
+                     - resultado.penalizacionErrores;
+        resultado.totalExacto   = Mathf.Clamp(bruto2, 0f, maximoTotal);
+        resultado.puntajeMaximo = Mathf.RoundToInt(maximoTotal);
+        resultado.puntajeTotal  = Mathf.RoundToInt(resultado.totalExacto);
 
         return resultado;
     }
 
     // ── Lógica interna ───────────────────────────────────────────────────────
 
-    private bool EvaluarSiAccionFueCumplida(AccionCritica accion, List<string> manejoJugador)
+    private bool EvaluarSiAccionFueCumplida(AccionCritica accion, string manejoTexto)
     {
         switch (accion.tipo)
         {
             case TipoAccion.Anamnesis:            return preguntasRealizadas.Contains(accion.idReferencia);
             case TipoAccion.ExamenFisico:         return regionesExaminadas.Contains(accion.idReferencia);
             case TipoAccion.ExamenComplementario: return examenesSolicitados.Contains(accion.idReferencia);
-            case TipoAccion.Manejo:               return manejoJugador.Contains(accion.idReferencia);
+            // Manejo: texto libre contra los conjuntos de la acción. Sin conjuntos
+            // (lista vacía/null) ContienePalabraClave devuelve false — nunca lanza.
+            case TipoAccion.Manejo:               return ContienePalabraClave(manejoTexto, accion.conjuntosPalabrasClave);
             case TipoAccion.Diagnostico:          return false; // se evalúa aparte (resultado.diagnosticoCorrecto)
             default:                              return false;
         }
@@ -210,7 +343,7 @@ public class MotorEvaluacion : MonoBehaviour
     //                         (típicamente un examen no pertinente)
     // Sin prefijo reconocido → no se detecta (return false) y se loguea aviso.
     // ─────────────────────────────────────────────────────────────────────────
-    private bool SeDetectaError(ErrorFrecuente error, List<string> manejoJugador)
+    private bool SeDetectaError(ErrorFrecuente error, string manejoTexto)
     {
         string cond = error != null ? error.idReferenciaCondicion : null;
         if (string.IsNullOrEmpty(cond)) return false;
@@ -228,7 +361,7 @@ public class MotorEvaluacion : MonoBehaviour
         switch (prefijo)
         {
             case "omitio":
-                return !AccionCumplidaPorId(valor, manejoJugador);
+                return !AccionCumplidaPorId(valor, manejoTexto);
             case "pregunto":
                 return preguntasRealizadas.Contains(valor);
             case "examino":
@@ -241,18 +374,19 @@ public class MotorEvaluacion : MonoBehaviour
         }
     }
 
-    private bool AccionCumplidaPorId(string idAccion, List<string> manejoJugador)
+    private bool AccionCumplidaPorId(string idAccion, string manejoTexto)
     {
         foreach (var accion in fichaActiva.accionesCriticas)
         {
-            if (accion.idReferencia != idAccion) continue;
-            return EvaluarSiAccionFueCumplida(accion, manejoJugador);
+            if (accion == null || accion.idReferencia != idAccion) continue;
+            return EvaluarSiAccionFueCumplida(accion, manejoTexto);
         }
-        // Si no es una AccionCritica, interpretamos idAccion como referencia directa.
+        // Si no es una AccionCritica, interpretamos idAccion como referencia directa
+        // a un registro del jugador. (Ya no hay lista de ids de manejo: el manejo
+        // es texto libre y solo puede evaluarse a través de una AccionCritica.)
         return preguntasRealizadas.Contains(idAccion)
             || regionesExaminadas.Contains(idAccion)
-            || examenesSolicitados.Contains(idAccion)
-            || manejoJugador.Contains(idAccion);
+            || examenesSolicitados.Contains(idAccion);
     }
 
     private string NormalizarTexto(string texto)
@@ -271,14 +405,47 @@ public class MotorEvaluacion : MonoBehaviour
     }
 }
 
+/// <summary>Puntos obtenidos y máximos de un componente del modelo de puntaje.
+/// <c>maximo</c> es 0 si el componente no aplica al caso (p. ej. un caso sin acciones
+/// de Manejo): así el total máximo refleja solo lo que el caso permite ganar.</summary>
+public class ComponentePuntaje
+{
+    public float obtenido;
+    public float maximo;
+}
+
 /// <summary>Resultado final del caso. Se construye una sola vez y viaja en
 /// GestorCasoClinico.OnCasoFinalizado hacia el panel de debriefing.</summary>
 public class ResultadoCaso
 {
+    /// <summary>Total redondeado (con piso 0 y techo = puntajeMaximo). El Debriefing solo
+    /// lo muestra en modo Evaluación — ver <see cref="EsEvaluacion"/>.</summary>
     public int puntajeTotal;
     public int puntajeMaximo;
     public List<AccionCritica> accionesCumplidas;
     public List<AccionCritica> accionesOmitidas;
     public List<ErrorFrecuente> erroresDetectados;
     public bool diagnosticoCorrecto;
+
+    /// <summary>Submodo con el que se jugó el caso. Tutorial no puntúa: se muestra el
+    /// desglose por componente sin nota total.</summary>
+    public SubmodoCaso submodo;
+    public bool EsEvaluacion => submodo == SubmodoCaso.Evaluacion;
+
+    // Desglose por componente (obtenido/máximo).
+    public ComponentePuntaje diagnostico;
+    public ComponentePuntaje manejo;
+    public ComponentePuntaje examenes;
+    public ComponentePuntaje anamnesis;
+    public ComponentePuntaje examenFisico;
+
+    /// <summary>Puntos que restan los errores frecuentes detectados (valor positivo, ya con tope).</summary>
+    public float penalizacionErrores;
+
+    /// <summary>Total sin redondear.</summary>
+    public float totalExacto;
+
+    /// <summary>Dispositivo de entrada usado en el caso (Manos, Controles o Mixto). Solo se registra y se
+    /// muestra en el Debriefing; no afecta al puntaje.</summary>
+    public DispositivoEntrada dispositivoEntrada;
 }

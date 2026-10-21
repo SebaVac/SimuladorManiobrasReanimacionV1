@@ -102,24 +102,36 @@ public class SeleccionableToque : MonoBehaviour
 
     // ── Llamados por GestorSeleccionToque ────────────────────────────────────
 
+    /// <summary>Marco del RectTransform en mundo a partir de sus esquinas (reutiliza <c>_esquinas</c>): origen
+    /// (abajo-izquierda), ejes X/Y unitarios, largos y normal. Compartido por el toque con dedo y por el rayo
+    /// de los controles. Cero-alloc.</summary>
+    private bool CalcularMarco(out Vector3 origen, out Vector3 ejeX, out Vector3 ejeY,
+                               out float largoX, out float largoY, out Vector3 normal)
+    {
+        origen = default; ejeX = default; ejeY = default; normal = default; largoX = 0f; largoY = 0f;
+        if (_rt == null) return false;
+
+        _rt.GetWorldCorners(_esquinas); // 0=abajo-izq 1=arriba-izq 2=arriba-der 3=abajo-der
+
+        origen = _esquinas[0];
+        ejeX = _esquinas[3] - _esquinas[0];
+        ejeY = _esquinas[1] - _esquinas[0];
+        largoX = ejeX.magnitude;
+        largoY = ejeY.magnitude;
+        if (largoX <= 0f || largoY <= 0f) return false;
+        ejeX /= largoX;
+        ejeY /= largoY;
+        normal = Vector3.Cross(ejeX, ejeY).normalized;
+        return true;
+    }
+
     /// <summary>true si la punta de dedo dada está dentro del rectángulo de este
     /// elemento y dentro de la tolerancia de profundidad. Cero-alloc
     /// (<c>_esquinas</c> reutilizado).</summary>
     internal bool PuntoDentro(Vector3 puntaDedo)
     {
-        if (_rt == null) return false;
-
-        _rt.GetWorldCorners(_esquinas); // 0=abajo-izq 1=arriba-izq 2=arriba-der 3=abajo-der
-
-        Vector3 origen = _esquinas[0];
-        Vector3 ejeX = _esquinas[3] - _esquinas[0];
-        Vector3 ejeY = _esquinas[1] - _esquinas[0];
-        float largoX = ejeX.magnitude;
-        float largoY = ejeY.magnitude;
-        if (largoX <= 0f || largoY <= 0f) return false;
-        ejeX /= largoX;
-        ejeY /= largoY;
-        Vector3 normal = Vector3.Cross(ejeX, ejeY).normalized;
+        if (!CalcularMarco(out Vector3 origen, out Vector3 ejeX, out Vector3 ejeY,
+                           out float largoX, out float largoY, out Vector3 normal)) return false;
 
         Vector3 offset = puntaDedo - origen;
         if (Mathf.Abs(Vector3.Dot(offset, normal)) > profundidadToque) return false;
@@ -127,6 +139,28 @@ public class SeleccionableToque : MonoBehaviour
         float proyX = Vector3.Dot(offset, ejeX);
         float proyY = Vector3.Dot(offset, ejeY);
         return proyX >= 0f && proyX <= largoX && proyY >= 0f && proyY <= largoY;
+    }
+
+    /// <summary>Intersección de un rayo (controles Touch) con el rectángulo de este elemento, con la MISMA
+    /// proyección sobre las esquinas que <see cref="PuntoDentro"/>. Devuelve la distancia a lo largo del
+    /// rayo (0 &lt; t &lt;= alcance). Cero-alloc.</summary>
+    internal bool IntersectaRayo(Vector3 origenRayo, Vector3 direccion, float alcance, out float distancia)
+    {
+        distancia = 0f;
+        if (!CalcularMarco(out Vector3 origen, out Vector3 ejeX, out Vector3 ejeY,
+                           out float largoX, out float largoY, out Vector3 normal)) return false;
+
+        float denom = Vector3.Dot(direccion, normal);
+        if (Mathf.Abs(denom) < 1e-4f) return false;                 // rayo paralelo al panel
+        float t = Vector3.Dot(origen - origenRayo, normal) / denom;
+        if (t <= 0f || t > alcance) return false;
+
+        Vector3 offset = origenRayo + direccion * t - origen;
+        float proyX = Vector3.Dot(offset, ejeX);
+        float proyY = Vector3.Dot(offset, ejeY);
+        if (proyX < 0f || proyX > largoX || proyY < 0f || proyY > largoY) return false;
+        distancia = t;
+        return true;
     }
 
     internal void FijarContacto(bool enContacto)

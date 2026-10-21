@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3757db8d3650d5468392c95ec424369, type: 3}
+  m_Name: CatalogoExamenes
+  m_EditorClassIdentifier: 
+  entradas:
+  - nombreExamen: "Radiograf\xEDa de t\xF3rax"
+    categoria: "Im\xE1genes"
+    resultadoNormal: "Sin infiltrados ni consolidaci\xF3n; silueta cardiomediast\xEDnica
+      normal y senos costofr\xE9nicos libres."
+  - nombreExamen: "Tomograf\xEDa de t\xF3rax"
+    categoria: "Im\xE1genes"
+    resultadoNormal: "Par\xE9nquima pulmonar sin lesiones; mediastino y pleura normales."
+  - nombreExamen: Electrocardiograma
+    categoria: "Cardiolog\xEDa"
+    resultadoNormal: Ritmo sinusal, FC 75 lpm, eje normal, sin alteraciones del ST-T.
+  - nombreExamen: Ecocardiograma
+    categoria: "Cardiolog\xEDa"
+    resultadoNormal: "Funci\xF3n sist\xF3lica conservada (FEVI aprox. 60%), sin alteraciones
+      valvulares ni derrame peric\xE1rdico."
+  - nombreExamen: Troponina
+    categoria: "Cardiolog\xEDa"
+    resultadoNormal: Dentro de rango normal (< 0,04 ng/mL).
+  - nombreExamen: BNP/NT-proBNP
+    categoria: "Cardiolog\xEDa"
+    resultadoNormal: Normal (BNP < 100 pg/mL; NT-proBNP < 300 pg/mL).
+  - nombreExamen: Hemograma
+    categoria: Laboratorio general
+    resultadoNormal: "Hb 14 g/dL, leucocitos 7.000 por mm\xB3 con f\xF3rmula normal,
+      plaquetas 250.000 por mm\xB3."
+  - nombreExamen: "Prote\xEDna C reactiva"
+    categoria: Laboratorio general
+    resultadoNormal: Normal (< 5 mg/L).
+  - nombreExamen: "Electrolitos plasm\xE1ticos"
+    categoria: Laboratorio general
+    resultadoNormal: Na 140 mEq/L, K 4,2 mEq/L, Cl 102 mEq/L; dentro de rango.
+  - nombreExamen: "Funci\xF3n renal"
+    categoria: Laboratorio general
+    resultadoNormal: Creatinina 0,9 mg/dL, BUN 14 mg/dL; normal.
+  - nombreExamen: Glicemia
+    categoria: Laboratorio general
+    resultadoNormal: Normal (aprox. 90 mg/dL en ayunas).
+  - nombreExamen: "D\xEDmero D"
+    categoria: Laboratorio general
+    resultadoNormal: Negativo (< 500 ng/mL).
+  - nombreExamen: Gases arteriales
+    categoria: Gases
+    resultadoNormal: pH 7,40, PaO2 95 mmHg, PaCO2 40 mmHg, HCO3 24 mEq/L; normales.
+  - nombreExamen: Baciloscopia
+    categoria: "Microbiolog\xEDa"
+    resultadoNormal: "Negativa, sin bacilos \xE1cido-alcohol resistentes."
+  - nombreExamen: "Cultivo de expectoraci\xF3n"
+    categoria: "Microbiolog\xEDa"
+    resultadoNormal: "Flora normal de v\xEDa a\xE9rea superior, sin pat\xF3geno aislado."
+  - nombreExamen: PCR viral / panel respiratorio
+    categoria: "Microbiolog\xEDa"
+    resultadoNormal: Negativo para los agentes virales del panel.
+  - nombreExamen: PPD
+    categoria: "Microbiolog\xEDa"
+    resultadoNormal: "Induraci\xF3n < 5 mm, negativa."
+  - nombreExamen: "Espirometr\xEDa"
+    categoria: "Funci\xF3n pulmonar"
+    resultadoNormal: 'Normal: VEF1/CVF > 0,70 y VEF1 > 80% del predicho.'
+  - nombreExamen: "Exploraci\xF3n cl\xEDnica del dolor"
+    categoria: "Evaluaci\xF3n cl\xEDnica"
+    resultadoNormal: Sin dolor referido en reposo (EVA 0/10).

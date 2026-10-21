@@ -56,45 +56,72 @@ public static class ConstruirPanel9Debriefing
         SetFloat(anclaje, "distancia", 0.60f);
         SetFloat(anclaje, "alturaRelativa", -0.05f);
 
-        var canvas = NuevoCanvas("Canvas", raiz.transform, 760f, 680f);
+        // Alto 820 (era 680, con el desglose por componente): crece HACIA ARRIBA — se
+        // sube el origen del canvas (820-680)/2 para que el borde INFERIOR quede
+        // donde estaba (-0.39 m respecto de la vista), por debajo del cual viven el
+        // ícono de pausa (y<=-0.469) y la hoja de notas (y<=-0.49).
+        const float ALTO_CANVAS = 820f;
+        var canvas = NuevoCanvas("Canvas", raiz.transform, 760f, ALTO_CANVAS);
+        canvas.transform.localPosition = new Vector3(0f, (ALTO_CANVAS - 680f) * 0.5f * 0.001f, 0f);
         Fondo(canvas.transform, COLOR_PANEL);
 
-        // Jerarquía visual (2026-09-23): el diagnóstico es el titular del
-        // resumen (grande, arriba) — el puntaje bajó de tamaño y se movió
-        // debajo, con la aclaración de que el manejo terapéutico está
-        // pendiente (siempre puntúa 0 hoy; sin esto se leía como "el sistema
-        // está roto" en validación con usuarios). Ver PanelDebriefing.Poblar().
+        // Coordenadas locales del canvas (origen al centro; arriba=+410, abajo=-410).
+        // Jerarquía: el diagnóstico es el titular; debajo el puntaje total (solo
+        // Evaluación; en Tutorial dice "Modo Tutorial: sin puntaje") y el desglose por
+        // componente. Ver PanelDebriefing.Poblar().
         Texto(canvas.transform, "Titulo", "DEBRIEFING", 24, FontStyles.Bold, COLOR_TEXTO,
-              TextAlignmentOptions.Center, new Vector2(0f, 300f), new Vector2(700f, 40f));
-        Linea(canvas.transform, "Regla1", new Vector2(0f, 276f), 700f, COLOR_ACENTO);
+              TextAlignmentOptions.Center, new Vector2(0f, 370f), new Vector2(700f, 40f));
+        Linea(canvas.transform, "Regla1", new Vector2(0f, 346f), 700f, COLOR_ACENTO);
 
+        // Titular con auto-tamaño como salvaguarda (el "Esperado: ..." de un
+        // diagnóstico incorrecto puede wrapear a 2 líneas).
         var diagnostico = Texto(canvas.transform, "TextoDiagnostico", "Diagnóstico: —", 32, FontStyles.Bold,
-              COLOR_TEXTO, TextAlignmentOptions.Center, new Vector2(0f, 225f), new Vector2(700f, 70f));
+              COLOR_TEXTO, TextAlignmentOptions.Center, new Vector2(0f, 292f), new Vector2(700f, 90f));
+        diagnostico.enableAutoSizing = true;
+        diagnostico.fontSizeMin = 18f;
+        diagnostico.fontSizeMax = 32f;
 
-        var puntaje = Texto(canvas.transform, "TextoPuntaje", "Puntaje: — / —", 18, FontStyles.Normal,
-              COLOR_TENUE, TextAlignmentOptions.Center, new Vector2(0f, 150f), new Vector2(700f, 60f));
-        Linea(canvas.transform, "Regla2", new Vector2(0f, 110f), 700f, COLOR_ACENTO);
+        var puntaje = Texto(canvas.transform, "TextoPuntaje", "PUNTAJE: — / —", 30, FontStyles.Bold,
+              COLOR_ACENTO, TextAlignmentOptions.Center, new Vector2(0f, 218f), new Vector2(700f, 44f));
+
+        // Desglose: dos columnas con la misma tipografía y el mismo número de líneas
+        // (6) para que las filas queden alineadas — nombres a la izquierda, valores
+        // "obtenidos / máximo" a la derecha.
+        var desgloseNombres = Texto(canvas.transform, "DesgloseNombres", "", 19, FontStyles.Normal,
+              COLOR_TEXTO, TextAlignmentOptions.TopLeft, new Vector2(-100f, 112f), new Vector2(240f, 146f));
+        var desgloseValores = Texto(canvas.transform, "DesgloseValores", "", 19, FontStyles.Bold,
+              COLOR_ACENTO, TextAlignmentOptions.TopRight, new Vector2(135f, 112f), new Vector2(170f, 146f));
+        Linea(canvas.transform, "Regla2", new Vector2(0f, 30f), 700f, COLOR_ACENTO);
 
         TMP_Text textoResumen;
-        var scroll = ConstruirScroll(canvas.transform, new Vector2(0f, -40f), new Vector2(680f, 280f),
+        // Viewport [-226, 20]: termina 7u ARRIBA de los botones de scroll (-233) — con
+        // la altura anterior (260) el viewport los pisaba por 7u.
+        var scroll = ConstruirScroll(canvas.transform, new Vector2(0f, -103f), new Vector2(680f, 246f),
                                      out textoResumen);
 
         var scrollArriba = BotonSimple(canvas.transform, "BotonScrollArriba", "ANTERIORES",
-              new Vector2(-110f, -190f), new Vector2(140f, 34f), 16);
+              new Vector2(-110f, -250f), new Vector2(140f, 34f), 16);
         var scrollAbajo  = BotonSimple(canvas.transform, "BotonScrollAbajo", "RECIENTES",
-              new Vector2(110f, -190f), new Vector2(140f, 34f), 16);
+              new Vector2(110f, -250f), new Vector2(140f, 34f), 16);
 
         var botonReintentar = BotonSimple(canvas.transform, "BotonReintentar", "REINTENTAR ESTE CASO",
-              new Vector2(-180f, -250f), new Vector2(330f, 54f), 18);
+              new Vector2(-180f, -310f), new Vector2(330f, 54f), 18);
         // Vuelve a PanelSeleccionSubmodo (Panel 2), no a SceneInicio — renombrado
         // para no confundirse con "Salir al menú principal" del menú de pausa,
         // que sí sigue yendo a SceneInicio (GestorMenuPausa.VolverAlMenuPrincipal).
         var botonVolver = BotonSimple(canvas.transform, "BotonVolver", "VOLVER A SELECCIÓN DE CASO",
-              new Vector2(180f, -250f), new Vector2(330f, 54f), 18);
+              new Vector2(180f, -310f), new Vector2(330f, 54f), 18);
+
+        // Línea discreta al pie (bajo los botones, que terminan en y=-337): dispositivo de entrada usado.
+        var dispositivo = Texto(canvas.transform, "TextoDispositivo", "Dispositivo de entrada: —", 15, FontStyles.Italic,
+              COLOR_TENUE, TextAlignmentOptions.Center, new Vector2(0f, -374f), new Vector2(560f, 24f));
 
         Set(comp, "raiz", raiz);
+        Set(comp, "textoDispositivo", dispositivo);
         Set(comp, "textoPuntaje", puntaje);
         Set(comp, "textoDiagnostico", diagnostico);
+        Set(comp, "textoDesgloseNombres", desgloseNombres);
+        Set(comp, "textoDesgloseValores", desgloseValores);
         Set(comp, "scroll", scroll);
         Set(comp, "textoResumen", textoResumen);
         Set(comp, "botonScrollArriba", scrollArriba);

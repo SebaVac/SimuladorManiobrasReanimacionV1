@@ -1,0 +1,68 @@
+=== SceneDiagnostico | ojo (0; 1,45; 0), mirando +Z, campo 100 x 100 grados
+  AmbientacionUrgencias/Esquinas                       centro=(0,00; 1,25; 1,00) tam=(5,95 x 2,50 x 5,95) dist=1,0 m az -37..37 el -16..12 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  AmbientacionUrgencias/Letreros/Letrero_Cabecera      centro=(-2,49; 2,05; 2,45) tam=(0,00 x 0,00 x 0,00) dist=3,5 m az -45..-45 el 10..10 | LiberationSans SDF Material [TextMeshPro/Mobile/Distance Field] TMP(cola 3000)
+  AmbientacionUrgencias/Provisional/Cortina_Derecha    centro=(1,95; 1,38; 2,25) tam=(0,07 x 2,13 x 1,60) dist=3,0 m az 32..54 el -25..23 | Material [URP/Lit]
+  AmbientacionUrgencias/Provisional/Luminarias         centro=(0,00; 2,49; 1,50) tam=(2,60 x 0,02 x 3,00) dist=1,8 m az -23..23 el 17..18 | Mat_Amb_Luminaria [URP/Unlit] UNLIT/brillante
+  AmbientacionUrgencias/Provisional/PanelCabecera      centro=(-2,31; 1,56; 2,24) tam=(0,39 x 0,35 x 1,23) dist=3,2 m az -57..-37 el -1..6 | Material [URP/Lit]
+  AmbientacionUrgencias/Provisional/PosteSuero         centro=(-2,15; 1,03; 3,00) tam=(0,45 x 2,05 x 0,45) dist=3,7 m az -41..-31 el -23..10 | Material [URP/Lit]
+  EntornoBoxConsulta/Camilla                           centro=(0,00; 0,32; 1,56) tam=(0,70 x 0,63 x 1,87) dist=1,9 m az -29..29 el -64..-18 | Material [URP/Lit]
+  EntornoBoxConsulta/Mobiliario/cupboard_bottom        centro=(-2,27; 0,43; 0,10) tam=(0,48 x 0,86 x 0,94) dist=2,5 m az -77..-74 el -35..-13 | Material [URP/Lit]
+  EntornoBoxConsulta/Mobiliario/cupboard_top           centro=(-2,32; 1,17; 0,10) tam=(0,38 x 0,62 x 0,94) dist=2,3 m az -77..-75 el -15..1 | Material [URP/Lit]
+  EntornoBoxConsulta/Mobiliario/machine_1              centro=(2,25; 0,44; -0,01) tam=(0,51 x 0,88 x 0,80) dist=2,5 m az 79..81 el -36..-13 | Material [URP/Lit]
+  EntornoBoxConsulta/Mobiliario/tray_1                 centro=(1,90; 0,36; 3,33) tam=(0,48 x 0,71 x 0,26) dist=4,0 m az 26..34 el -22..-10 | Material [URP/Lit]
+  EntornoBoxConsulta/Mobiliario/tray_2                 centro=(1,90; 0,74; 3,33) tam=(0,46 x 0,06 x 0,28) dist=3,9 m az 26..34 el -12..-10 | Material [URP/Lit]
+  EntornoBoxConsulta/Paredes/wall_1                    centro=(1,25; 1,25; 3,70) tam=(2,50 x 2,50 x 0,39) dist=3,9 m az 0..36 el -23..17 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Paredes/wall_1                    centro=(-1,25; 1,25; 3,70) tam=(2,50 x 2,50 x 0,39) dist=3,9 m az -36..0 el -23..17 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Paredes/wall_1                    centro=(2,70; 1,25; -0,25) tam=(0,39 x 2,50 x 2,50) dist=2,7 m az 68..71 el -28..21 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Paredes/wall_1                    centro=(-2,70; 1,25; -0,25) tam=(0,39 x 2,50 x 2,50) dist=2,7 m az -71..-68 el -28..21 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Paredes/wall_1                    centro=(-2,70; 1,25; 2,25) tam=(0,39 x 2,50 x 2,50) dist=3,5 m az -71..-36 el -28..21 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Paredes/wall_window               centro=(2,72; 1,25; 2,25) tam=(0,45 x 2,50 x 2,50) dist=3,5 m az 36..71 el -28..21 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Suelo/floor_1                     centro=(1,25; -0,11; -0,25) tam=(2,50 x 0,23 x 2,50) dist=2,0 m az 0..68 el -59..-28 | Mat_Amb_Suelo [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Suelo/floor_1                     centro=(-1,25; -0,11; -0,25) tam=(2,50 x 0,23 x 2,50) dist=2,0 m az -68..0 el -59..-28 | Mat_Amb_Suelo [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Suelo/floor_1                     centro=(1,25; -0,11; 2,25) tam=(2,50 x 0,23 x 2,50) dist=3,0 m az 0..68 el -59..-19 | Mat_Amb_Suelo [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Suelo/floor_1                     centro=(-1,25; -0,11; 2,25) tam=(2,50 x 0,23 x 2,50) dist=3,0 m az -68..0 el -59..-19 | Mat_Amb_Suelo [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Techo/floor_1                     centro=(1,25; 2,61; -0,25) tam=(2,50 x 0,23 x 2,50) dist=1,7 m az 0..68 el 21..52 | Mat_Amb_Techo [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Techo/floor_1                     centro=(-1,25; 2,61; -0,25) tam=(2,50 x 0,23 x 2,50) dist=1,7 m az -68..0 el 21..52 | Mat_Amb_Techo [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Techo/floor_1                     centro=(1,25; 2,61; 2,25) tam=(2,50 x 0,23 x 2,50) dist=2,8 m az 0..68 el 14..52 | Mat_Amb_Techo [URP/Lit] smooth=0.10
+  EntornoBoxConsulta/Techo/floor_1                     centro=(-1,25; 2,61; 2,25) tam=(2,50 x 0,23 x 2,50) dist=2,8 m az -68..0 el 14..52 | Mat_Amb_Techo [URP/Lit] smooth=0.10
+  (renderers en campo: 26)
+=== SceneSimulador | ojo (0; 1,45; 0), mirando +Z, campo 100 x 100 grados
+  AmbientacionUrgencias/Esquinas                       centro=(0,00; 1,25; 1,25) tam=(8,45 x 2,50 x 8,45) dist=1,3 m az -38..38 el -12..9 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  AmbientacionUrgencias/Provisional/Cortina_Derecha    centro=(3,20; 1,38; 3,70) tam=(0,07 x 2,13 x 1,40) dist=4,9 m az 36..47 el -15..13 | Material [URP/Lit]
+  AmbientacionUrgencias/Provisional/Luminarias         centro=(0,00; 2,49; 1,70) tam=(3,00 x 0,02 x 5,00) dist=2,0 m az -20..20 el 13..13 | Mat_Amb_Luminaria [URP/Unlit] UNLIT/brillante
+  AmbientacionUrgencias/Provisional/PanelCabecera      centro=(-3,56; 1,56; 2,74) tam=(0,39 x 0,35 x 1,23) dist=4,5 m az -61..-45 el -1..4 | Material [URP/Lit]
+  AmbientacionUrgencias/Provisional/PosteSuero         centro=(-3,20; 1,03; 4,10) tam=(0,45 x 2,05 x 0,45) dist=5,2 m az -41..-35 el -17..7 | Material [URP/Lit]
+  EntornoSalaRCP/Mobiliario/cupboard_bottom            centro=(-1,95; 0,43; 4,75) tam=(0,94 x 0,86 x 0,48) dist=5,2 m az -28..-17 el -17..-6 | Material [URP/Lit]
+  EntornoSalaRCP/Mobiliario/cupboard_bottom            centro=(-2,90; 0,43; 4,75) tam=(0,94 x 0,86 x 0,48) dist=5,7 m az -37..-26 el -16..-6 | Material [URP/Lit]
+  EntornoSalaRCP/Mobiliario/cupboard_top               centro=(-1,95; 1,17; 4,80) tam=(0,94 x 0,62 x 0,38) dist=5,2 m az -28..-17 el -7..0 | Material [URP/Lit]
+  EntornoSalaRCP/Mobiliario/cupboard_top               centro=(-2,90; 1,17; 4,80) tam=(0,94 x 0,62 x 0,38) dist=5,6 m az -36..-26 el -6..0 | Material [URP/Lit]
+  EntornoSalaRCP/Mobiliario/machine_1                  centro=(2,91; 0,44; 4,73) tam=(0,80 x 0,88 x 0,51) dist=5,6 m az 27..36 el -16..-5 | Material [URP/Lit]
+  EntornoSalaRCP/Mobiliario/machine_1                  centro=(3,48; 0,44; 0,29) tam=(0,51 x 0,88 x 0,80) dist=3,6 m az 78..80 el -24..-9 | Material [URP/Lit]
+  EntornoSalaRCP/Mobiliario/machine_2                  centro=(-3,43; 0,52; 3,40) tam=(0,63 x 1,04 x 0,64) dist=4,9 m az -51..-40 el -18..-4 | Material [URP/Lit]
+  EntornoSalaRCP/Paredes/wall_1                        centro=(0,00; 1,25; 5,20) tam=(2,50 x 2,50 x 0,39) dist=5,2 m az -14..14 el -16..12 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Paredes/wall_1                        centro=(2,50; 1,25; 5,20) tam=(2,50 x 2,50 x 0,39) dist=5,8 m az 13..37 el -16..12 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Paredes/wall_1                        centro=(-2,50; 1,25; 5,20) tam=(2,50 x 2,50 x 0,39) dist=5,8 m az -37..-13 el -16..12 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Paredes/wall_1                        centro=(3,95; 1,25; 1,25) tam=(0,39 x 2,50 x 2,50) dist=4,1 m az 56..59 el -18..13 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Paredes/wall_1                        centro=(-3,95; 1,25; 1,25) tam=(0,39 x 2,50 x 2,50) dist=4,1 m az -59..-56 el -18..13 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Paredes/wall_1                        centro=(-3,95; 1,25; 3,75) tam=(0,39 x 2,50 x 2,50) dist=5,4 m az -59..-37 el -18..13 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Paredes/wall_window                   centro=(3,97; 1,25; 3,75) tam=(0,45 x 2,50 x 2,50) dist=5,5 m az 37..59 el -18..13 | Mat_Amb_Pared [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Suelo/floor_1                         centro=(0,00; -0,11; 1,25) tam=(2,50 x 0,23 x 2,50) dist=2,0 m az -27..27 el -31..-27 | Mat_Amb_Suelo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Suelo/floor_1                         centro=(0,00; -0,11; 3,75) tam=(2,50 x 0,23 x 2,50) dist=4,1 m az -27..27 el -31..-16 | Mat_Amb_Suelo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Suelo/floor_1                         centro=(2,50; -0,11; 1,25) tam=(2,50 x 0,23 x 2,50) dist=3,2 m az 27..56 el -31..-18 | Mat_Amb_Suelo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Suelo/floor_1                         centro=(-2,50; -0,11; 1,25) tam=(2,50 x 0,23 x 2,50) dist=3,2 m az -56..-27 el -31..-18 | Mat_Amb_Suelo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Suelo/floor_1                         centro=(2,50; -0,11; 3,75) tam=(2,50 x 0,23 x 2,50) dist=4,8 m az 14..56 el -31..-13 | Mat_Amb_Suelo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Suelo/floor_1                         centro=(-2,50; -0,11; 3,75) tam=(2,50 x 0,23 x 2,50) dist=4,8 m az -56..-14 el -31..-13 | Mat_Amb_Suelo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/SuperficiePaciente/Tablero            centro=(0,14; 0,96; 1,78) tam=(2,11 x 0,06 x 0,84) dist=1,9 m az -34..41 el -18..-10 | Material [URP/Lit]
+  EntornoSalaRCP/Techo/floor_1                         centro=(0,00; 2,61; 1,25) tam=(2,50 x 0,23 x 2,50) dist=1,7 m az -27..27 el 21..25 | Mat_Amb_Techo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Techo/floor_1                         centro=(0,00; 2,61; 3,75) tam=(2,50 x 0,23 x 2,50) dist=3,9 m az -27..27 el 12..25 | Mat_Amb_Techo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Techo/floor_1                         centro=(2,50; 2,61; 1,25) tam=(2,50 x 0,23 x 2,50) dist=3,0 m az 27..56 el 13..25 | Mat_Amb_Techo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Techo/floor_1                         centro=(-2,50; 2,61; 1,25) tam=(2,50 x 0,23 x 2,50) dist=3,0 m az -56..-27 el 13..25 | Mat_Amb_Techo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Techo/floor_1                         centro=(2,50; 2,61; 3,75) tam=(2,50 x 0,23 x 2,50) dist=4,7 m az 14..56 el 10..25 | Mat_Amb_Techo [URP/Lit] smooth=0.10
+  EntornoSalaRCP/Techo/floor_1                         centro=(-2,50; 2,61; 3,75) tam=(2,50 x 0,23 x 2,50) dist=4,7 m az -56..-14 el 10..25 | Mat_Amb_Techo [URP/Lit] smooth=0.10
+  Paciente_Completo/Banana Man/Body                    centro=(0,16; 1,12; 1,79) tam=(1,97 x 0,73 x 1,64) dist=1,8 m az -40..50 el -29..1 | Mat_Holograma [URP/Lit] TRANSPARENTE(alpha 0.12) smooth=0.50 EMISION
+  Paciente_Completo/Spine 2/PechoVisual                centro=(-0,15; 1,15; 1,79) tam=(0,20 x 0,20 x 0,20) dist=1,8 m az -8..-2 el -13..-6 | Mat_Holograma [URP/Lit] TRANSPARENTE(alpha 0.12) smooth=0.50 EMISION
+  Panel_GuiaManos/Circulo_EstadoManos                  centro=(-1,13; 1,12; 2,25) tam=(0,13 x 0,13 x 0,03) dist=2,5 m az -28..-25 el -9..-6 | Mat_Monitor_Cuerpo [URP/Lit] smooth=0.60
+  Panel_MetricasRCP/Circulo_Metronomo                  centro=(0,40; 1,32; 2,51) tam=(0,45 x 0,45 x 0,04) dist=2,5 m az 4..14 el -8..2 | Mat_Monitor_Cuerpo [URP/Lit] smooth=0.60
+  Panel_MetricasRCP/Circulo_Ritmo                      centro=(0,40; 1,32; 2,49) tam=(0,32 x 0,32 x 0,03) dist=2,5 m az 5..13 el -7..1 | Mat_Monitor_Cuerpo [URP/Lit] smooth=0.60
+  (renderers en campo: 37)
+

@@ -9,7 +9,18 @@ public class LogicaRCP : MonoBehaviour
 
     // Congela Update() por completo (GestorMenuPausa) sin tocar ningún contador.
     private bool pausado = false;
-    public void SetPausado(bool valor) => pausado = valor;
+    public void SetPausado(bool valor)
+    {
+        pausado = valor;
+        // Metrónomo: en pausa sonido y pulso se detienen; al reanudar se re-ancla la fase (salvo que la
+        // sesión haya terminado: ahí siguen detenidos hasta que empiece una nueva).
+        if (metronomo != null)
+        {
+            if (valor) metronomo.Detener();
+            else if (!_sesionTerminada) metronomo.Anclar();
+        }
+    }
+    public bool EstaPausado => pausado;
 
     [Header("Referencias OVR")]
     public OVRHand manoIzquierda;
@@ -68,6 +79,9 @@ public class LogicaRCP : MonoBehaviour
     private bool contadorSumadoEnEsteCiclo = false;
 
     // --- Metrónomo ---
+    [Tooltip("Reloj único (dspTime) para el sonido y el pulso visual. Si es null se usa el metrónomo antiguo " +
+             "basado en Time.time (sin sincronía con el pulso visual).")]
+    public MetronomoRCP metronomo;
     private float intervaloMetronomo;
     private float proximoTic;
     private AudioClip sonidoTic;
@@ -96,6 +110,34 @@ public class LogicaRCP : MonoBehaviour
     private int contadorRecoilIncompleto = 0;
     private int _ultimoContadorRecoilUI = -1; // dirty flag UI
 
+    // --- Sesión cronometrada (SesionRCP) ---
+    // Solo eventos y acumuladores: la lógica verificada de arriba no cambia. SesionRCP
+    // se suscribe; LogicaRCP no la conoce.
+    // Los umbrales de profundidad correcta de EjecutarLogicaPush (5.0-6.0 cm) se
+    // publican aquí para que la clasificación por ciclo use EXACTAMENTE los mismos.
+    public const float PROF_MIN_CORRECTA_CM = 5f;
+    public const float PROF_MAX_CORRECTA_CM = 6f;
+
+    /// <summary>Empezó un ciclo de push (profundidad &gt; 2 cm, de cualquier magnitud).</summary>
+    public event System.Action AlIniciarCiclo;
+    /// <summary>Terminó el ciclo (retorno &lt; 1.5 cm) o se abortó (pérdida de tracking /
+    /// salida de zona / fin de sesión). Argumento: profundidad MÁXIMA del ciclo, en cm.</summary>
+    public event System.Action<float> AlCerrarCiclo;
+    /// <summary>Se evaluó el recoil de una compresión válida. true = incompleto.</summary>
+    public event System.Action<bool> AlEvaluarRecoil;
+    /// <summary>SalirDeModoRCP (manos perdidas / manos separadas / alejarse del pecho).</summary>
+    public event System.Action AlSalirDeZona;
+    /// <summary>ResetearEstadoSimulacion (cambio de modo, "Reiniciar sesión", repetir sesión).</summary>
+    public event System.Action AlResetearEstado;
+
+    private float _maxProfCicloCM = 0f;
+    private bool _sesionTerminada = false;
+
+    public bool EnPosicionCorrecta => enPosicionCorrecta;
+    /// <summary>Conteo "legado" de compresiones válidas (el del HUD "Total:").</summary>
+    public int ContadorCompresiones => contadorCompresiones;
+    public bool SesionTerminada => _sesionTerminada;
+
     // --- Datos expuestos para HUD externo (GestorMetricasRCP) ---
     private float profundidadActualCM = 0f;
     public float ProfundidadActualCM => profundidadActualCM;
@@ -107,6 +149,7 @@ public class LogicaRCP : MonoBehaviour
         if (pechoVisual != null) alturaInicialPechoY = pechoVisual.position.y;
         intervaloMetronomo = 60f / bpmMetronomo;
         sonidoTic = CrearSonidoBip();
+        if (metronomo != null) metronomo.Inicializar(sonidoTic, altavoz);
         RecalcularUmbralesSqr();
         _inicializado = true;
     }
@@ -127,7 +170,7 @@ public class LogicaRCP : MonoBehaviour
 
     void Update()
     {
-        if (pausado) return;
+        if (pausado || _sesionTerminada) return;
 
         // ================================================================
         // 1. MODO CALIBRACIÓN
@@ -224,6 +267,7 @@ public class LogicaRCP : MonoBehaviour
             alturaInicialManos = posManos.y;
             tiempoUltimaCompresion = Time.time;
             proximoTic = Time.time;
+            if (metronomo != null) metronomo.Anclar(); // entrar en la zona = mismo punto de fase para audio y pulso
         }
         else
         {
@@ -258,6 +302,8 @@ public class LogicaRCP : MonoBehaviour
 
     void SalirDeModoRCP(string motivo)
     {
+        if (estaEmpujando) CerrarCicloActual(); // el ciclo en curso se cierra con su máximo hasta ahora
+        AlSalirDeZona?.Invoke();
         enPosicionCorrecta = false;
         estaEmpujando = false;
         _trackingCompletoAnterior = false; // FIX 1: limpiar caché de tracking
@@ -277,12 +323,17 @@ public class LogicaRCP : MonoBehaviour
         if (!trackingCompleto && _trackingCompletoAnterior && estaEmpujando)
         {
             alturaInicialManos = alturaActualManos;
+            CerrarCicloActual(); // estaEmpujando era true (condición del if)
             estaEmpujando = false;
             contadorSumadoEnEsteCiclo = false;
             esperandoRecoil = false; // C1: cancelar sin confirmar — baseline recalibrado por pérdida de tracking, no por compresión real
         }
 
-        if (Time.time >= proximoTic)
+        if (metronomo != null)
+        {
+            metronomo.Programar(); // tics sobre la rejilla dsp compartida con el pulso visual
+        }
+        else if (Time.time >= proximoTic)
         {
             if (altavoz != null && sonidoTic != null) altavoz.PlayOneShot(sonidoTic);
             proximoTic = Time.time + intervaloMetronomo;
@@ -291,6 +342,7 @@ public class LogicaRCP : MonoBehaviour
         float profundidad = alturaInicialManos - alturaActualManos;
         float profundidadCM = profundidad * 100f;
         profundidadActualCM = profundidadCM;
+        if (estaEmpujando && profundidadCM > _maxProfCicloCM) _maxProfCicloCM = profundidadCM; // acumulador del ciclo
 
         if (pechoVisual != null)
         {
@@ -347,13 +399,17 @@ public class LogicaRCP : MonoBehaviour
             if (esperandoRecoil)
             {
                 if (!recoilAlcanzado) contadorRecoilIncompleto++;
+                AlEvaluarRecoil?.Invoke(!recoilAlcanzado);
                 esperandoRecoil = false;
             }
             estaEmpujando = true;
+            _maxProfCicloCM = profundidadCM;
+            AlIniciarCiclo?.Invoke();
         }
         else if (profundidad < 0.015f && estaEmpujando)
         {
             estaEmpujando = false;
+            CerrarCicloActual();
         }
 
         // FIX 2: Dirty flag — sólo reconstruir la UI cuando los valores realmente cambian.
@@ -378,16 +434,19 @@ public class LogicaRCP : MonoBehaviour
                     // ToString("F1") asigna 1 string sólo cuando el valor cambia,
                     // no en cada frame — reducción de ~90x en la frecuencia de alloc.
                     string valStr = profundidadCM.ToString("F1");
+                    // Adornos en ASCII: ▼ ★ 🛑 ▲ no existen en LiberationSans SDF (estática)
+                    // y se dibujaban como □ (auditado 2026-10-13). El mensaje entre
+                    // paréntesis y el color de colorProf ya transmiten el estado.
                     if (profundidadCM < 5f)
-                        _sbUI.Append("▼ ").Append(valStr).Append(" cm ▼\n(EMPUJA MÁS)");
+                        _sbUI.Append("-- ").Append(valStr).Append(" cm --\n(EMPUJA MÁS)");
                     else if (profundidadCM <= 6.0f)
-                        _sbUI.Append("★ ").Append(valStr).Append(" cm ★\n(PERFECTO)");
+                        _sbUI.Append("** ").Append(valStr).Append(" cm **\n(PERFECTO)");
                     else
-                        _sbUI.Append("🛑 ").Append(valStr).Append(" cm 🛑\n(TE PASASTE)");
+                        _sbUI.Append("!! ").Append(valStr).Append(" cm !!\n(TE PASASTE)");
                 }
                 else
                 {
-                    _sbUI.Append("▲ SUBE ▲");
+                    _sbUI.Append("^^ SUBE ^^");
                 }
 
                 txtInfoProfundidad.SetText(_sbUI);
@@ -420,6 +479,8 @@ public class LogicaRCP : MonoBehaviour
     {
         if (!_inicializado) return; // Guard: no ejecutar si Start() aún no corrió
 
+        _sesionTerminada        = false;
+        _maxProfCicloCM         = 0f;
         enPosicionCorrecta      = false;
         estaEmpujando           = false;
         contadorCompresiones    = 0;
@@ -435,6 +496,7 @@ public class LogicaRCP : MonoBehaviour
 
         tiempoUltimaCompresion  = Time.time;
         proximoTic              = Time.time + intervaloMetronomo;
+        if (metronomo != null && !pausado) metronomo.Anclar(); // modo/reinicio/repetir: nueva fase (en pausa lo hace SetPausado(false))
 
         // Resetear el pecho a la última posición calibrada conocida, luego sincronizar
         ResetearPecho();
@@ -446,6 +508,32 @@ public class LogicaRCP : MonoBehaviour
         contadorRecoilIncompleto = 0;
         _ultimoContadorRecoilUI  = -1;
         if (txtInfoRitmo != null) txtInfoRitmo.text = "";
+
+        AlResetearEstado?.Invoke(); // SesionRCP descarta la sesión en curso/terminada
+    }
+
+    /// <summary>Fin de la sesión cronometrada: cierra el ciclo abierto (con su máximo hasta
+    /// ahora), deja de evaluar compresiones (Update retorna) y de sonar el metrónomo, y limpia
+    /// el pecho y los mensajes de postura (GestorGuiaManos refleja txtInfoManos).</summary>
+    public void DetenerPorFinDeSesion()
+    {
+        if (estaEmpujando) CerrarCicloActual();
+        enPosicionCorrecta = false;
+        estaEmpujando = false;
+        contadorSumadoEnEsteCiclo = false;
+        _trackingCompletoAnterior = false;
+        esperandoRecoil = false;
+        _sesionTerminada = true;
+        if (metronomo != null) metronomo.Detener(); // sonido y pulso quietos hasta la próxima sesión
+        ResetearPecho();
+        ActualizarPanelManos("SESIÓN TERMINADA", Color.cyan);
+        LimpiarOtrosPaneles();
+    }
+
+    void CerrarCicloActual()
+    {
+        AlCerrarCiclo?.Invoke(_maxProfCicloCM);
+        _maxProfCicloCM = 0f;
     }
 
     // --- AUXILIARES ---

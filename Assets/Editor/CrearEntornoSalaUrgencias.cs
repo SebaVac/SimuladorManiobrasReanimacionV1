@@ -6,9 +6,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Rendering;
 
 /// <summary>
-/// Menú: Tools > Crear Entorno Sala Urgencias
-/// Crea la geometría de sala de urgencias para el simulador RCP.
-/// Ejecutar una única vez desde el Editor con la escena SampleScene abierta.
+/// OBSOLETO. Menú: Tools > Crear Entorno Sala Urgencias
+/// Primera versión del entorno de RCP con cuadros y cubos primitivos (sala de 5 x 6 x 3 m, sin piezas del pack).
+/// La reemplazó MontarSalaHospitalPack (sala de 12 x 16 x 4 m con piezas a escala 2,0) y, a su vez, esta última
+/// quedó reemplazada por ConstruirSalaRCP (sala de 7,5 x 7,5 x 2,5 m con piezas a escala 1,25, igual que el box de
+/// consulta de SceneDiagnostico). No lo ejecutes: sus dimensiones y la camilla a 0,30 m ya no se corresponden con
+/// la escena (CalibradorPosicion.alturaSuelo ya no se usa para colocar al paciente; ver SuperficiePaciente).
 /// </summary>
 public static class CrearEntornoSalaUrgencias
 {

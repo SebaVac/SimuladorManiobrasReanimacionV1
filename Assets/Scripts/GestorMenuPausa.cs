@@ -40,6 +40,10 @@ public class GestorMenuPausa : MonoBehaviour
         [Tooltip("Acción a ejecutar al seleccionar este ítem. Vacía = solo cierra el menú (Reanudar).")]
         public UnityEvent accion;
 
+        [Tooltip("Si true, tras ejecutar la acción el menú sigue abierto y se refrescan las etiquetas " +
+                 "(ítems de depuración que ciclan estados). Por defecto false: la acción cierra el menú.")]
+        public bool mantenerMenuAbierto;
+
         [Header("Confirmación (acciones destructivas)")]
         public bool requiereConfirmacion;
         [TextArea] public string tituloConfirmacion;
@@ -216,7 +220,8 @@ public class GestorMenuPausa : MonoBehaviour
         else
         {
             item.accion?.Invoke();
-            CerrarMenu();
+            if (item.mantenerMenuAbierto) RefrescarItems();
+            else CerrarMenu();
         }
     }
 

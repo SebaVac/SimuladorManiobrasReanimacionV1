@@ -121,7 +121,7 @@ public class CalibradorPosicion : MonoBehaviour, IEtiquetaDinamica, IItemMenuCon
         {
             objetoSeleccionado = pacienteCompleto;
             GestionarEscalado();
-            if (textoInstrucciones) textoInstrucciones.text = "↔ ESCALANDO ↔";
+            if (textoInstrucciones) textoInstrucciones.text = "== ESCALANDO =="; // ASCII: ↔ no existe en LiberationSans SDF
             ActivarFantasma(true);
             estaPellizcando = false;
         }

@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// Panel 4 — Hallazgos / Examen Físico. Head-locked (AnclajeCabeza en <see cref="raiz"/>),
+/// Panel 4 — Hallazgos / Examen Físico. Anclado a un slot fijo de la sala (SlotPanel; <see cref="raiz"/> es hija del slot),
 /// mismo patrón de activación que PanelIntroduccion / PanelSeleccionSubmodo / Panel 7:
 /// el controlador queda siempre activo y alterna <see cref="raiz"/> según el estado.
 ///
@@ -20,7 +20,7 @@ using UnityEngine;
 /// </summary>
 public class PanelHallazgos : MonoBehaviour, IPanelOcultable
 {
-    [Header("Visual (con AnclajeCabeza)")]
+    [Header("Visual (raíz hija de un SlotPanel)")]
     [SerializeField] private GameObject raiz;
 
     // Ver PanelIntroduccion._visibleSegunEstado — mismo criterio. Nota: el paciente

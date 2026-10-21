@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 // ── MÓDULO DE RAZONAMIENTO CLÍNICO BASADO EN CASOS ────────────────────────────
 // Datos puros del caso clínico. Sin lógica, sin MonoBehaviour.
@@ -57,12 +58,27 @@ public class HallazgoRegion
     public bool esHallazgoRelevante;
 }
 
+/// <summary>Cómo puntúa pedir un examen en un caso. Los VALORES NUMÉRICOS coinciden a
+/// propósito con el antiguo bool <c>esExamenPertinente</c> (0 = no, 1 = sí): los 7
+/// .asset existentes se leen igual vía FormerlySerializedAs, sin reescribir datos.</summary>
+public enum ClasificacionExamen
+{
+    NoPertinente = 0,  // pedirlo RESTA (penalización por examen no pertinente)
+    Pertinente   = 1,  // pedirlo SUMA (entra en el denominador del componente Exámenes)
+    Indiferente  = 2   // ni suma ni resta: no cuenta en el denominador ni en la penalización
+}
+
 [System.Serializable]
 public class ExamenComplementario
 {
+    [Tooltip("Debe coincidir con el nombre de una entrada de CatalogoExamenes (se usa como id " +
+             "en MotorEvaluacion y en los errores frecuentes 'omitio:<nombre>').")]
     public string nombreExamen;
     [TextArea] public string resultado;
-    public bool esExamenPertinente;
+    [FormerlySerializedAs("esExamenPertinente")]
+    public ClasificacionExamen clasificacion = ClasificacionExamen.Pertinente;
+
+    public bool EsPertinente => clasificacion == ClasificacionExamen.Pertinente;
 }
 
 /// <summary>Un conjunto AND de palabras: matchea solo si el texto del jugador
@@ -104,6 +120,12 @@ public class AccionCritica
     [Tooltip("Vincula con idPregunta / regionAnatomica / nombreExamen / id de conducta, según 'tipo'.")]
     public string idReferencia;
     public int peso;
+
+    [Tooltip("Solo para acciones de tipo Manejo: la acción se cumple si el texto de manejo " +
+             "que escribió el jugador contiene TODAS las palabras de al menos UN conjunto " +
+             "(AND dentro del conjunto, OR entre conjuntos; misma semántica que en preguntas " +
+             "y diagnóstico). Sin conjuntos, la acción nunca se cumple (y se loguea un aviso).")]
+    public List<ConjuntoPalabrasClave> conjuntosPalabrasClave = new List<ConjuntoPalabrasClave>();
 }
 
 [System.Serializable]

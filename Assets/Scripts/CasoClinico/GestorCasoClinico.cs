@@ -21,6 +21,11 @@ public class GestorCasoClinico : MonoBehaviour
     [SerializeField] private FichaCaso casoActual;
     [SerializeField] private SubmodoCaso submodoActual = SubmodoCaso.Tutorial;
 
+    [Header("Dispositivo de entrada (opcional)")]
+    [Tooltip("Si se asigna, el dispositivo usado en el caso (Manos / Controles / Mixto) se anota en ResultadoCaso " +
+             "y aparece en el Debriefing. No afecta al puntaje.")]
+    [SerializeField] private EntradaControlesTouch entradaDispositivo;
+
     [Header("Subsistemas (asignar en Inspector)")]
     [SerializeField] private InteraccionPaciente interaccionPaciente;
     [SerializeField] private MotorEvaluacion motorEvaluacion;
@@ -46,6 +51,13 @@ public class GestorCasoClinico : MonoBehaviour
     /// reescribir cuantas veces se quiera antes de registrar (ver
     /// <see cref="OnJugadorEscribioDiagnostico"/>).</summary>
     public string DiagnosticoRegistrado { get; private set; }
+
+    /// <summary>Último texto de "Indicaciones / manejo" que el jugador escribió en el
+    /// teclado (mismo patrón que <see cref="DiagnosticoRegistrado"/>): se reescribe sin
+    /// límite antes de registrar, se resetea en <see cref="IniciarCaso"/>, y
+    /// <see cref="OnJugadorRegistroDiagnostico"/> lo entrega al MotorEvaluacion. Puede
+    /// quedar vacío (el componente Manejo suma 0).</summary>
+    public string ManejoRegistrado { get; private set; }
 
     /// <summary>Fecha y hora reales del sistema en que arrancó el caso (se fija en
     /// <see cref="IniciarCaso"/>). El Panel 7 la muestra como "fecha/hora de
@@ -92,6 +104,7 @@ public class GestorCasoClinico : MonoBehaviour
         interaccionPaciente.OnPreguntaAlternativaSeleccionada += OnJugadorPreguntoAlternativa;
         interaccionPaciente.OnTextoLibreEnviado            += OnJugadorEscribioPregunta;
         interaccionPaciente.OnDiagnosticoTextoEnviado      += OnJugadorEscribioDiagnostico;
+        interaccionPaciente.OnManejoTextoEnviado           += OnJugadorEscribioManejo;
         interaccionPaciente.OnExamenSolicitado             += OnJugadorPidioExamen;
     }
 
@@ -102,6 +115,7 @@ public class GestorCasoClinico : MonoBehaviour
         interaccionPaciente.OnPreguntaAlternativaSeleccionada -= OnJugadorPreguntoAlternativa;
         interaccionPaciente.OnTextoLibreEnviado            -= OnJugadorEscribioPregunta;
         interaccionPaciente.OnDiagnosticoTextoEnviado      -= OnJugadorEscribioDiagnostico;
+        interaccionPaciente.OnManejoTextoEnviado           -= OnJugadorEscribioManejo;
         interaccionPaciente.OnExamenSolicitado             -= OnJugadorPidioExamen;
     }
 
@@ -142,7 +156,9 @@ public class GestorCasoClinico : MonoBehaviour
         casoActual    = caso;
         submodoActual = submodo;
         DiagnosticoRegistrado = null;
+        ManejoRegistrado = null;
         FechaHoraInicio = System.DateTime.Now;
+        if (entradaDispositivo != null) entradaDispositivo.ReiniciarRegistro();
 
         motorEvaluacion.Inicializar(caso);
         interaccionPaciente.Inicializar(caso, submodo);
@@ -197,20 +213,23 @@ public class GestorCasoClinico : MonoBehaviour
         TransicionarA(EstadoCasoClinico.Inactivo);
     }
 
-    /// <summary>Cierre del caso: el jugador registró diagnóstico y conductas de
-    /// manejo. Corre la evaluación completa y pasa a Debriefing.</summary>
-    public void OnJugadorRegistroDiagnostico(string diagnostico, List<string> manejo)
+    /// <summary>Cierre del caso: el jugador registró diagnóstico y manejo (ambos texto
+    /// libre). Corre la evaluación completa y pasa a Debriefing. Con argumentos
+    /// vacíos/null se usan los textos que el jugador escribió en el teclado
+    /// (<see cref="DiagnosticoRegistrado"/> / <see cref="ManejoRegistrado"/>).</summary>
+    public void OnJugadorRegistroDiagnostico(string diagnostico, string manejo = null)
     {
         if (Pausado) return;
         if (EstadoActual == EstadoCasoClinico.Evaluando || EstadoActual == EstadoCasoClinico.Debriefing)
             return; // ya se está evaluando / evaluó
 
-        // Si no llega diagnóstico explícito, se usa el que el jugador escribió en el teclado.
         string dx = string.IsNullOrWhiteSpace(diagnostico) ? DiagnosticoRegistrado : diagnostico;
+        string mj = string.IsNullOrWhiteSpace(manejo) ? ManejoRegistrado : manejo;
 
         TransicionarA(EstadoCasoClinico.Evaluando);
 
-        ResultadoCaso resultado = motorEvaluacion.EvaluarCasoCompleto(dx, manejo);
+        ResultadoCaso resultado = motorEvaluacion.EvaluarCasoCompleto(dx, mj, submodoActual);
+        resultado.dispositivoEntrada = entradaDispositivo != null ? entradaDispositivo.Dispositivo : DispositivoEntrada.Manos;
 
         TransicionarA(EstadoCasoClinico.Debriefing);
         OnCasoFinalizado?.Invoke(resultado);
@@ -263,6 +282,15 @@ public class GestorCasoClinico : MonoBehaviour
     {
         if (Pausado) return;
         DiagnosticoRegistrado = textoLibre;
+    }
+
+    /// <summary>El jugador escribió las indicaciones / manejo en el teclado. Se guarda; el
+    /// matching contra los <c>conjuntosPalabrasClave</c> de cada AccionCritica de tipo
+    /// Manejo ocurre en <see cref="MotorEvaluacion.EvaluarCasoCompleto"/> al cerrar el caso.</summary>
+    private void OnJugadorEscribioManejo(string textoLibre)
+    {
+        if (Pausado) return;
+        ManejoRegistrado = textoLibre;
     }
 
     private void OnJugadorPidioExamen(string idExamen) =>

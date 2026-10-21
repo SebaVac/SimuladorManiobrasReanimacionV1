@@ -20,6 +20,8 @@ using UnityEngine.UI;
 /// </summary>
 public static class ConstruirPanel6Examenes
 {
+    const string RUTA_CATALOGO = "Assets/Scripts/CasoClinico/CatalogoExamenes.asset";
+
     static readonly Color COLOR_PANEL     = new Color(0.03f, 0.09f, 0.11f, 0.92f);
     static readonly Color COLOR_HISTORIAL = new Color(0.02f, 0.06f, 0.07f, 0.85f);
     static readonly Color COLOR_TARJETA   = new Color(0.047f, 0.180f, 0.204f, 0.90f);
@@ -56,25 +58,48 @@ public static class ConstruirPanel6Examenes
         SetFloat(anclaje, "distancia", 0.60f);
         SetFloat(anclaje, "alturaRelativa", -0.05f);
 
-        // Alto 720 (era 660): +60 simétrico solo para dejar hueco debajo de
-        // BotonContinuar para el texto de ayuda del estado bloqueado (2026-09-16).
-        // No mueve ningún elemento existente, solo agranda el margen. Mismo
-        // criterio que ConstruirPanel5Anamnesis, para consistencia entre ambos.
-        var canvas = NuevoCanvas("Canvas", raiz.transform, 760f, 720f);
+        // Alto 806 (era 720, con las dos filas de pestañas por categoría del catálogo ampliado):
+        // el canvas crece HACIA ARRIBA — se sube su origen (760-720)/2 para que el borde
+        // INFERIOR quede donde estaba (-0.41 m respecto de la vista), por debajo del cual
+        // viven el ícono de pausa (y<=-0.469) y la hoja de notas (y<=-0.49).
+        const float ALTO_CANVAS = 806f;
+        var canvas = NuevoCanvas("Canvas", raiz.transform, 760f, ALTO_CANVAS);
+        canvas.transform.localPosition = new Vector3(0f, (ALTO_CANVAS - 720f) * 0.5f * 0.001f, 0f);
         Fondo(canvas.transform, COLOR_PANEL);
 
+        // Coordenadas locales (origen al centro; arriba=+380, abajo=-380). Lo de abajo
+        // conserva su distancia al borde inferior; la fila de pestañas es nueva.
         Texto(canvas.transform, "Titulo", "EXÁMENES COMPLEMENTARIOS", 26, FontStyles.Bold, COLOR_TEXTO,
-              TextAlignmentOptions.Center, new Vector2(0f, 292f), new Vector2(720f, 42f));
-        Linea(canvas.transform, "Regla", new Vector2(0f, 266f), 720f, COLOR_ACENTO);
+              TextAlignmentOptions.Center, new Vector2(0f, 341f), new Vector2(720f, 42f));
+        Linea(canvas.transform, "Regla", new Vector2(0f, 315f), 720f, COLOR_ACENTO);
+
+        // ── Pestañas por categoría (solo Evaluación; el panel las oculta en Tutorial) ──
+        var contTabs = new GameObject("ContenedorTabs", typeof(RectTransform));
+        contTabs.transform.SetParent(canvas.transform, false);
+        var rtTabs = (RectTransform)contTabs.transform;
+        // Dos filas de hasta 4 pestañas (7 categorías): celdas de 176x44 con letra de 16 u,
+        // legible en el visor (una sola fila obligaba a 10-13 u).
+        rtTabs.anchoredPosition = new Vector2(0f, 259f);
+        rtTabs.sizeDelta = new Vector2(716f, 92f);
+        var grid = contTabs.AddComponent<GridLayoutGroup>();
+        grid.cellSize = new Vector2(176f, 44f);
+        grid.spacing = new Vector2(4f, 4f);
+        grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
+        grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+        grid.childAlignment = TextAnchor.UpperCenter;
+        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        grid.constraintCount = 4;
+        var prefabTab = CrearTabTemplate(canvas.transform);
 
         // ── Columna izquierda: lista dinámica de exámenes ─────────────────
+        // Máx. 6 botones por categoría (Laboratorio general): 6*48 + 5*12 + 8 = 356 ≤ 380.
         Texto(canvas.transform, "LblDisponibles", "DISPONIBLES", 16, FontStyles.Bold, COLOR_TENUE,
-              TextAlignmentOptions.Center, new Vector2(-185f, 230f), new Vector2(320f, 24f));
+              TextAlignmentOptions.Center, new Vector2(-185f, 200f), new Vector2(320f, 24f));
 
         var contenedor = new GameObject("ContenedorExamenes", typeof(RectTransform));
         contenedor.transform.SetParent(canvas.transform, false);
         var rtCont = (RectTransform)contenedor.transform;
-        rtCont.anchoredPosition = new Vector2(-185f, 30f);
+        rtCont.anchoredPosition = new Vector2(-185f, -11f);
         rtCont.sizeDelta = new Vector2(320f, 380f);
         var vlg = contenedor.AddComponent<VerticalLayoutGroup>();
         vlg.padding = new RectOffset(4, 4, 4, 4);
@@ -87,30 +112,33 @@ public static class ConstruirPanel6Examenes
 
         // ── Columna derecha: resultados acumulativos scrolleables ─────────
         Texto(canvas.transform, "LblResultados", "RESULTADOS", 16, FontStyles.Bold, COLOR_TENUE,
-              TextAlignmentOptions.Center, new Vector2(175f, 230f), new Vector2(360f, 24f));
+              TextAlignmentOptions.Center, new Vector2(175f, 200f), new Vector2(360f, 24f));
 
         TMP_Text textoResultados;
-        var scroll = ConstruirScroll(canvas.transform, new Vector2(175f, 35f), new Vector2(360f, 370f),
+        var scroll = ConstruirScroll(canvas.transform, new Vector2(175f, -11f), new Vector2(360f, 370f),
                                      out textoResultados);
 
         var scrollArriba = BotonSimple(canvas.transform, "BotonScrollArriba", "ANTERIORES",
-              new Vector2(105f, -175f), new Vector2(140f, 34f), 16);
+              new Vector2(105f, -221f), new Vector2(140f, 34f), 16);
         var scrollAbajo  = BotonSimple(canvas.transform, "BotonScrollAbajo", "RECIENTES",
-              new Vector2(250f, -175f), new Vector2(140f, 34f), 16);
+              new Vector2(250f, -221f), new Vector2(140f, 34f), 16);
 
         // ── Continuar ─────────────────────────────────────────────────────
         var botonContinuar = BotonSimple(canvas.transform, "BotonContinuar", "CONTINUAR A REGISTRO DE DIAGNÓSTICO",
-              new Vector2(0f, -295f), new Vector2(560f, 46f), 20);
+              new Vector2(0f, -341f), new Vector2(560f, 46f), 20);
         var fondoContinuar = botonContinuar.GetComponent<Image>();
 
         // Ayuda visible solo mientras Continuar está bloqueado (hueco nuevo del canvas).
         var textoAyuda = Texto(canvas.transform, "TextoAyudaBloqueado", "", 15, FontStyles.Italic,
-              COLOR_TENUE, TextAlignmentOptions.Center, new Vector2(0f, -339f), new Vector2(560f, 24f));
+              COLOR_TENUE, TextAlignmentOptions.Center, new Vector2(0f, -385f), new Vector2(560f, 24f));
 
         // ── Cableado ──────────────────────────────────────────────────────
         Set(comp, "raiz", raiz);
         Set(comp, "contenedorExamenes", contenedor.transform);
         Set(comp, "prefabBotonExamen", prefab);
+        Set(comp, "contenedorTabs", contTabs.transform);
+        Set(comp, "prefabTab", prefabTab);
+        Set(comp, "catalogo", AssetDatabase.LoadAssetAtPath<CatalogoExamenes>(RUTA_CATALOGO));
         Set(comp, "scroll", scroll);
         Set(comp, "textoResultados", textoResultados);
         Set(comp, "botonScrollArriba", scrollArriba);
@@ -152,6 +180,38 @@ public static class ConstruirPanel6Examenes
 
         Texto(go.transform, "Etiqueta", "(examen)", 17, FontStyles.Bold, COLOR_TEXTO,
               TextAlignmentOptions.Center, Vector2.zero, new Vector2(280f, 40f));
+
+        go.SetActive(false);
+        return go;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  Pestaña de categoría (desactivada; se clona en runtime, solo Evaluación)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    static GameObject CrearTabTemplate(Transform padre)
+    {
+        var go = new GameObject("PrefabTab", typeof(RectTransform), typeof(Image));
+        go.transform.SetParent(padre, false);
+        var rt = (RectTransform)go.transform;
+        rt.sizeDelta = new Vector2(176f, 44f);
+        go.GetComponent<Image>().color = COLOR_TARJETA;
+
+        var le = go.AddComponent<LayoutElement>();
+        le.preferredWidth = 176f;
+        le.preferredHeight = 44f;
+
+        var fb  = go.AddComponent<BotonMenuFeedback>();
+        var sel = go.AddComponent<SeleccionableToque>();
+        Set(sel, "feedbackVisual", fb);
+        SetFloat(sel, "profundidadToque", 0.05f);
+
+        // Etiqueta con wrap (hasta 2 líneas) + auto-tamaño como respaldo; 16 u por defecto.
+        var etiqueta = Texto(go.transform, "Etiqueta", "CATEGORÍA", 16, FontStyles.Bold, COLOR_TEXTO,
+              TextAlignmentOptions.Center, Vector2.zero, new Vector2(168f, 40f));
+        etiqueta.enableAutoSizing = true;
+        etiqueta.fontSizeMin = 13f;
+        etiqueta.fontSizeMax = 16f;
 
         go.SetActive(false);
         return go;

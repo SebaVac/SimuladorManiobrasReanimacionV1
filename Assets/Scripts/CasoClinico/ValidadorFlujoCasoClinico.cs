@@ -140,11 +140,17 @@ public class ValidadorFlujoCasoClinico : MonoBehaviour
 
         gestor.AvanzarFase();                   // → RegistroDiagnostico
 
-        var manejo = new List<string>();
+        // El manejo ahora es texto libre: se simula que el jugador escribe, por cada
+        // acción de Manejo, las palabras de su primer conjunto (si lo tiene).
+        var manejo = new System.Text.StringBuilder();
         foreach (var a in caso.accionesCriticas)
-            if (a.tipo == TipoAccion.Manejo) manejo.Add(a.idReferencia);
+        {
+            if (a.tipo != TipoAccion.Manejo || a.conjuntosPalabrasClave == null || a.conjuntosPalabrasClave.Count == 0)
+                continue;
+            manejo.Append(string.Join(" ", a.conjuntosPalabrasClave[0].palabras)).Append(". ");
+        }
 
-        gestor.OnJugadorRegistroDiagnostico(caso.diagnosticoEsperado, manejo); // → Evaluando → Debriefing
+        gestor.OnJugadorRegistroDiagnostico(caso.diagnosticoEsperado, manejo.ToString()); // → Evaluando → Debriefing
         gestor.FinalizarCaso();                 // → Finalizado
     }
 

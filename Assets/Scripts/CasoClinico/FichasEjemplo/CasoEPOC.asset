@@ -11,14 +11,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0059c866089bbe24c9d13b586730ee9e, type: 3}
   m_Name: CasoEPOC
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   idCaso: CASO-EPOC
-  nombreCaso: 'Exacerbación de EPOC'
-  motivoConsulta: 'Llevo años con tos, pero ahora me cuesta respirar mucho más que antes, se me agravó.'
+  nombreCaso: "Exacerbaci\xF3n de EPOC"
+  motivoConsulta: "Llevo a\xF1os con tos, pero ahora me cuesta respirar mucho m\xE1s
+    que antes, se me agrav\xF3."
   antecedentesRelevantes:
-  - 'Tabaquismo de larga data (≈30 paquetes/año).'
-  - 'Exacerbaciones previas de EPOC.'
-  - 'Posible exposición ocupacional a humo o polvo.'
+  - "Tabaquismo de larga data (\u224830 paquetes/a\xF1o)."
+  - Exacerbaciones previas de EPOC.
+  - "Posible exposici\xF3n ocupacional a humo o polvo."
   signosVitales:
     frecuenciaCardiaca: 100
     frecuenciaRespiratoria: 24
@@ -27,61 +28,64 @@ MonoBehaviour:
     temperatura: 36.5
   hallazgosPorRegion:
   - regionAnatomica: Cabeza y cuello
-    hallazgoTexto: 'Respiración con labios fruncidos.'
+    hallazgoTexto: "Respiraci\xF3n con labios fruncidos."
     esHallazgoRelevante: 1
-  - regionAnatomica: Tórax anterior
-    hallazgoTexto: 'Tórax en tonel, murmullo disminuido, sibilancias espiratorias.'
+  - regionAnatomica: "T\xF3rax anterior"
+    hallazgoTexto: "T\xF3rax en tonel, murmullo disminuido, sibilancias espiratorias."
     esHallazgoRelevante: 1
-  - regionAnatomica: Tórax posterior
-    hallazgoTexto: 'Hipersonoridad a la percusión, roncus.'
+  - regionAnatomica: "T\xF3rax posterior"
+    hallazgoTexto: "Hipersonoridad a la percusi\xF3n, roncus."
     esHallazgoRelevante: 1
   - regionAnatomica: Precordio
-    hallazgoTexto: 'Ruidos cardíacos alejados por hiperinsuflación.'
+    hallazgoTexto: "Ruidos card\xEDacos alejados por hiperinsuflaci\xF3n."
     esHallazgoRelevante: 1
   - regionAnatomica: Abdomen
-    hallazgoTexto: 'Sin hallazgos relevantes.'
+    hallazgoTexto: Sin hallazgos relevantes.
     esHallazgoRelevante: 0
   - regionAnatomica: Extremidades
-    hallazgoTexto: 'Sin edema (salvo cor pulmonale asociado).'
+    hallazgoTexto: Sin edema (salvo cor pulmonale asociado).
     esHallazgoRelevante: 0
   - regionAnatomica: Piel y mucosas
-    hallazgoTexto: 'Coloración rosada-grisácea, sin cianosis franca.'
+    hallazgoTexto: "Coloraci\xF3n rosada-gris\xE1cea, sin cianosis franca."
     esHallazgoRelevante: 1
   examenesDisponibles:
-  - nombreExamen: 'Espirometría'
-    resultado: 'Patrón obstructivo, VEF1/CVF < 0,70 post-broncodilatador.'
-    esExamenPertinente: 1
-  - nombreExamen: 'Gases arteriales'
-    resultado: 'Hipoxemia leve-moderada, PaCO2 normal o levemente elevada.'
-    esExamenPertinente: 1
-  - nombreExamen: 'Radiografía de tórax'
-    resultado: 'Hiperinsuflación, aplanamiento diafragmático.'
-    esExamenPertinente: 1
+  - nombreExamen: "Espirometr\xEDa"
+    resultado: "Patr\xF3n obstructivo, VEF1/CVF < 0,70 post-broncodilatador."
+    clasificacion: 1
+  - nombreExamen: Gases arteriales
+    resultado: Hipoxemia leve-moderada, PaCO2 normal o levemente elevada.
+    clasificacion: 1
+  - nombreExamen: "Radiograf\xEDa de t\xF3rax"
+    resultado: "Hiperinsuflaci\xF3n, aplanamiento diafragm\xE1tico."
+    clasificacion: 1
+  - nombreExamen: "Exploraci\xF3n cl\xEDnica del dolor"
+    resultado: Sin dolor referido en reposo (EVA 0/10).
+    clasificacion: 2
   preguntasClave:
   - idPregunta: epoc_duracion_tos
-    preguntaSugerida: '¿Hace cuánto tiempo tiene tos?'
+    preguntaSugerida: "\xBFHace cu\xE1nto tiempo tiene tos?"
     conjuntosPalabrasClave:
     - palabras:
       - hace
       - tos
     - palabras:
-      - años
+      - "a\xF1os"
       - tos
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Hace años; tos de fumador le dicen.'
+    respuestaPaciente: "Hace a\xF1os; tos de fumador le dicen."
     esPreguntaClave: 1
   - idPregunta: epoc_tabaquismo
-    preguntaSugerida: '¿Fuma o ha fumado? ¿Cuánto?'
+    preguntaSugerida: "\xBFFuma o ha fumado? \xBFCu\xE1nto?"
     conjuntosPalabrasClave:
     - palabras:
       - fum
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Fumé como 30 años, un paquete al día.'
+    respuestaPaciente: "Fum\xE9 como 30 a\xF1os, un paquete al d\xEDa."
     esPreguntaClave: 1
   - idPregunta: epoc_expectoracion
-    preguntaSugerida: '¿La tos tiene flema?'
+    preguntaSugerida: "\xBFLa tos tiene flema?"
     conjuntosPalabrasClave:
     - palabras:
       - tos
@@ -90,10 +94,10 @@ MonoBehaviour:
       - flem
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, en las mañanas boto harta flema.'
+    respuestaPaciente: "S\xED, en las ma\xF1anas boto harta flema."
     esPreguntaClave: 1
   - idPregunta: epoc_disnea_esfuerzo
-    preguntaSugerida: '¿Ha notado que se cansa más al hacer esfuerzo?'
+    preguntaSugerida: "\xBFHa notado que se cansa m\xE1s al hacer esfuerzo?"
     conjuntosPalabrasClave:
     - palabras:
       - cansa
@@ -102,10 +106,10 @@ MonoBehaviour:
       - fatiga
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, ya no puedo subir escaleras como antes.'
+    respuestaPaciente: "S\xED, ya no puedo subir escaleras como antes."
     esPreguntaClave: 1
   - idPregunta: epoc_baja_peso
-    preguntaSugerida: '¿Ha bajado de peso?'
+    preguntaSugerida: "\xBFHa bajado de peso?"
     conjuntosPalabrasClave:
     - palabras:
       - baj
@@ -114,10 +118,10 @@ MonoBehaviour:
       - adelgaz
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Un poco, sí.'
+    respuestaPaciente: "Un poco, s\xED."
     esPreguntaClave: 1
   - idPregunta: epoc_exacerbaciones
-    preguntaSugerida: '¿Ha tenido episodios similares antes?'
+    preguntaSugerida: "\xBFHa tenido episodios similares antes?"
     conjuntosPalabrasClave:
     - palabras:
       - episodio
@@ -126,10 +130,11 @@ MonoBehaviour:
       - recaida
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, esta es como la tercera vez que me pasa esto.'
+    respuestaPaciente: "S\xED, esta es como la tercera vez que me pasa esto."
     esPreguntaClave: 1
-  respuestaGenericaSinMatch: 'No estoy segura de a qué se refiere con eso.'
-  diagnosticoEsperado: 'Exacerbación de Enfermedad Pulmonar Obstructiva Crónica (EPOC).'
+  respuestaGenericaSinMatch: "No estoy segura de a qu\xE9 se refiere con eso."
+  diagnosticoEsperado: "Exacerbaci\xF3n de Enfermedad Pulmonar Obstructiva Cr\xF3nica
+    (EPOC)."
   conjuntosPalabrasClaveDiagnostico:
   - palabras:
     - epoc
@@ -140,26 +145,69 @@ MonoBehaviour:
     - obstructiva
     - cronica
   accionesCriticas:
-  - descripcion: 'Valorar patrón respiratorio y titular O2 con cautela (evitar hiperoxia en retenedores de CO2)'
+  - descripcion: "Valorar patr\xF3n respiratorio y titular O2 con cautela (evitar
+      hiperoxia en retenedores de CO2)"
     tipo: 4
-    idReferencia: 'manejo_o2_titulado'
+    idReferencia: manejo_o2_titulado
     peso: 50
-  - descripcion: 'Reconocer necesidad de broncodilatadores y valorar fatiga respiratoria'
+    conjuntosPalabrasClave:
+    - palabras:
+      - oxigen
+      - titul
+    - palabras:
+      - oxigen
+      - cautela
+    - palabras:
+      - oxigen
+      - controlad
+    - palabras:
+      - oxigen
+      - venturi
+    - palabras:
+      - o2
+      - titul
+    - palabras:
+      - o2
+      - cautela
+    - palabras:
+      - o2
+      - controlad
+    - palabras:
+      - o2
+      - venturi
+    - palabras:
+      - venturi
+    - palabras:
+      - 88
+      - 92
+  - descripcion: Reconocer necesidad de broncodilatadores y valorar fatiga respiratoria
     tipo: 4
-    idReferencia: 'manejo_broncodilatadores'
+    idReferencia: manejo_broncodilatadores
     peso: 50
+    conjuntosPalabrasClave:
+    - palabras:
+      - broncodilat
+    - palabras:
+      - salbutamol
+    - palabras:
+      - ipratropio
+    - palabras:
+      - nebuliz
   erroresFrecuentes:
-  - descripcion: 'No indagar la historia tabáquica'
-    idReferenciaCondicion: 'omitio:epoc_tabaquismo'
-    retroalimentacion: 'Cuantificar el tabaquismo (paquetes/año) es esencial para el diagnóstico y el pronóstico de la EPOC.'
-  - descripcion: 'No indagar exacerbaciones previas'
-    idReferenciaCondicion: 'omitio:epoc_exacerbaciones'
-    retroalimentacion: 'La frecuencia de exacerbaciones define el fenotipo y la gravedad del paciente EPOC.'
-  - descripcion: 'Administrar oxígeno a alto flujo sin control'
-    idReferenciaCondicion: ''
-    retroalimentacion: 'En el retenedor de CO2 la hiperoxia puede deprimir el estímulo respiratorio; titular O2 a una SatO2 objetivo de 88-92%.'
+  - descripcion: "No indagar la historia tab\xE1quica"
+    idReferenciaCondicion: omitio:epoc_tabaquismo
+    retroalimentacion: "Cuantificar el tabaquismo (paquetes/a\xF1o) es esencial para
+      el diagn\xF3stico y el pron\xF3stico de la EPOC."
+  - descripcion: No indagar exacerbaciones previas
+    idReferenciaCondicion: omitio:epoc_exacerbaciones
+    retroalimentacion: La frecuencia de exacerbaciones define el fenotipo y la gravedad
+      del paciente EPOC.
+  - descripcion: "Administrar ox\xEDgeno a alto flujo sin control"
+    idReferenciaCondicion: 
+    retroalimentacion: "En el retenedor de CO2 la hiperoxia puede deprimir el est\xEDmulo
+      respiratorio; titular O2 a una SatO2 objetivo de 88-92%."
   datosAdministrativos:
-    nombrePacienteFicticio: 'Rojas Vidal, Manuel'
+    nombrePacienteFicticio: Rojas Vidal, Manuel
     sexoPaciente: Masculino
-    edadPaciente: '64 años'
-    nombreEstablecimiento: 'Hospital Regional Simulado — Servicio de Urgencias'
+    edadPaciente: "64 a\xF1os"
+    nombreEstablecimiento: "Hospital Regional Simulado \u2014 Servicio de Urgencias"

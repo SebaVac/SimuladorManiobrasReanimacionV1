@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Barra de navegación compartida del caso: un panel head-locked pequeño (debajo
-/// del panel principal) con "◀ Atrás" y "Salir del caso", disponible durante
+/// Barra de navegación compartida del caso: un panel pequeño en un slot fijo (sobre
+/// el panel principal) con "◀ Atrás" y "Salir del caso", disponible durante
 /// todas las fases interactivas del caso — así cada panel no repite estos botones.
 ///
 /// Visible en las fases de interacción con el paciente: ExamenFisico, Anamnesis,
@@ -11,7 +11,7 @@ using UnityEngine;
 /// </summary>
 public class BarraNavegacionCaso : MonoBehaviour
 {
-    [Header("Visual (con AnclajeCabeza)")]
+    [Header("Visual (raíz hija de un SlotPanel)")]
     [SerializeField] private GameObject raiz;
 
     [Header("Botones")]

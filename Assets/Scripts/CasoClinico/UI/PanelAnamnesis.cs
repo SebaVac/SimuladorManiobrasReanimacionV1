@@ -6,7 +6,7 @@ using UnityEngine.UI;
 // (BotonMenuFeedback está en el namespace global del proyecto)
 
 /// <summary>
-/// Panel 5 — Anamnesis. Head-locked (AnclajeCabeza en <see cref="raiz"/>), mismo
+/// Panel 5 — Anamnesis. Anclado a un slot fijo de la sala (SlotPanel; <see cref="raiz"/> es hija del slot), mismo
 /// patrón de activación que PanelIntroduccion / PanelSeleccionSubmodo / Panel 4 / 7:
 /// el controlador queda siempre activo y alterna <see cref="raiz"/> según el estado.
 ///
@@ -31,7 +31,7 @@ using UnityEngine.UI;
 /// </summary>
 public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
 {
-    [Header("Visual (con AnclajeCabeza)")]
+    [Header("Visual (raíz hija de un SlotPanel)")]
     [SerializeField] private GameObject raiz;
 
     // Ver PanelIntroduccion._visibleSegunEstado — mismo criterio (IPanelOcultable).
@@ -41,7 +41,7 @@ public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
     [SerializeField] private ScrollRect scroll;
     [SerializeField] private TMP_Text textoHistorial;
     [Tooltip("Mensaje mientras el jugador aún no ha preguntado nada.")]
-    [SerializeField] private string textoInicial = "Toca «Escribir una pregunta» y consultá al paciente.";
+    [SerializeField] private string textoInicial = "Toca «Escribir una pregunta» y consulta al paciente.";
     [SerializeField] private SeleccionableToque botonScrollArriba;
     [SerializeField] private SeleccionableToque botonScrollAbajo;
     [Range(0.05f, 0.6f)]
@@ -59,7 +59,7 @@ public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
     [SerializeField] private Color colorContinuarBloqueado = new Color(0.32f, 0.32f, 0.32f, 0.65f);
     [Tooltip("Texto de ayuda breve, visible solo mientras el botón Continuar está bloqueado.")]
     [SerializeField] private TMP_Text textoAyudaBloqueado;
-    [SerializeField] private string mensajeAyudaBloqueado = "Hacé al menos una pregunta para continuar.";
+    [SerializeField] private string mensajeAyudaBloqueado = "Haz al menos una pregunta para continuar.";
 
     [Header("Sistema")]
     [SerializeField] private GestorCasoClinico gestorCaso;

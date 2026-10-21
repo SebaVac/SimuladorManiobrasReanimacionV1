@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Panel 9 — Debriefing. Head-locked (AnclajeCabeza en <see cref="raiz"/>),
+/// Panel 9 — Debriefing. Anclado a un slot fijo de la sala (SlotPanel; <see cref="raiz"/> es hija del slot),
 /// estética teal diegética consistente con el resto del módulo (a diferencia
 /// del Panel 7, que rompe estilo a propósito).
 ///
@@ -15,12 +15,13 @@ using UnityEngine.UI;
 /// No agrega ningún accessor nuevo — todo el dato ya era público en
 /// ResultadoCaso/AccionCritica/ErrorFrecuente.
 ///
-/// Jerarquía visual (2026-09-23): el DIAGNÓSTICO correcto/incorrecto es el
-/// titular (grande, arriba), NO el puntaje — hoy el puntaje SIEMPRE es 0 (las
-/// únicas AccionCritica de cada caso son de tipo Manejo, y ese registro está
-/// pospuesto hasta que exista el panel correspondiente), y mostrarlo como dato
-/// principal se leía como "el sistema está roto" en validación con usuarios.
-/// El puntaje baja de jerarquía y se aclara como pendiente.
+/// Jerarquía visual: el DIAGNÓSTICO correcto/incorrecto es el titular (grande,
+/// arriba). Debajo:
+///   - EVALUACIÓN: puntaje total prominente (X / 100) + desglose por componente
+///     (Diagnóstico, Manejo, Exámenes, Anamnesis, Examen físico, Errores).
+///   - TUTORIAL: el mismo desglose pero SIN total ni nota — "Modo Tutorial: sin
+///     puntaje" (el modo Tutorial no puntúa; ver <see cref="ResultadoCaso.EsEvaluacion"/>).
+/// El cálculo vive entero en MotorEvaluacion/ConfigPuntaje; este panel solo presenta.
 ///
 /// NO implementa IPanelOcultable: confirmado que el menú de pausa nunca está
 /// disponible en EstadoCasoClinico.Debriefing (<see cref="PuenteVisibilidadPausa"/>
@@ -31,12 +32,18 @@ using UnityEngine.UI;
 /// </summary>
 public class PanelDebriefing : MonoBehaviour
 {
-    [Header("Visual (con AnclajeCabeza)")]
+    [Header("Visual (raíz hija de un SlotPanel)")]
     [SerializeField] private GameObject raiz;
 
     [Header("Resumen")]
     [SerializeField] private TMP_Text textoPuntaje;
     [SerializeField] private TMP_Text textoDiagnostico;
+    [Tooltip("Línea discreta al pie: 'Dispositivo de entrada: Manos / Controles / Mixto'. No afecta al puntaje.")]
+    [SerializeField] private TMP_Text textoDispositivo;
+    [Tooltip("Columna izquierda del desglose (nombres de componente), una línea por componente.")]
+    [SerializeField] private TMP_Text textoDesgloseNombres;
+    [Tooltip("Columna derecha del desglose (obtenidos / máximo), alineada fila por fila con los nombres.")]
+    [SerializeField] private TMP_Text textoDesgloseValores;
 
     [Header("Detalle (acumulativo, scroll)")]
     [SerializeField] private ScrollRect scroll;
@@ -128,11 +135,20 @@ public class PanelDebriefing : MonoBehaviour
             }
         }
 
-        // Puntaje: jerarquía secundaria + aclaración de por qué siempre es 0
-        // hoy (manejo terapéutico pospuesto, no una falla del jugador).
+        // Puntaje total solo en Evaluación; Tutorial no puntúa (sin total ni "nota").
         if (textoPuntaje != null)
-            textoPuntaje.text = $"Puntaje: {_resultado.puntajeTotal} / {_resultado.puntajeMaximo}\n" +
-                "<color=#8FA3A8><i>Manejo terapéutico: pendiente — módulo en desarrollo</i></color>";
+            textoPuntaje.text = _resultado.EsEvaluacion
+                ? $"PUNTAJE: {_resultado.puntajeTotal} / {_resultado.puntajeMaximo}"
+                : "<size=65%><color=#8FA3A8>Modo Tutorial: sin puntaje</color></size>";
+
+        PoblarDesglose();
+
+        if (textoDispositivo != null)
+        {
+            string disp = _resultado.dispositivoEntrada == DispositivoEntrada.Controles ? "Controles"
+                        : _resultado.dispositivoEntrada == DispositivoEntrada.Mixto ? "Mixto" : "Manos";
+            textoDispositivo.text = "Dispositivo de entrada: " + disp;
+        }
 
         var sb = new StringBuilder(512);
         sb.Append("<b>ACCIONES CRÍTICAS</b>\n");
@@ -156,6 +172,41 @@ public class PanelDebriefing : MonoBehaviour
             scroll.verticalNormalizedPosition = 1f; // arranca mostrando el principio
         }
     }
+
+    // Desglose por componente en dos columnas alineadas (nombres | obtenidos / máximo).
+    // Un componente que no aplica al caso (máximo 0) se muestra como "—".
+    private void PoblarDesglose()
+    {
+        if (textoDesgloseNombres == null || textoDesgloseValores == null) return;
+
+        var nombres = new StringBuilder(128);
+        var valores = new StringBuilder(128);
+
+        void Fila(string nombre, ComponentePuntaje c)
+        {
+            nombres.Append(nombre).Append('\n');
+            if (c == null || c.maximo <= 0f) valores.Append("—\n");
+            else valores.Append(Formatear(c.obtenido)).Append(" / ").Append(Formatear(c.maximo)).Append('\n');
+        }
+
+        Fila("Diagnóstico",   _resultado.diagnostico);
+        Fila("Manejo",        _resultado.manejo);
+        Fila("Exámenes",      _resultado.examenes);
+        Fila("Anamnesis",     _resultado.anamnesis);
+        Fila("Examen físico", _resultado.examenFisico);
+
+        nombres.Append("Errores frecuentes");
+        valores.Append(_resultado.penalizacionErrores > 0f
+            ? "<color=#E08F8F>-" + Formatear(_resultado.penalizacionErrores) + "</color>"
+            : "0");
+
+        textoDesgloseNombres.text = nombres.ToString();
+        textoDesgloseValores.text = valores.ToString();
+    }
+
+    // Hasta 1 decimal, sin ceros sobrantes ("12.5", "20"); cultura invariante.
+    private static string Formatear(float v) =>
+        v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
 
     // ── Scroll ───────────────────────────────────────────────────────────────
 

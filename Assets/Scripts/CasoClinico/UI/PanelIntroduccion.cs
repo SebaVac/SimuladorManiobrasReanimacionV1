@@ -2,8 +2,8 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// Panel de Introducción del caso. Head-locked a CenterEyeAnchor (vía
-/// <see cref="AnclajeCabeza"/> en <see cref="raiz"/>).
+/// Panel de Introducción del caso. Anclado a un slot fijo de la sala (SlotPanel;
+/// <see cref="raiz"/> es hija del slot).
 ///
 /// Muestra ÚNICAMENTE <c>motivoConsulta</c> — sin título, sin <c>nombreCaso</c>.
 /// El nombre del caso (= diagnóstico) nunca se revela antes del Debriefing.
@@ -13,7 +13,7 @@ using UnityEngine;
 /// </summary>
 public class PanelIntroduccion : MonoBehaviour, IPanelOcultable
 {
-    [Header("Visual (con AnclajeCabeza)")]
+    [Header("Visual (raíz hija de un SlotPanel)")]
     [SerializeField] private GameObject raiz;
 
     // true si, según la máquina de estados, este panel debería estar visible ahora

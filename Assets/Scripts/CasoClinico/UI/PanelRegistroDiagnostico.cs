@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Panel 7 — Registro de Diagnóstico. Head-locked (AnclajeCabeza en <see cref="raiz"/>),
+/// Panel 7 — Registro de Diagnóstico. Anclado a un slot fijo de la sala (SlotPanel; <see cref="raiz"/> es hija del slot),
 /// mismo patrón de activación que PanelIntroduccion / PanelSeleccionSubmodo: el
 /// controlador queda siempre activo y alterna <see cref="raiz"/> según el estado.
 ///
@@ -14,20 +14,22 @@ using UnityEngine.UI;
 /// (crema/beige, tinta oscura, bordes finos), no el teal diegético. Es intencional
 /// — no unificar con los demás paneles.
 ///
-/// Solo el campo de diagnóstico es interactivo:
-///   - Tocarlo abre el teclado nativo (<see cref="InteraccionPaciente.AbrirTecladoDiagnostico"/>).
-///     Reutilizable sin límite: el jugador reescribe cuantas veces quiera antes de registrar.
-///   - "Registrar diagnóstico": si hay texto, cierra el caso
-///     (<see cref="GestorCasoClinico.OnJugadorRegistroDiagnostico"/> con manejo vacío
-///     a propósito — esa parte está pospuesta). Si está vacío/null, resalta el campo
-///     y no hace nada: no se puede cerrar el caso sin haber escrito un diagnóstico.
+/// Dos campos de texto libre interactivos, mismo comportamiento:
+///   - "Diagnóstico": tocarlo abre el teclado nativo
+///     (<see cref="InteraccionPaciente.AbrirTecladoDiagnostico"/>).
+///   - "Indicaciones / manejo": ídem con <see cref="InteraccionPaciente.AbrirTecladoManejo"/>.
+///   Ambos se pueden reescribir sin límite antes de registrar.
+///   - "Registrar diagnóstico": si hay diagnóstico, cierra el caso
+///     (<see cref="GestorCasoClinico.OnJugadorRegistroDiagnostico"/> con el diagnóstico y el
+///     manejo escritos). El manejo puede quedar vacío (suma 0); el diagnóstico NO: si está
+///     vacío/null, resalta su campo y no hace nada.
 ///
 /// Visible únicamente en <see cref="EstadoCasoClinico.RegistroDiagnostico"/>.
 /// Evaluación invisible: nunca muestra correcto/incorrecto.
 /// </summary>
 public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
 {
-    [Header("Visual (con AnclajeCabeza)")]
+    [Header("Visual (raíz hija de un SlotPanel)")]
     [SerializeField] private GameObject raiz;
 
     // Ver PanelIntroduccion._visibleSegunEstado — mismo criterio (IPanelOcultable).
@@ -45,6 +47,13 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
     [SerializeField] private TMP_Text textoDiagnostico;
     [SerializeField] private Image fondoCampoDiagnostico;
     [SerializeField] private Image bordeCampoDiagnostico;
+
+    [Header("Campo de indicaciones / manejo (interactivo)")]
+    [SerializeField] private SeleccionableToque campoManejo;
+    [SerializeField] private TMP_Text textoManejo;
+    [SerializeField] private Image bordeCampoManejo;
+
+    [Header("Registrar")]
     [SerializeField] private SeleccionableToque botonRegistrar;
     [SerializeField] private Image bordeBotonRegistrar;
 
@@ -54,6 +63,7 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
 
     [Header("Textos / formato")]
     [SerializeField] private string placeholderDiagnostico = "Toca para escribir el diagnóstico";
+    [SerializeField] private string placeholderManejo = "Toca para escribir las indicaciones";
     [SerializeField] private string formatoFechaHora = "dd/MM/yyyy · HH:mm";
 
     // ── Paleta ficha de papel ────────────────────────────────────────────────
@@ -76,19 +86,27 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
     void OnEnable()
     {
         if (campoDiagnostico != null) campoDiagnostico.OnSeleccionado += AbrirTeclado;
+        if (campoManejo != null)      campoManejo.OnSeleccionado      += AbrirTecladoManejo;
         if (botonRegistrar != null)   botonRegistrar.OnSeleccionado   += IntentarRegistrar;
         if (gestorCaso != null)       gestorCaso.OnCambioEstado        += AlCambioEstado;
         if (interaccionPaciente != null)
+        {
             interaccionPaciente.OnDiagnosticoTextoEnviado += AlEscribirDiagnostico;
+            interaccionPaciente.OnManejoTextoEnviado      += AlEscribirManejo;
+        }
     }
 
     void OnDisable()
     {
         if (campoDiagnostico != null) campoDiagnostico.OnSeleccionado -= AbrirTeclado;
+        if (campoManejo != null)      campoManejo.OnSeleccionado      -= AbrirTecladoManejo;
         if (botonRegistrar != null)   botonRegistrar.OnSeleccionado   -= IntentarRegistrar;
         if (gestorCaso != null)       gestorCaso.OnCambioEstado        -= AlCambioEstado;
         if (interaccionPaciente != null)
+        {
             interaccionPaciente.OnDiagnosticoTextoEnviado -= AlEscribirDiagnostico;
+            interaccionPaciente.OnManejoTextoEnviado      -= AlEscribirManejo;
+        }
     }
 
     void Update()
@@ -99,6 +117,8 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
 
         if (bordeCampoDiagnostico != null && campoDiagnostico != null)
             bordeCampoDiagnostico.color = campoDiagnostico.EnContacto ? BORDE_ACTIVO : BORDE_NORMAL;
+        if (bordeCampoManejo != null && campoManejo != null)
+            bordeCampoManejo.color = campoManejo.EnContacto ? BORDE_ACTIVO : BORDE_NORMAL;
         if (bordeBotonRegistrar != null && botonRegistrar != null)
             bordeBotonRegistrar.color = botonRegistrar.EnContacto ? BORDE_ACTIVO : BORDE_NORMAL;
     }
@@ -140,6 +160,7 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
                 formatoFechaHora, CultureInfo.InvariantCulture);
 
         RefrescarCampoDiagnostico(gestorCaso != null ? gestorCaso.DiagnosticoRegistrado : null);
+        RefrescarCampoManejo(gestorCaso != null ? gestorCaso.ManejoRegistrado : null);
 
         if (fondoCampoDiagnostico != null) fondoCampoDiagnostico.color = CAMPO_NORMAL;
     }
@@ -169,6 +190,25 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
         textoDiagnostico.fontStyle = vacio ? FontStyles.Italic : FontStyles.Normal;
     }
 
+    // ── Campo de indicaciones / manejo (mismo patrón que el de diagnóstico) ───────
+
+    private void AbrirTecladoManejo()
+    {
+        if (interaccionPaciente != null) interaccionPaciente.AbrirTecladoManejo();
+    }
+
+    private void AlEscribirManejo(string texto) => RefrescarCampoManejo(texto);
+
+    private void RefrescarCampoManejo(string manejo)
+    {
+        if (textoManejo == null) return;
+
+        bool vacio = string.IsNullOrWhiteSpace(manejo);
+        textoManejo.text      = vacio ? placeholderManejo : manejo;
+        textoManejo.color     = vacio ? TINTA_TENUE : TINTA;
+        textoManejo.fontStyle = vacio ? FontStyles.Italic : FontStyles.Normal;
+    }
+
     // ── Registrar ────────────────────────────────────────────────────────────
 
     private void IntentarRegistrar()
@@ -185,8 +225,8 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
             return; // no se puede cerrar el caso sin diagnóstico
         }
 
-        // Lista de manejo vacía a propósito — esa parte está pospuesta.
-        gestorCaso.OnJugadorRegistroDiagnostico(gestorCaso.DiagnosticoRegistrado, new List<string>());
+        // El manejo puede quedar vacío (suma 0): solo el diagnóstico es obligatorio.
+        gestorCaso.OnJugadorRegistroDiagnostico(gestorCaso.DiagnosticoRegistrado, gestorCaso.ManejoRegistrado);
     }
 
     private IEnumerator DestelloAlerta()

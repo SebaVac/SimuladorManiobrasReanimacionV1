@@ -47,6 +47,15 @@ public class AnclajeCabeza : MonoBehaviour
         Colocar(instantaneo: suavizado <= 0f);
     }
 
+    /// <summary>Coloca el panel de inmediato (sin suavizado) en su posición respecto de la cabeza actual. Lo usa
+    /// AlineadorInicioJugador tras mover el rig, para que los paneles activos no queden donde estaban ni tarden
+    /// en alcanzar a la cabeza. Una sola llamada puntual; no se usa por fotograma.</summary>
+    public void Reposicionar()
+    {
+        if (_cam == null) ResolverCamara();
+        if (_cam != null) Colocar(instantaneo: true);
+    }
+
     private void ResolverCamara()
     {
         _cam = objetivo != null ? objetivo

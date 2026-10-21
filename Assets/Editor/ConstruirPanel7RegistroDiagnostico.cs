@@ -58,16 +58,28 @@ public static class ConstruirPanel7RegistroDiagnostico
         SetFloat(anclaje, "distancia", 0.60f);
         SetFloat(anclaje, "alturaRelativa", -0.05f);
 
-        var canvas = NuevoCanvas("Canvas", raiz.transform, 720f, 620f);
+        // Alto 810 (era 620, con el campo de manejo): el canvas crece HACIA ARRIBA —
+        // se sube su origen (810-620)/2 para que el borde INFERIOR quede exactamente
+        // donde estaba (alturaRelativa -0.05 - 0.31 = -0.36 m), de modo que la
+        // relación con el ícono de pausa (y=-0.469..-0.571) y la hoja de notas
+        // (y<=-0.49), que viven por debajo, no cambie. Arriba no hay nada que choque
+        // (esos elementos solo coexisten con la parte baja de la ficha).
+        const float ALTO_CANVAS = 810f;
+        var canvas = NuevoCanvas("Canvas", raiz.transform, 720f, ALTO_CANVAS);
+        canvas.transform.localPosition = new Vector3(0f, (ALTO_CANVAS - 620f) * 0.5f * 0.001f, 0f);
 
         // Borde exterior + hoja
         Rect(canvas.transform, "BordeHoja", COLOR_BORDE_HOJA, 0f);
         Rect(canvas.transform, "Hoja", COLOR_HOJA, 8f);
 
+        // Coordenadas locales del canvas (origen al centro; arriba=+405, abajo=-405).
+        // Mismos espaciados que la ficha anterior (filas cada 38u, etc.), reapilados
+        // de abajo hacia arriba para insertar el segundo campo de texto libre.
+
         // ── Encabezado ─────────────────────────────────────────────────────
         Texto(canvas.transform, "Titulo", "FICHA DE REGISTRO CLÍNICO", 34, FontStyles.Bold,
-              COLOR_TINTA, TextAlignmentOptions.Center, new Vector2(0f, 258f), new Vector2(660f, 46f));
-        Linea(canvas.transform, "Regla1", new Vector2(0f, 230f), 660f);
+              COLOR_TINTA, TextAlignmentOptions.Center, new Vector2(0f, 350f), new Vector2(660f, 46f));
+        Linea(canvas.transform, "Regla1", new Vector2(0f, 322f), 660f);
 
         // ── Datos de solo lectura ──────────────────────────────────────────
         // Grid de 2 columnas fijas (auditado 2026-09-22): antes cada Etiqueta/Valor
@@ -85,18 +97,18 @@ public static class ConstruirPanel7RegistroDiagnostico
         const float ETQ_X = -245f, ETQ_ANCHO = 170f;
         const float VAL_X = 95f,   VAL_ANCHO = 470f;
 
-        Etiqueta(canvas.transform, "LblPaciente", "PACIENTE", new Vector2(ETQ_X, 194f), ETQ_ANCHO);
-        var vPaciente = Valor(canvas.transform, "ValPaciente", new Vector2(VAL_X, 194f), VAL_ANCHO, 20f);
+        Etiqueta(canvas.transform, "LblPaciente", "PACIENTE", new Vector2(ETQ_X, 286f), ETQ_ANCHO);
+        var vPaciente = Valor(canvas.transform, "ValPaciente", new Vector2(VAL_X, 286f), VAL_ANCHO, 20f);
 
         // Sexo | Edad: dos pares etiqueta/valor lado a lado, con su propio hueco
         // (gutter en x=[-10,10]) para que ninguno de los 4 rects se toque.
-        Etiqueta(canvas.transform, "LblSexo", "SEXO", new Vector2(-295f, 156f), 70f);
-        var vSexo = Valor(canvas.transform, "ValSexo", new Vector2(-130f, 156f), 240f, 18f);
-        Etiqueta(canvas.transform, "LblEdad", "EDAD", new Vector2(45f, 156f), 70f);
-        var vEdad = Valor(canvas.transform, "ValEdad", new Vector2(210f, 156f), 240f, 18f);
+        Etiqueta(canvas.transform, "LblSexo", "SEXO", new Vector2(-295f, 248f), 70f);
+        var vSexo = Valor(canvas.transform, "ValSexo", new Vector2(-130f, 248f), 240f, 18f);
+        Etiqueta(canvas.transform, "LblEdad", "EDAD", new Vector2(45f, 248f), 70f);
+        var vEdad = Valor(canvas.transform, "ValEdad", new Vector2(210f, 248f), 240f, 18f);
 
-        Etiqueta(canvas.transform, "LblEstab", "ESTABLECIMIENTO", new Vector2(ETQ_X, 118f), ETQ_ANCHO);
-        var vEstab = Valor(canvas.transform, "ValEstab", new Vector2(VAL_X, 118f), VAL_ANCHO, 17f);
+        Etiqueta(canvas.transform, "LblEstab", "ESTABLECIMIENTO", new Vector2(ETQ_X, 210f), ETQ_ANCHO);
+        var vEstab = Valor(canvas.transform, "ValEstab", new Vector2(VAL_X, 210f), VAL_ANCHO, 17f);
         // Auto-tamaño (17→12) como salvaguarda: el nombre placeholder actual mide
         // ~402u a 17pt y entra sin problema en los 470u de ancho (con wrap ya
         // activado por Texto() como respaldo), pero un nombre más largo en un
@@ -105,41 +117,53 @@ public static class ConstruirPanel7RegistroDiagnostico
         vEstab.fontSizeMin = 12f;
         vEstab.fontSizeMax = 17f;
 
-        Etiqueta(canvas.transform, "LblIngreso", "INGRESO", new Vector2(ETQ_X, 80f), ETQ_ANCHO);
-        var vIngreso = Valor(canvas.transform, "ValIngreso", new Vector2(VAL_X, 80f), VAL_ANCHO, 18f);
+        Etiqueta(canvas.transform, "LblIngreso", "INGRESO", new Vector2(ETQ_X, 172f), ETQ_ANCHO);
+        var vIngreso = Valor(canvas.transform, "ValIngreso", new Vector2(VAL_X, 172f), VAL_ANCHO, 18f);
 
-        Linea(canvas.transform, "Regla2", new Vector2(0f, 54f), 660f);
+        Linea(canvas.transform, "Regla2", new Vector2(0f, 146f), 660f);
 
         // ── Diagnóstico ────────────────────────────────────────────────────
+        // Etiquetas de campo: caja [-330, 30] (centro -150, ancho 360) con texto a la
+        // izquierda. Antes el centro era -330 → la caja arrancaba en x=-510, MÁS ALLÁ
+        // del borde izquierdo de la Hoja (-352): mismo bug de las etiquetas
+        // administrativas, que la corrección de 2026-09-22 no cubrió para estas dos.
         Texto(canvas.transform, "LblDiagnostico", "DIAGNÓSTICO", 20, FontStyles.Bold,
-              COLOR_TINTA, TextAlignmentOptions.Left, new Vector2(-330f, 26f), new Vector2(360f, 30f));
+              COLOR_TINTA, TextAlignmentOptions.Left, new Vector2(-150f, 118f), new Vector2(360f, 30f));
 
-        // Campo (borde + relleno + texto), con SeleccionableToque en el borde.
-        // Alto 160 (era 132, +28 con el borde superior fijo — hay 74u libres hasta
-        // BotonRegistrar, de sobra) + auto-tamaño en el texto (auditado 2026-09-22):
-        // con altura fija 96 y overflowMode=Overflow (default de TMP) + sin
-        // autoSizing, un diagnóstico largo que wrapea a más de 4 líneas @20pt
-        // simplemente se dibujaba por debajo del recuadro sin control (confirmado
-        // con GetPreferredValues: un texto realista de 260 caracteres necesita
-        // 114.3u de alto contra los 96u disponibles). El wrap horizontal en sí
-        // YA estaba bien (enableWordWrapping=true, ancho 600 dentro del relleno de
-        // 654u) — el problema era solo vertical.
-        var campo = CajaBorde("CampoDiagnostico", canvas.transform, new Vector2(0f, -76f),
-                              new Vector2(660f, 160f), COLOR_CAMPO, out Image campoBorde, out Image campoRelleno);
+        // Campos de texto libre (borde + relleno + texto), SeleccionableToque en el
+        // borde. Salvaguarda de desborde (auditada 2026-09-22): el wrap horizontal ya
+        // funciona (enableWordWrapping=true, ancho 600 dentro del relleno de 654u); el
+        // riesgo es VERTICAL (overflowMode=Overflow por defecto), así que el texto
+        // tiene enableAutoSizing 12-20pt dentro de una caja de alto fijo (114u: a 12pt
+        // entran 7 líneas ≈ 600+ caracteres).
+        var campo = CajaBorde("CampoDiagnostico", canvas.transform, new Vector2(0f, 21f),
+                              new Vector2(660f, 150f), COLOR_CAMPO, out Image campoBorde, out Image campoRelleno);
         var campoSel = campo.AddComponent<SeleccionableToque>();
         SetFloat(campoSel, "profundidadToque", 0.05f);
         var txtDiagnostico = Texto(campo.transform, "TextoDiagnostico",
             "Toca para escribir el diagnóstico", 20, FontStyles.Italic, COLOR_TINTA_TENUE,
-            TextAlignmentOptions.TopLeft, Vector2.zero, new Vector2(600f, 124f));
-        // Con la caja más alta, un diagnóstico realista ya entra a 20pt sin
-        // achicarse (114.3u < 124u) — enableAutoSizing queda como salvaguarda para
-        // un texto aún más largo, mismo criterio que ValEstab.
+            TextAlignmentOptions.TopLeft, Vector2.zero, new Vector2(600f, 114f));
         txtDiagnostico.enableAutoSizing = true;
         txtDiagnostico.fontSizeMin = 12f;
         txtDiagnostico.fontSizeMax = 20f;
 
+        // ── Indicaciones / manejo (mismo comportamiento que el diagnóstico) ─────────
+        Texto(canvas.transform, "LblManejo", "INDICACIONES / MANEJO", 20, FontStyles.Bold,
+              COLOR_TINTA, TextAlignmentOptions.Left, new Vector2(-150f, -85f), new Vector2(360f, 30f));
+
+        var campoM = CajaBorde("CampoManejo", canvas.transform, new Vector2(0f, -182f),
+                               new Vector2(660f, 150f), COLOR_CAMPO, out Image campoMBorde, out Image _);
+        var campoMSel = campoM.AddComponent<SeleccionableToque>();
+        SetFloat(campoMSel, "profundidadToque", 0.05f);
+        var txtManejo = Texto(campoM.transform, "TextoManejo",
+            "Toca para escribir las indicaciones", 20, FontStyles.Italic, COLOR_TINTA_TENUE,
+            TextAlignmentOptions.TopLeft, Vector2.zero, new Vector2(600f, 114f));
+        txtManejo.enableAutoSizing = true;
+        txtManejo.fontSizeMin = 12f;
+        txtManejo.fontSizeMax = 20f;
+
         // Botón registrar (borde + relleno + etiqueta), SeleccionableToque en el borde.
-        var boton = CajaBorde("BotonRegistrar", canvas.transform, new Vector2(0f, -236f),
+        var boton = CajaBorde("BotonRegistrar", canvas.transform, new Vector2(0f, -331f),
                               new Vector2(420f, 68f), COLOR_BOTON, out Image botonBorde, out Image _);
         var botonSel = boton.AddComponent<SeleccionableToque>();
         SetFloat(botonSel, "profundidadToque", 0.05f);
@@ -157,6 +181,9 @@ public static class ConstruirPanel7RegistroDiagnostico
         Set(comp, "textoDiagnostico", txtDiagnostico);
         Set(comp, "fondoCampoDiagnostico", campoRelleno);
         Set(comp, "bordeCampoDiagnostico", campoBorde);
+        Set(comp, "campoManejo", campoMSel);
+        Set(comp, "textoManejo", txtManejo);
+        Set(comp, "bordeCampoManejo", campoMBorde);
         Set(comp, "botonRegistrar", botonSel);
         Set(comp, "bordeBotonRegistrar", botonBorde);
         Set(comp, "gestorCaso", gestor);

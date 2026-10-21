@@ -28,6 +28,14 @@ public class GestorSeleccionToque : MonoBehaviour
     [SerializeField] private OVRSkeleton esqueletoIzquierdo;
     [SerializeField] private OVRSkeleton esqueletoDerecho;
 
+    [Header("Controles Touch (opcional)")]
+    [Tooltip("Permite seleccionar con el rayo y el gatillo de los controles Touch cuando EntradaControlesTouch los " +
+             "detecta como entrada activa. false = comportamiento actual solo con manos (SceneSimulador).")]
+    [SerializeField] private bool permitirControles = false;
+    [SerializeField] private EntradaControlesTouch entradaControles;
+    [Tooltip("Alcance máximo del rayo (m): el visual llega hasta el punto de impacto o hasta esta distancia.")]
+    [SerializeField] private float alcanceRayo = 1.5f;
+
     [Header("Selección")]
     [Tooltip("Ventana de gracia tras habilitarse (el árbitro al cargar la escena, o " +
              "cada SeleccionableToque cuando su panel aparece). Durante ese tiempo un " +
@@ -68,6 +76,29 @@ public class GestorSeleccionToque : MonoBehaviour
 
     private float _tiempoHabilitado;
 
+    // Rayos de los controles (índice 0 = izquierdo, 1 = derecho). Buffers fijos: sin asignaciones por fotograma.
+    private readonly bool[] _rayoHay = new bool[2];
+    private readonly Vector3[] _rayoOrigen = new Vector3[2];
+    private readonly Vector3[] _rayoDir = new Vector3[2];
+    private readonly Vector3[] _rayoFin = new Vector3[2];
+    private readonly float[] _rayoDist = new float[2];
+    private readonly SeleccionableToque[] _apuntado = new SeleccionableToque[2];
+    private bool _modoControlesPrevio;
+
+    /// <summary>true si esta escena admite controles y están configurados.</summary>
+    public bool ControlesPermitidos => permitirControles && entradaControles != null;
+
+    /// <summary>Rayo vigente de un control, para dibujarlo (línea hasta el impacto o el alcance + retículo).
+    /// false si ese control no está apuntando (o la entrada activa son las manos).</summary>
+    public bool ObtenerRayoVisual(int mano, out Vector3 origen, out Vector3 fin, out bool impacta)
+    {
+        bool ok = _modoControlesPrevio && _rayoHay[mano];
+        origen = ok ? _rayoOrigen[mano] : default;
+        fin = ok ? _rayoFin[mano] : default;
+        impacta = ok && _apuntado[mano] != null;
+        return ok;
+    }
+
     // ── Ciclo de vida ────────────────────────────────────────────────────────
 
     void Awake()
@@ -99,6 +130,8 @@ public class GestorSeleccionToque : MonoBehaviour
             if (_registro[i] != null) _registro[i].FijarContacto(false);
         _tocadoIzqAntes = null;
         _tocadoDerAntes = null;
+        LimpiarRayos();
+        _modoControlesPrevio = false;
     }
 
     void OnDestroy()
@@ -120,6 +153,30 @@ public class GestorSeleccionToque : MonoBehaviour
 
     void Update()
     {
+        // Controles Touch como entrada activa: selección por rayo + gatillo. El camino de manos de abajo
+        // queda intacto y es el único que corre cuando la entrada activa son las manos.
+        if (permitirControles && entradaControles != null && entradaControles.Modo == ModoEntrada.Controles)
+        {
+            if (!_modoControlesPrevio)
+            {
+                LimpiarContactos();
+                _modoControlesPrevio = true;
+            }
+            ActualizarRayos();
+            return;
+        }
+        if (_modoControlesPrevio)
+        {
+            // Vuelta a las manos: sin rayos, sin contactos heredados y con ventana de gracia para que un dedo
+            // que ya esté sobre un elemento no lo seleccione al reaparecer.
+            LimpiarContactos();
+            LimpiarRayos();
+            _modoControlesPrevio = false;
+            _tocadoIzqAntes = null;
+            _tocadoDerAntes = null;
+            _tiempoHabilitado = Time.time;
+        }
+
         bool hayIzq = ObtenerPuntaIndice(esqueletoIzquierdo, ref _puntaIzq, out Vector3 pIzq);
         bool hayDer = ObtenerPuntaIndice(esqueletoDerecho,   ref _puntaDer, out Vector3 pDer);
 
@@ -171,11 +228,73 @@ public class GestorSeleccionToque : MonoBehaviour
         _tocadoDerAntes = tocadoDer;
     }
 
+    // ── Controles Touch: rayo + gatillo ─────────────────────────────────────────
+
+    private void LimpiarContactos()
+    {
+        for (int i = 0; i < _registro.Count; i++)
+            if (_registro[i] != null) _registro[i].FijarContacto(false);
+    }
+
+    private void LimpiarRayos()
+    {
+        for (int i = 0; i < 2; i++) { _rayoHay[i] = false; _apuntado[i] = null; }
+    }
+
+    /// <summary>Un rayo por control. El elemento MÁS CERCANO que cada rayo intersecta (entre los activos, con
+    /// Interactuable y de la capa vigente) recibe el hover; el flanco de subida del gatillo lo selecciona.
+    /// Respeta ventana de gracia, cooldown y el límite de UNA selección por fotograma en todo el sistema.</summary>
+    private void ActualizarRayos()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            _apuntado[i] = null;
+            _rayoDist[i] = alcanceRayo;
+            _rayoHay[i] = entradaControles.TryRayo(i, out _rayoOrigen[i], out _rayoDir[i]);
+        }
+
+        for (int j = _registro.Count - 1; j >= 0; j--)
+        {
+            var s = _registro[j];
+            if (s == null) { _registro.RemoveAt(j); continue; }
+            if (!s.isActiveAndEnabled || !s.Interactuable || s.Capa != CapaActiva) continue;
+
+            for (int i = 0; i < 2; i++)
+            {
+                if (!_rayoHay[i]) continue;
+                if (s.IntersectaRayo(_rayoOrigen[i], _rayoDir[i], _rayoDist[i], out float t) && t < _rayoDist[i])
+                {
+                    _rayoDist[i] = t;
+                    _apuntado[i] = s;
+                }
+            }
+        }
+
+        for (int j = 0; j < _registro.Count; j++)
+        {
+            var s = _registro[j];
+            if (s != null) s.FijarContacto(s == _apuntado[0] || s == _apuntado[1]);
+        }
+
+        for (int i = 0; i < 2; i++)
+            if (_rayoHay[i]) _rayoFin[i] = _rayoOrigen[i] + _rayoDir[i] * _rayoDist[i];
+
+        if (Time.time - _tiempoHabilitado < graciaInicioSeg) return;
+
+        for (int i = 0; i < 2; i++)
+        {
+            var s = _apuntado[i];
+            if (s != null && entradaControles.GatilloDown(i) && !s.EnGraciaInicio(graciaInicioSeg) && Emitir(s))
+                break; // máx. una selección por fotograma
+        }
+    }
+
     /// <returns>true si la selección se emitió realmente (no estaba en cooldown).</returns>
     private bool Emitir(SeleccionableToque s)
     {
         if (!s.PuedeSeleccionar) return false;
         s.NotificarSeleccion();
+        if (entradaControles != null) entradaControles.RegistrarUso();
         if (logSelecciones) Debug.Log($"[GestorSeleccionToque] Selección: {s.name}", s);
         OnSeleccionEmitida?.Invoke(s);
         return true;

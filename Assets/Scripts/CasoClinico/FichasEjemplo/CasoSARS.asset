@@ -11,13 +11,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0059c866089bbe24c9d13b586730ee9e, type: 3}
   m_Name: CasoSARS
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   idCaso: CASO-SARS
-  nombreCaso: 'Síndrome Respiratorio Agudo Grave (SARS)'
-  motivoConsulta: 'Tengo fiebre, me duele todo el cuerpo y hace unos días que me cuesta respirar.'
+  nombreCaso: "S\xEDndrome Respiratorio Agudo Grave (SARS)"
+  motivoConsulta: "Tengo fiebre, me duele todo el cuerpo y hace unos d\xEDas que
+    me cuesta respirar."
   antecedentesRelevantes:
-  - 'Viaje reciente a zona con brote activo (o contacto con caso confirmado).'
-  - 'Sin comorbilidades relevantes.'
+  - Viaje reciente a zona con brote activo (o contacto con caso confirmado).
+  - Sin comorbilidades relevantes.
   signosVitales:
     frecuenciaCardiaca: 105
     frecuenciaRespiratoria: 26
@@ -26,39 +27,49 @@ MonoBehaviour:
     temperatura: 38.2
   hallazgosPorRegion:
   - regionAnatomica: Cabeza y cuello
-    hallazgoTexto: 'Refiere cefalea; sin adenopatías.'
+    hallazgoTexto: "Refiere cefalea; sin adenopat\xEDas."
     esHallazgoRelevante: 1
-  - regionAnatomica: Tórax anterior
-    hallazgoTexto: 'Taquipnea, leve uso de musculatura accesoria.'
+  - regionAnatomica: "T\xF3rax anterior"
+    hallazgoTexto: Taquipnea, leve uso de musculatura accesoria.
     esHallazgoRelevante: 1
-  - regionAnatomica: Tórax posterior
-    hallazgoTexto: 'Crépitos difusos bilaterales.'
+  - regionAnatomica: "T\xF3rax posterior"
+    hallazgoTexto: "Cr\xE9pitos difusos bilaterales."
     esHallazgoRelevante: 1
   - regionAnatomica: Precordio
-    hallazgoTexto: 'Taquicardia sinusal.'
+    hallazgoTexto: Taquicardia sinusal.
     esHallazgoRelevante: 1
   - regionAnatomica: Abdomen
-    hallazgoTexto: 'Sin hallazgos relevantes.'
+    hallazgoTexto: Sin hallazgos relevantes.
     esHallazgoRelevante: 0
   - regionAnatomica: Extremidades
-    hallazgoTexto: 'Refiere mialgias; sin edema.'
+    hallazgoTexto: Refiere mialgias; sin edema.
     esHallazgoRelevante: 1
   - regionAnatomica: Piel y mucosas
-    hallazgoTexto: 'Cianosis peribucal leve; piel con calofríos.'
+    hallazgoTexto: "Cianosis peribucal leve; piel con calofr\xEDos."
     esHallazgoRelevante: 1
   examenesDisponibles:
-  - nombreExamen: 'Pruebas de sangre'
-    resultado: 'Leucopenia con linfopenia, PCR elevada.'
-    esExamenPertinente: 1
-  - nombreExamen: 'Secreción respiratoria (PCR viral)'
-    resultado: 'PCR positiva para el agente causal.'
-    esExamenPertinente: 1
-  - nombreExamen: 'Radiografía de tórax'
-    resultado: 'Infiltrados bilaterales, patrón en vidrio esmerilado.'
-    esExamenPertinente: 1
+  - nombreExamen: Hemograma
+    resultado: Leucopenia con linfopenia.
+    clasificacion: 1
+  - nombreExamen: "Prote\xEDna C reactiva"
+    resultado: Elevada.
+    clasificacion: 1
+  - nombreExamen: PCR viral / panel respiratorio
+    resultado: PCR positiva para el agente causal.
+    clasificacion: 1
+  - nombreExamen: "Radiograf\xEDa de t\xF3rax"
+    resultado: "Infiltrados bilaterales, patr\xF3n en vidrio esmerilado."
+    clasificacion: 1
+  - nombreExamen: "Tomograf\xEDa de t\xF3rax"
+    resultado: Opacidades en vidrio esmerilado bilaterales.
+    clasificacion: 2
+  - nombreExamen: "Exploraci\xF3n cl\xEDnica del dolor"
+    resultado: Sin dolor referido en reposo (EVA 0/10).
+    clasificacion: 2
   preguntasClave:
   - idPregunta: sars_nexo
-    preguntaSugerida: '¿Ha viajado recientemente o tenido contacto con alguien enfermo?'
+    preguntaSugerida: "\xBFHa viajado recientemente o tenido contacto con alguien
+      enfermo?"
     conjuntosPalabrasClave:
     - palabras:
       - viaj
@@ -69,19 +80,19 @@ MonoBehaviour:
       - brote
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Volví hace una semana de un viaje donde había un brote.'
+    respuestaPaciente: "Volv\xED hace una semana de un viaje donde hab\xEDa un brote."
     esPreguntaClave: 1
   - idPregunta: sars_fiebre
-    preguntaSugerida: '¿Tiene fiebre? ¿De cuánto?'
+    preguntaSugerida: "\xBFTiene fiebre? \xBFDe cu\xE1nto?"
     conjuntosPalabrasClave:
     - palabras:
       - fiebr
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, como 38 grados, con calofríos.'
+    respuestaPaciente: "S\xED, como 38 grados, con calofr\xEDos."
     esPreguntaClave: 1
   - idPregunta: sars_mialgias
-    preguntaSugerida: '¿Le duele el cuerpo?'
+    preguntaSugerida: "\xBFLe duele el cuerpo?"
     conjuntosPalabrasClave:
     - palabras:
       - dol
@@ -90,10 +101,10 @@ MonoBehaviour:
       - mialgia
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, todo el cuerpo, sobre todo las piernas.'
+    respuestaPaciente: "S\xED, todo el cuerpo, sobre todo las piernas."
     esPreguntaClave: 1
   - idPregunta: sars_cefalea
-    preguntaSugerida: '¿Le duele la cabeza?'
+    preguntaSugerida: "\xBFLe duele la cabeza?"
     conjuntosPalabrasClave:
     - palabras:
       - dol
@@ -102,10 +113,10 @@ MonoBehaviour:
       - cefalea
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, harto.'
+    respuestaPaciente: "S\xED, harto."
     esPreguntaClave: 1
   - idPregunta: sars_disnea
-    preguntaSugerida: '¿Ha notado que le cuesta respirar?'
+    preguntaSugerida: "\xBFHa notado que le cuesta respirar?"
     conjuntosPalabrasClave:
     - palabras:
       - cuesta
@@ -117,19 +128,19 @@ MonoBehaviour:
       - disnea
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Sí, sobre todo cuando camino.'
+    respuestaPaciente: "S\xED, sobre todo cuando camino."
     esPreguntaClave: 1
   - idPregunta: sars_tos
-    preguntaSugerida: '¿Ha tenido tos?'
+    preguntaSugerida: "\xBFHa tenido tos?"
     conjuntosPalabrasClave:
     - palabras:
       - tos
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: 'Un poco, seca.'
+    respuestaPaciente: Un poco, seca.
     esPreguntaClave: 1
-  respuestaGenericaSinMatch: 'No estoy segura de a qué se refiere con eso.'
-  diagnosticoEsperado: 'Síndrome Respiratorio Agudo Grave (SARS).'
+  respuestaGenericaSinMatch: "No estoy segura de a qu\xE9 se refiere con eso."
+  diagnosticoEsperado: "S\xEDndrome Respiratorio Agudo Grave (SARS)."
   conjuntosPalabrasClaveDiagnostico:
   - palabras:
     - sars
@@ -141,26 +152,65 @@ MonoBehaviour:
     - sindrome
     - respiratorio
   accionesCriticas:
-  - descripcion: 'Aislamiento / precauciones apenas se sospecha, con monitorización continua de SatO2'
+  - descripcion: "Aislamiento / precauciones apenas se sospecha, con monitorizaci\xF3n
+      continua de SatO2"
     tipo: 4
-    idReferencia: 'manejo_aislamiento_monitor_sato2'
+    idReferencia: manejo_aislamiento_monitor_sato2
     peso: 50
-  - descripcion: 'Preparar manejo escalonado (oxigenoterapia y eventual intubación)'
+    conjuntosPalabrasClave:
+    - palabras:
+      - aisl
+      - saturacion
+    - palabras:
+      - aisl
+      - sato2
+    - palabras:
+      - aisl
+      - spo2
+    - palabras:
+      - aisl
+      - saturometr
+    - palabras:
+      - aisl
+      - oximetr
+    - palabras:
+      - aisl
+      - monitor
+  - descripcion: "Preparar manejo escalonado (oxigenoterapia y eventual intubaci\xF3n)"
     tipo: 4
-    idReferencia: 'manejo_escalonado_via_aerea'
+    idReferencia: manejo_escalonado_via_aerea
     peso: 50
+    conjuntosPalabrasClave:
+    - palabras:
+      - intub
+    - palabras:
+      - ventilacion
+      - mecanic
+    - palabras:
+      - vmni
+    - palabras:
+      - via
+      - aerea
+    - palabras:
+      - escalonad
+    - palabras:
+      - alto
+      - flujo
   erroresFrecuentes:
-  - descripcion: 'No indagar el nexo epidemiológico'
-    idReferenciaCondicion: 'omitio:sars_nexo'
-    retroalimentacion: 'El antecedente de viaje o contacto en contexto de brote es el dato que dispara las precauciones y el estudio dirigido.'
-  - descripcion: 'No valorar la cianosis ni la disnea progresiva'
-    idReferenciaCondicion: 'omitio:Piel y mucosas'
-    retroalimentacion: 'La cianosis peribucal y la disnea de esfuerzo indican hipoxemia significativa y necesidad de oxígeno.'
-  - descripcion: 'Retrasar el inicio de la oxigenoterapia'
-    idReferenciaCondicion: ''
-    retroalimentacion: 'Con SatO2 90% y disnea progresiva, la oxigenoterapia no debe esperar a la confirmación diagnóstica.'
+  - descripcion: "No indagar el nexo epidemiol\xF3gico"
+    idReferenciaCondicion: omitio:sars_nexo
+    retroalimentacion: El antecedente de viaje o contacto en contexto de brote es
+      el dato que dispara las precauciones y el estudio dirigido.
+  - descripcion: No valorar la cianosis ni la disnea progresiva
+    idReferenciaCondicion: omitio:Piel y mucosas
+    retroalimentacion: "La cianosis peribucal y la disnea de esfuerzo indican hipoxemia
+      significativa y necesidad de ox\xEDgeno."
+  - descripcion: Retrasar el inicio de la oxigenoterapia
+    idReferenciaCondicion: 
+    retroalimentacion: "Con SatO2 90% y disnea progresiva, la oxigenoterapia no debe
+      esperar a la confirmaci\xF3n diagn\xF3stica."
   datosAdministrativos:
-    nombrePacienteFicticio: 'Torres Díaz, Valentina'
+    nombrePacienteFicticio: "Torres D\xEDaz, Valentina"
     sexoPaciente: Femenino
-    edadPaciente: '29 años'
-    nombreEstablecimiento: 'Hospital Regional Simulado — Servicio de Urgencias'
+    edadPaciente: "29 a\xF1os"
+    nombreEstablecimiento: "Hospital Regional Simulado \u2014 Servicio de Urgencias"

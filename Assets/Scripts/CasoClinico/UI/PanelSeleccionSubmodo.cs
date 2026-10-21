@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Primera pantalla de SceneDiagnostico. Panel diegético World Space head-locked
-/// a CenterEyeAnchor (vía <see cref="AnclajeCabeza"/> en <see cref="raiz"/>),
+/// Primera pantalla de SceneDiagnostico. Panel diegético World Space anclado a un slot
+/// fijo de la sala (SlotPanel; <see cref="raiz"/> es hija del slot),
 /// mismo tratamiento que el Panel de Introducción.
 ///
 /// Dos tarjetas (SeleccionableToque + BotonMenuFeedback) fijan el SubmodoCaso —
@@ -14,7 +14,7 @@ using UnityEngine;
 /// </summary>
 public class PanelSeleccionSubmodo : MonoBehaviour, IPanelOcultable
 {
-    [Header("Visual (con AnclajeCabeza)")]
+    [Header("Visual (raíz hija de un SlotPanel)")]
     [SerializeField] private GameObject raiz;
 
     // Ver PanelIntroduccion._visibleSegunEstado — mismo criterio.

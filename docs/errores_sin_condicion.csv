@@ -1,0 +1,6 @@
+﻿"Caso","Descripción","Condición actual","Motivo","Retroalimentación","Condición propuesta (omitio: / pregunto: / examino: / solicito:)","Validación (OK / Cambiar)","Comentario"
+"CASO-TBC","No usar EPP (mascarilla de alta eficiencia) antes de examinar","","condición vacía","Ante la sospecha de TBC bacilífera, la protección respiratoria del examinador debe colocarse ANTES del contacto.","","",""
+"CASO-EPA","Confundir el cuadro con una infección respiratoria pura","","condición vacía","La ausencia de fiebre, la ortopnea, las yugulares ingurgitadas y el edema orientan a causa cardiogénica, no infecciosa.","","",""
+"CASO-EPOC","Administrar oxígeno a alto flujo sin control","","condición vacía","En el retenedor de CO2 la hiperoxia puede deprimir el estímulo respiratorio; titular O2 a una SatO2 objetivo de 88-92%.","","",""
+"CASO-SARS","Retrasar el inicio de la oxigenoterapia","","condición vacía","Con SatO2 90% y disnea progresiva, la oxigenoterapia no debe esperar a la confirmación diagnóstica.","","",""
+"CASO-BRONQ","Indicar antibióticos sin justificación","","condición vacía","La bronquitis aguda es habitualmente viral; el antibiótico no acorta el curso y expone a efectos adversos y resistencia.","","",""

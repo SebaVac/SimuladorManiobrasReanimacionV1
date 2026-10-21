@@ -125,13 +125,16 @@ public static class ConstruirArranqueSeccion2
         // Tarjetas (2, tras eliminar "Guiado" el 2026-09-22 — no tenía efecto propio,
         // ver SubmodoCaso). Mismo espaciado de 210u que antes, centradas en el hueco
         // que ocupaba la tercera tarjeta en vez de dejarlo vacío.
-        var tTut = Tarjeta(canvas.transform, "TarjetaTutorial", "◆", "TUTORIAL",
+        // Íconos de tarjeta: letras ASCII. LiberationSans SDF (estática, 250 glifos) no
+        // tiene ◆ ◉ ↩ ◀ y TMP los dibujaba como □ (auditado 2026-10-13 con
+        // HasCharacter); mismo criterio que los botones ANTERIORES/RECIENTES del Panel 5.
+        var tTut = Tarjeta(canvas.transform, "TarjetaTutorial", "T", "TUTORIAL",
             "Introducción guiada a la interacción con el paciente virtual", 105f);
-        var tEva = Tarjeta(canvas.transform, "TarjetaEvaluacion", "◉", "EVALUACIÓN",
+        var tEva = Tarjeta(canvas.transform, "TarjetaEvaluacion", "E", "EVALUACIÓN",
             "Resolución sin asistencia · desempeño registrado para el resumen final", -105f);
 
         // Volver
-        var volver = BotonSimple(canvas.transform, "BotonVolver", "↩  VOLVER AL MENÚ PRINCIPAL",
+        var volver = BotonSimple(canvas.transform, "BotonVolver", "«  VOLVER AL MENÚ PRINCIPAL",
             new Vector2(0f, -338f), new Vector2(560f, 56f), 0.05f);
 
         // Footer
@@ -201,13 +204,13 @@ public static class ConstruirArranqueSeccion2
         rtB.sizeDelta = new Vector2(720f, 150f);
         Fondo(bloque.transform, new Color(0.05f, 0.14f, 0.16f, 0.85f));
         Texto(bloque.transform, "TextoTutorial",
-            "En este caso vas a: 1) examinar al paciente acercando las manos a cada región, " +
+            "En este caso deberás: 1) examinar al paciente acercando las manos a cada región, " +
             "2) preguntarle (alternativas o texto libre), y 3) pedir exámenes complementarios. " +
-            "Al final registrás tu diagnóstico y conducta. [texto placeholder — se afina después]",
+            "Al final registrarás tu diagnóstico y conducta. [texto placeholder — se afina después]",
             17, FontStyles.Normal, COLOR_TENUE, TextAlignmentOptions.TopLeft,
             new Vector2(0f, 0f), new Vector2(680f, 130f));
 
-        var atras = BotonSimple(canvas.transform, "BotonAtras", "◀  ATRÁS",
+        var atras = BotonSimple(canvas.transform, "BotonAtras", "«  ATRÁS",
             new Vector2(-190f, -210f), new Vector2(230f, 64f), 0.05f);
         var comenzar = BotonSimple(canvas.transform, "BotonComenzar", "COMENZAR",
             new Vector2(160f, -210f), new Vector2(300f, 64f), 0.05f);
@@ -242,7 +245,7 @@ public static class ConstruirArranqueSeccion2
         var canvas = NuevoCanvas("Canvas", raiz.transform, 720f, 110f);
         Fondo(canvas.transform, new Color(0.03f, 0.09f, 0.11f, 0.85f));
 
-        var atras = BotonSimple(canvas.transform, "BotonAtras", "◀  ATRÁS",
+        var atras = BotonSimple(canvas.transform, "BotonAtras", "«  ATRÁS",
             new Vector2(-180f, 0f), new Vector2(300f, 78f), 0.05f);
         var salir = BotonSimple(canvas.transform, "BotonSalir", "SALIR DEL CASO",
             new Vector2(180f, 0f), new Vector2(300f, 78f), 0.05f);
