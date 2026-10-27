@@ -73,3 +73,30 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# --- Carpetas de depuración de Burst (nunca se distribuyen) ---
+*_BurstDebugInformation_DoNotShip/
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+
+# --- Configuración local de herramientas (rutas y permisos de tu PC) ---
+/.claude/
+
+# --- IDE ---
+/.vscode/
+/.idea/
+
+# --- Firma de Android / secretos (nunca subir) ---
+*.keystore
+*.jks
+*.p12
+*.pem
+.env
+.env.*
+
+# --- SO ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Capturas de depuración temporales ---
+docs/_pin_*.png
