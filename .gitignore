@@ -100,3 +100,9 @@ desktop.ini
 
 # --- Capturas de depuración temporales ---
 docs/_pin_*.png
+
+# Entregas y respaldos locales (no se publican)
+Entrega_*/
+Respaldos/
+/Respaldos
+docs/capturas/_pin_*.png

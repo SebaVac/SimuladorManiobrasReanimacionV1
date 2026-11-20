@@ -23,9 +23,8 @@ using UnityEngine;
 ///   Slot_Principal  frente al jugador (azimut 0), 0,75 m, centro a 1,44 m: paneles 1 (selección), 2 (introducción), 5, 6, 7 y 9.
 ///                   La altura deja el panel más grande (0,92 m) dentro de -45°/+30° con ojos de 1,5 a 1,7 m.
 ///   Slot_Barra      (sin cambios) a +60°, 1,89 m; ya no queda sobre el Principal. Su controlador está desactivado.
-///   Slot_Notas      (sin cambios) izq., 0,75 m a -60°, centro a 1,20 m (más baja). Más cerca de 0° no cabe sin taparle el
-///                   Principal al jugador: el mínimo factible es ~52°.
-///   Slot_Monitor    izq., 1,0 m a -42°, centro a 1,64 m (sobre Slot_Notas). Es el azimut mínimo que no le tapa el Principal.
+///   Slot_Monitor    izq., 1,0 m a -42°, centro a 1,64 m. Es el azimut mínimo que no le tapa el Principal. (La hoja de notas y su
+///                   Slot_Notas se eliminaron el 2026-11-19; el Monitor NO se movió.)
 ///   Slot_Hallazgos  (sin cambios) costado derecho de la camilla, a mitad de su largo; legible desde ambos extremos.
 ///
 /// Menú: Tools/Razonamiento Clínico/Configurar paneles fijos (SceneDiagnostico)
@@ -45,16 +44,13 @@ public static class ConfigurarPanelesFijosDiagnostico
         return new List<DefSlot>
         {
             new DefSlot { nombre = "Slot_Principal", pos = new Vector3(0f, 1.44f, 0.75f), yaw = 0f, color = new Color(0.2f, 0.9f, 1f),
-                desc = "Paneles 1 (selección de submodo), 2 (introducción), 5 (anamnesis), 6 (exámenes), 7 (registro de diagnóstico) y 9 (debriefing). Nunca coexisten, ni con el paciente dibujado (solo se ve en examen físico). Frente al jugador, a 0,75 m; centro a 1,44 m (la Y del slot). Arrástralo para moverlo.",
-                paneles = new[] { "PanelSeleccionSubmodo", "PanelIntroduccion", "Panel_Anamnesis", "Panel_ExamenesComplementarios", "Panel_RegistroDiagnostico", "Panel_Debriefing" } },
+                desc = "Paneles 1 (selección de submodo), introducción del estudio (Panel_IntroduccionDiagnostico), 2 (introducción), 5 (anamnesis), 6 (exámenes), 7 (registro de diagnóstico) y 9 (debriefing). Nunca coexisten, ni con el paciente dibujado (solo se ve en examen físico). Frente al jugador, a 0,75 m; centro a 1,44 m (la Y del slot). Arrástralo para moverlo.",
+                paneles = new[] { "PanelSeleccionSubmodo", "Panel_IntroduccionDiagnostico", "PanelIntroduccion", "Panel_Anamnesis", "Panel_ExamenesComplementarios", "Panel_RegistroDiagnostico", "Panel_Debriefing" } },
             new DefSlot { nombre = "Slot_Barra", pos = new Vector3(xp, 1.89f, zp), yaw = 60f, color = new Color(0.4f, 0.8f, 0.5f),
                 desc = "Barra de navegación del caso (ATRÁS / CONTINUAR), visible de ExamenFisico a RegistroDiagnostico. Va SOBRE Slot_Principal: debajo chocaría con los brazos del paciente acostado. Centro a 1,89 m. Arrástralo para moverlo.",
                 paneles = new[] { "BarraNavegacionCaso" } },
-            new DefSlot { nombre = "Slot_Notas", pos = new Vector3(-xp, 1.20f, zp), yaw = -60f, color = new Color(1f, 0.8f, 0.3f),
-                desc = "Hoja de notas (panel con botones), visible en examen físico, anamnesis, exámenes y registro. Costado izquierdo, a 0,75 m y -60° de la cabeza, más baja que el resto: centro a 1,20 m. Arrástralo para moverlo.",
-                paneles = new[] { "Panel_HojaNotas" } },
             new DefSlot { nombre = "Slot_Monitor", pos = new Vector3(-xm, 1.64f, zm), yaw = -42f, color = new Color(1f, 0.5f, 0.5f),
-                desc = "Monitor de signos vitales (panel 3, solo lectura), a la izquierda y por encima de Slot_Notas, a 1,0 m y -42° de la cabeza para no taparle el panel principal. Centro a 1,64 m. Arrástralo para moverlo.",
+                desc = "Monitor de signos vitales (panel 3, solo lectura), a la izquierda, a 1,0 m y -42° de la cabeza para no taparle el panel principal. Centro a 1,64 m. Arrástralo para moverlo.",
                 paneles = new[] { "Panel_SignosVitales" } },
             new DefSlot { nombre = "Slot_Hallazgos", pos = new Vector3(1.0f, 1.35f, 1.3f), yaw = yawHall, color = new Color(0.9f, 0.6f, 1f),
                 desc = "Panel 4 (hallazgos del examen físico). Costado derecho de la camilla, a mitad de su largo, mirando hacia el punto medio entre la cabecera y el otro extremo: se lee desde delante y desde detrás de la camilla. Centro a 1,35 m. Arrástralo para moverlo.",

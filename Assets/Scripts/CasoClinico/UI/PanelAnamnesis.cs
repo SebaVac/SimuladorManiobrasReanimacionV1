@@ -61,6 +61,10 @@ public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
     [SerializeField] private TMP_Text textoAyudaBloqueado;
     [SerializeField] private string mensajeAyudaBloqueado = "Haz al menos una pregunta para continuar.";
 
+    [Header("Volver")]
+    [Tooltip("Botón secundario « VOLVER: regresa a la fase anterior sin abandonar el caso ni borrar nada.")]
+    [SerializeField] private SeleccionableToque botonVolver;
+
     [Header("Sistema")]
     [SerializeField] private GestorCasoClinico gestorCaso;
     [SerializeField] private InteraccionPaciente interaccionPaciente;
@@ -91,6 +95,7 @@ public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
         }
         if (botonPreguntar != null)      botonPreguntar.OnSeleccionado    += Preguntar;
         if (botonContinuar != null)      botonContinuar.OnSeleccionado    += Continuar;
+        if (botonVolver != null)         botonVolver.OnSeleccionado       += Volver;
         if (botonScrollArriba != null)   botonScrollArriba.OnSeleccionado += ScrollArriba;
         if (botonScrollAbajo != null)    botonScrollAbajo.OnSeleccionado  += ScrollAbajo;
     }
@@ -104,6 +109,7 @@ public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
         }
         if (botonPreguntar != null)      botonPreguntar.OnSeleccionado    -= Preguntar;
         if (botonContinuar != null)      botonContinuar.OnSeleccionado    -= Continuar;
+        if (botonVolver != null)         botonVolver.OnSeleccionado       -= Volver;
         if (botonScrollArriba != null)   botonScrollArriba.OnSeleccionado -= ScrollArriba;
         if (botonScrollAbajo != null)    botonScrollAbajo.OnSeleccionado  -= ScrollAbajo;
     }
@@ -197,7 +203,7 @@ public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
 
     private void ActualizarBotonContinuar()
     {
-        bool habilitado = gestorCaso != null && gestorCaso.PreguntasReconocidasCount >= 1;
+        bool habilitado = gestorCaso != null && gestorCaso.IntercambiosReconocidosCount >= 1;
         if (botonContinuar != null) botonContinuar.Interactuable = habilitado;
 
         // El BotonMenuFeedback maneja el color cuando el botón está activo; se
@@ -211,7 +217,12 @@ public class PanelAnamnesis : MonoBehaviour, IPanelOcultable
     private void Continuar()
     {
         // El botón ya está bloqueado sin ≥1 pregunta reconocida; doble guard por las dudas.
-        if (gestorCaso != null && gestorCaso.PreguntasReconocidasCount >= 1)
+        if (gestorCaso != null && gestorCaso.IntercambiosReconocidosCount >= 1)
             gestorCaso.AvanzarFase(); // Anamnesis → ExamenesComplementarios
+    }
+
+    private void Volver()
+    {
+        if (gestorCaso != null) gestorCaso.VolverAFaseAnterior();
     }
 }

@@ -12,7 +12,7 @@ using UnityEngine.UI;
 /// Estética teal diegética (consistente con el resto del módulo — a diferencia
 /// del Panel 7, que rompe estilo a propósito). Head-locked, mismo
 /// distancia/alturaRelativa que la mayoría de los paneles principales (0.60 /
-/// -0.05): a diferencia del ícono de pausa y la hoja de notas, este panel NO
+/// -0.05): a diferencia del ícono de pausa, este panel NO
 /// necesita esquivar a los demás porque nunca coexiste con ellos — Debriefing
 /// es un estado exclusivo, todos los demás paneles del módulo ya están
 /// ocultos para cuando este se muestra.
@@ -59,7 +59,7 @@ public static class ConstruirPanel9Debriefing
         // Alto 820 (era 680, con el desglose por componente): crece HACIA ARRIBA — se
         // sube el origen del canvas (820-680)/2 para que el borde INFERIOR quede
         // donde estaba (-0.39 m respecto de la vista), por debajo del cual viven el
-        // ícono de pausa (y<=-0.469) y la hoja de notas (y<=-0.49).
+        // ícono de pausa (y<=-0.469).
         const float ALTO_CANVAS = 820f;
         var canvas = NuevoCanvas("Canvas", raiz.transform, 760f, ALTO_CANVAS);
         canvas.transform.localPosition = new Vector3(0f, (ALTO_CANVAS - 680f) * 0.5f * 0.001f, 0f);

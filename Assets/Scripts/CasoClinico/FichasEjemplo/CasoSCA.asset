@@ -72,10 +72,18 @@ MonoBehaviour:
     - palabras:
       - empez
       - dol
+    - palabras:
+      - cuando
+      - duel
+    - palabras:
+      - empez
+      - duel
     palabrasClave: []
     sinonimos: []
     respuestaPaciente: Hace unos 30 minutos, de repente.
     esPreguntaClave: 1
+    intencionesQueSatisface:
+    - tiempo_evolucion
   - idPregunta: sca_caracteristica_dolor
     preguntaSugerida: "\xBFC\xF3mo describe el dolor?"
     conjuntosPalabrasClave:
@@ -87,10 +95,14 @@ MonoBehaviour:
     - palabras:
       - peso
       - pecho
+    - palabras:
+      - como
+      - duel
     palabrasClave: []
     sinonimos: []
     respuestaPaciente: Como un peso fuerte en el pecho, opresivo.
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: sca_irradiacion
     preguntaSugerida: "\xBFEl dolor se corre a alg\xFAn lado?"
     conjuntosPalabrasClave:
@@ -103,10 +115,20 @@ MonoBehaviour:
     - palabras:
       - dol
       - brazo
+    - palabras:
+      - duel
+      - irradia
+    - palabras:
+      - duel
+      - corre
+    - palabras:
+      - duel
+      - brazo
     palabrasClave: []
     sinonimos: []
     respuestaPaciente: "S\xED, al brazo izquierdo y al cuello."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: sca_sintomas_asociados
     preguntaSugerida: "\xBFHa tenido n\xE1useas o sudoraci\xF3n?"
     conjuntosPalabrasClave:
@@ -120,6 +142,8 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, estoy sudando fr\xEDo y con ganas de vomitar."
     esPreguntaClave: 1
+    intencionesQueSatisface:
+    - sintomas_asociados
   - idPregunta: sca_antecedente_cardiaco
     preguntaSugerida: "\xBFAntecedentes de enfermedades del coraz\xF3n?"
     conjuntosPalabrasClave:
@@ -131,8 +155,9 @@ MonoBehaviour:
       - infarto
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: "Tuve un infarto hace dos a\xF1os."
+    respuestaPaciente: "Tuve un problema del coraz\xF3n hace dos a\xF1os."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: sca_factores_riesgo
     preguntaSugerida: "\xBFEs hipertenso, diab\xE9tico o fuma?"
     conjuntosPalabrasClave:
@@ -146,6 +171,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, soy hipertenso y diab\xE9tico, y fumo."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: sca_relacion_reposo
     preguntaSugerida: "\xBFEl dolor cede con el reposo?"
     conjuntosPalabrasClave:
@@ -155,11 +181,30 @@ MonoBehaviour:
     - palabras:
       - cede
       - repos
+    - palabras:
+      - duel
+      - repos
     palabrasClave: []
     sinonimos: []
     respuestaPaciente: No, sigue igual aunque estoy sentado.
     esPreguntaClave: 1
-  respuestaGenericaSinMatch: "No estoy segura de a qu\xE9 se refiere con eso."
+    intencionesQueSatisface: []
+  respuestaGenericaSinMatch: "Disculpe, no le entend\xED bien. \xBFMe lo puede preguntar
+    de otra forma?"
+  historia:
+    inicio: Hace unos 30 minutos, de repente.
+    evolucion: No refiere
+    empeora: No refiere
+    alivia: No se me pasa; sigue igual aunque estoy sentado.
+    remedios: No refiere
+    alergias: No refiere
+    antecedentes: "Soy hipertenso y diab\xE9tico, tengo alterados los l\xEDpidos
+      y tuve un problema del coraz\xF3n hace dos a\xF1os."
+    habitos: Fumo.
+    intensidad: Es un dolor fuerte.
+    localizacion: En el pecho, y se me corre al brazo izquierdo y al cuello.
+    sintomasAsociados: "Estoy sudando fr\xEDo y con ganas de vomitar."
+    perfil: "Soy Jorge Alarc\xF3n, tengo 59 a\xF1os."
   diagnosticoEsperado: "S\xEDndrome Coronario Agudo con supradesnivel del ST (IAM
     tipo STEMI)."
   conjuntosPalabrasClaveDiagnostico:

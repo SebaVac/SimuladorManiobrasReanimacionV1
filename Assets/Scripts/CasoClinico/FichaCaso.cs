@@ -110,6 +110,70 @@ public class PreguntaAnamnesis
 
     [TextArea] public string respuestaPaciente;
     public bool esPreguntaClave;
+
+    [Tooltip("Ids de intenciones del CatalogoIntenciones que esta pregunta clave satisface: si el texto del jugador no " +
+             "coincide con los conjuntos de arriba pero sí con una de estas intenciones, se registra ESTA pregunta (puntúa) " +
+             "y se responde con su respuestaPaciente. Solo cuando la equivalencia es evidente por el texto de la pregunta.")]
+    public List<string> intencionesQueSatisface = new List<string>();
+}
+
+/// <summary>Campo de la <see cref="HistoriaPaciente"/> con el que responde una intención del catálogo.</summary>
+public enum CampoHistoria
+{
+    Inicio, Evolucion, Empeora, Alivia, Remedios, Alergias, Antecedentes, Habitos,
+    Intensidad, Localizacion, SintomasAsociados, Perfil,
+    /// <summary>No es un campo de la historia: responde con <see cref="FichaCaso.motivoConsulta"/> (ya está en primera persona).</summary>
+    MotivoConsulta
+}
+
+/// <summary>Historia del paciente en primera persona y tono hablado: es la ÚNICA fuente de lo que el paciente
+/// responde a intenciones del catálogo que no corresponden a una pregunta clave. Se escribe SOLO con datos ya presentes
+/// en la ficha (motivo de consulta, antecedentes, respuestas, datos administrativos); todo campo sin fuente queda en
+/// "No refiere" hasta que lo valide un profesional (docs/historia_paciente_pendientes.md). Ninguna respuesta debe nombrar
+/// el diagnóstico (control: Tools/Razonamiento Clínico/Anamnesis/Control anti-fuga).</summary>
+[System.Serializable]
+public class HistoriaPaciente
+{
+    public const string NO_REFIERE = "No refiere";
+
+    [TextArea] public string inicio = NO_REFIERE;
+    [TextArea] public string evolucion = NO_REFIERE;
+    [TextArea] public string empeora = NO_REFIERE;
+    [TextArea] public string alivia = NO_REFIERE;
+    [TextArea] public string remedios = NO_REFIERE;
+    [TextArea] public string alergias = NO_REFIERE;
+    [TextArea] public string antecedentes = NO_REFIERE;
+    [TextArea] public string habitos = NO_REFIERE;
+    [Tooltip("Campos añadidos a la lista pedida porque el catálogo tiene las intenciones intensidad, localización y síntomas asociados.")]
+    [TextArea] public string intensidad = NO_REFIERE;
+    [TextArea] public string localizacion = NO_REFIERE;
+    [TextArea] public string sintomasAsociados = NO_REFIERE;
+    [Tooltip("Breve, solo para uso futuro: NO se usa en el matching ni lo contesta ninguna intención del catálogo.")]
+    [TextArea] public string perfil = NO_REFIERE;
+
+    /// <summary>Texto del campo, o null si no aplica (MotivoConsulta lo resuelve el llamador con la ficha).</summary>
+    public string Obtener(CampoHistoria campo)
+    {
+        switch (campo)
+        {
+            case CampoHistoria.Inicio:            return inicio;
+            case CampoHistoria.Evolucion:         return evolucion;
+            case CampoHistoria.Empeora:           return empeora;
+            case CampoHistoria.Alivia:            return alivia;
+            case CampoHistoria.Remedios:          return remedios;
+            case CampoHistoria.Alergias:          return alergias;
+            case CampoHistoria.Antecedentes:      return antecedentes;
+            case CampoHistoria.Habitos:           return habitos;
+            case CampoHistoria.Intensidad:        return intensidad;
+            case CampoHistoria.Localizacion:      return localizacion;
+            case CampoHistoria.SintomasAsociados: return sintomasAsociados;
+            case CampoHistoria.Perfil:            return perfil;
+            default:                              return null;
+        }
+    }
+
+    public static bool EsNoRefiere(string texto) =>
+        string.IsNullOrWhiteSpace(texto) || string.Equals(texto.Trim(), NO_REFIERE, System.StringComparison.OrdinalIgnoreCase);
 }
 
 [System.Serializable]
@@ -179,7 +243,10 @@ public class FichaCaso : ScriptableObject
 
     [Tooltip("Respuesta genérica del paciente cuando el texto libre no matchea ninguna " +
              "pregunta. No penaliza ni marca nada. Editable por caso, no obligatorio.")]
-    [TextArea] public string respuestaGenericaSinMatch = "No estoy segura de a qué se refiere con eso.";
+    [TextArea] public string respuestaGenericaSinMatch = "Disculpe, no le entendí bien. ¿Me lo puede preguntar de otra forma?";
+
+    [Header("Historia del paciente (respuestas a intenciones del catálogo)")]
+    public HistoriaPaciente historia = new HistoriaPaciente();
 
     [Header("Diagnóstico y Manejo")]
     [Tooltip("Referencia legible / fallback. Si conjuntosPalabrasClaveDiagnostico está " +

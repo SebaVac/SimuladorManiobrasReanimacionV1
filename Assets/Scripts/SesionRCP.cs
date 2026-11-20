@@ -41,6 +41,11 @@ public class SesionRCP : MonoBehaviour
     public event Action<EstadoSesionRCP> AlCambiarEstado;
     /// <summary>La sesión terminó por tiempo; el resultado ya está construido.</summary>
     public event Action<ResultadoSesionRCP> AlTerminar;
+    /// <summary>La sesión se descarta (reinicio, repetir, cambio de modo). Trae el estado en que estaba y, SOLO si estaba
+    /// EnCurso, un resultado parcial (<see cref="ResultadoSesionRCP.parcial"/>) con lo acumulado hasta ese momento; con
+    /// la sesión ya Terminada el segundo argumento es null. No se dispara si la sesión aún esperaba la primera
+    /// compresión (no hay nada que descartar). Se dispara ANTES de poner los contadores en cero.</summary>
+    public event Action<EstadoSesionRCP, ResultadoSesionRCP> AlDescartar;
 
     // ── Acumuladores (int/float; nada se asigna por fotograma) ──────────────
     private float _elapsed;
@@ -52,6 +57,7 @@ public class SesionRCP : MonoBehaviour
     private float _segPostura;
     private int _salidas, _recoilEval, _recoilInc;
     private bool _ultimoCicloCorrecto; // el recoil se evalúa al iniciar el SIGUIENTE ciclo: pertenece al último cerrado
+    private int _conteoHudVisto;       // último valor de LogicaRCP.ContadorCompresiones visto (el reset lo pone en 0 antes de avisar)
 
     private AudioClip _tonoFin;
 
@@ -91,6 +97,7 @@ public class SesionRCP : MonoBehaviour
     public void AvanzarTiempo(float dt)
     {
         if (Estado != EstadoSesionRCP.EnCurso || dt <= 0f) return;
+        _conteoHudVisto = logica.ContadorCompresiones; // int por fotograma: el reset de LogicaRCP lo pone en 0 antes de avisar del descarte
 
         float restante = duracionSesionSeg - _elapsed;
         if (dt > restante) dt = restante;
@@ -111,6 +118,7 @@ public class SesionRCP : MonoBehaviour
             CambiarEstado(EstadoSesionRCP.EnCurso);
         }
 
+        _conteoHudVisto = logica.ContadorCompresiones;
         _intentos++;
         if (_hayInicioAnterior)
         {
@@ -130,6 +138,7 @@ public class SesionRCP : MonoBehaviour
     private void OnCerrarCiclo(float profMaxCM)
     {
         if (Estado != EstadoSesionRCP.EnCurso) return;
+        _conteoHudVisto = logica.ContadorCompresiones;
 
         // Mismos umbrales y comparadores que EjecutarLogicaPush: <5 insuficiente, <=6 correcto, >6 excesivo.
         _ultimoCicloCorrecto = false;
@@ -161,12 +170,26 @@ public class SesionRCP : MonoBehaviour
         // Primero se detiene LogicaRCP: cierra el ciclo abierto (OnCerrarCiclo aún en EnCurso).
         logica.DetenerPorFinDeSesion();
 
-        var r = new ResultadoSesionRCP
+        _conteoHudVisto = logica.ContadorCompresiones;
+        var r = ConstruirResultado(false);
+        UltimoResultado = r;
+
+        CambiarEstado(EstadoSesionRCP.Terminada);
+        if (logica.altavoz != null && _tonoFin != null) logica.altavoz.PlayOneShot(_tonoFin);
+        AlTerminar?.Invoke(r);
+    }
+
+    /// <summary>Resultado con lo acumulado hasta ahora. <paramref name="parcial"/>: sesión descartada antes de
+    /// terminar (duracionSeg = tiempo transcurrido). Solo se llama al terminar o descartar (no por fotograma).</summary>
+    private ResultadoSesionRCP ConstruirResultado(bool parcial)
+    {
+        return new ResultadoSesionRCP
         {
-            duracionSeg = duracionSesionSeg,
+            duracionSeg = parcial ? _elapsed : duracionSesionSeg,
+            parcial = parcial,
             intentosTotales = _intentos,
             validas = _corr,
-            validasConteoHud = logica.ContadorCompresiones,
+            validasConteoHud = _conteoHudVisto,
             ciclosInsuficientes = _insuf,
             ciclosCorrectos = _corr,
             ciclosExcesivos = _exc,
@@ -179,17 +202,21 @@ public class SesionRCP : MonoBehaviour
             recoilEvaluados = _recoilEval,
             recoilIncompletos = _recoilInc,
         };
-        UltimoResultado = r;
-
-        CambiarEstado(EstadoSesionRCP.Terminada);
-        if (logica.altavoz != null && _tonoFin != null) logica.altavoz.PlayOneShot(_tonoFin);
-        AlTerminar?.Invoke(r);
     }
+
+    /// <summary>Instantánea parcial de la sesión EnCurso (para registrar una sesión que se abandona sin pasar por el
+    /// reinicio, p. ej. «Salir al menú principal»). null si la sesión no está EnCurso.</summary>
+    public ResultadoSesionRCP ConstruirParcial() => Estado == EstadoSesionRCP.EnCurso ? ConstruirResultado(true) : null;
 
     /// <summary>La sesión se descarta (salida por menú, reinicio, repetir): contadores en cero y
     /// vuelta a esperar la primera compresión, sin mostrar resultados.</summary>
     private void Descartar()
     {
+        if (Estado != EstadoSesionRCP.EsperandoPrimeraCompresion)
+        {
+            var previo = Estado;
+            AlDescartar?.Invoke(previo, previo == EstadoSesionRCP.EnCurso ? ConstruirResultado(true) : null);
+        }
         _elapsed = 0f;
         _intentos = _insuf = _corr = _exc = 0;
         _sumaProf = 0f;
@@ -199,6 +226,7 @@ public class SesionRCP : MonoBehaviour
         _segPostura = 0f;
         _salidas = _recoilEval = _recoilInc = 0;
         _ultimoCicloCorrecto = false;
+        _conteoHudVisto = 0;
         UltimoResultado = null;
         if (Estado != EstadoSesionRCP.EsperandoPrimeraCompresion)
             CambiarEstado(EstadoSesionRCP.EsperandoPrimeraCompresion);

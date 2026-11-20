@@ -57,6 +57,10 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
     [SerializeField] private SeleccionableToque botonRegistrar;
     [SerializeField] private Image bordeBotonRegistrar;
 
+    [Header("Volver")]
+    [Tooltip("Botón secundario « VOLVER: regresa a la fase anterior sin abandonar el caso ni borrar nada.")]
+    [SerializeField] private SeleccionableToque botonVolver;
+
     [Header("Sistema")]
     [SerializeField] private GestorCasoClinico gestorCaso;
     [SerializeField] private InteraccionPaciente interaccionPaciente;
@@ -88,6 +92,7 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
         if (campoDiagnostico != null) campoDiagnostico.OnSeleccionado += AbrirTeclado;
         if (campoManejo != null)      campoManejo.OnSeleccionado      += AbrirTecladoManejo;
         if (botonRegistrar != null)   botonRegistrar.OnSeleccionado   += IntentarRegistrar;
+        if (botonVolver != null)      botonVolver.OnSeleccionado      += Volver;
         if (gestorCaso != null)       gestorCaso.OnCambioEstado        += AlCambioEstado;
         if (interaccionPaciente != null)
         {
@@ -101,6 +106,7 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
         if (campoDiagnostico != null) campoDiagnostico.OnSeleccionado -= AbrirTeclado;
         if (campoManejo != null)      campoManejo.OnSeleccionado      -= AbrirTecladoManejo;
         if (botonRegistrar != null)   botonRegistrar.OnSeleccionado   -= IntentarRegistrar;
+        if (botonVolver != null)      botonVolver.OnSeleccionado      -= Volver;
         if (gestorCaso != null)       gestorCaso.OnCambioEstado        -= AlCambioEstado;
         if (interaccionPaciente != null)
         {
@@ -227,6 +233,11 @@ public class PanelRegistroDiagnostico : MonoBehaviour, IPanelOcultable
 
         // El manejo puede quedar vacío (suma 0): solo el diagnóstico es obligatorio.
         gestorCaso.OnJugadorRegistroDiagnostico(gestorCaso.DiagnosticoRegistrado, gestorCaso.ManejoRegistrado);
+    }
+
+    private void Volver()
+    {
+        if (gestorCaso != null) gestorCaso.VolverAFaseAnterior();
     }
 
     private IEnumerator DestelloAlerta()

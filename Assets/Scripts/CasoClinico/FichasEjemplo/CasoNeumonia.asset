@@ -82,6 +82,8 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "Desde ayer, muy alta, con calofr\xEDos."
     esPreguntaClave: 1
+    intencionesQueSatisface:
+    - tiempo_evolucion
   - idPregunta: nac_tos_productiva
     preguntaSugerida: "\xBFTiene tos? \xBFCon flema?"
     conjuntosPalabrasClave:
@@ -94,6 +96,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, con flema amarillo-verdosa."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: nac_dolor_pleuritico
     preguntaSugerida: "\xBFLe duele el pecho al respirar o toser?"
     conjuntosPalabrasClave:
@@ -102,10 +105,14 @@ MonoBehaviour:
       - pecho
     - palabras:
       - punzante
+    - palabras:
+      - duel
+      - pecho
     palabrasClave: []
     sinonimos: []
     respuestaPaciente: "S\xED, un dolor punzante de este lado."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: nac_disnea
     preguntaSugerida: "\xBFLe cuesta respirar?"
     conjuntosPalabrasClave:
@@ -119,6 +126,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, respiro r\xE1pido y corto."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: nac_contacto
     preguntaSugerida: "\xBFHa tenido contacto con alguien enfermo?"
     conjuntosPalabrasClave:
@@ -129,6 +137,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: No que yo sepa.
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: nac_comorbilidad
     preguntaSugerida: "\xBFTiene alguna enfermedad cr\xF3nica?"
     conjuntosPalabrasClave:
@@ -141,7 +150,23 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: Tengo EPOC.
     esPreguntaClave: 1
-  respuestaGenericaSinMatch: "No estoy segura de a qu\xE9 se refiere con eso."
+    intencionesQueSatisface: []
+  respuestaGenericaSinMatch: "Disculpe, no le entend\xED bien. \xBFMe lo puede preguntar
+    de otra forma?"
+  historia:
+    inicio: "Desde ayer, con fiebre muy alta y calofr\xEDos."
+    evolucion: No refiere
+    empeora: "Me duele m\xE1s cuando respiro hondo."
+    alivia: No refiere
+    remedios: No refiere
+    alergias: No refiere
+    antecedentes: Tengo EPOC y no he estado hospitalizado hace poco.
+    habitos: No refiere
+    intensidad: Tengo un dolor fuerte en el pecho y la fiebre es muy alta.
+    localizacion: Un dolor punzante en el pecho, de este lado.
+    sintomasAsociados: "Tengo tos con flema amarillo-verdosa, calofr\xEDos y respiro
+      r\xE1pido y corto."
+    perfil: "Soy Eduardo Fern\xE1ndez, tengo 72 a\xF1os."
   diagnosticoEsperado: "Neumon\xEDa adquirida en la comunidad."
   conjuntosPalabrasClaveDiagnostico:
   - palabras:

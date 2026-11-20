@@ -1,0 +1,23 @@
+Control anti-fuga: busca las palabras del propio diagnóstico (diagnosticoEsperado, nombreCaso y todas las palabras de
+conjuntosPalabrasClaveDiagnostico, sin tildes) en: historia del paciente, respuestaPaciente de cada pregunta, respuesta genérica,
+motivo de consulta (lo responde la intención motivo_consulta) y los textos del catálogo. Coincidencia = palabra entera igual, o
+palabra del texto que empieza por una raíz de 6+ letras del diagnóstico. Palabras genéricas ignoradas: de, la, el, los, las, del, con, en, y, o, a, por, para, origen, agudo, aguda, grave, activa, comunidad, adquirida, caso, ejemplo, placeholder, diagnostico, pulmonar, cronica, tipo, descompensacion, enfermedad, enfermedades
+
+== CASO-BRONQ (Bronquitis aguda) | palabras vigiladas: bronquitis
+   sin coincidencias
+== CASO-EPA (Edema Pulmonar Agudo (cardiogénico)) | palabras vigiladas: edema, cardiogenico, insuficiencia, cardiaca, cardiogenic, cardiac
+   sin coincidencias
+== CASO-EPOC (Exacerbación de EPOC) | palabras vigiladas: exacerbacion, obstructiva, epoc
+   sin coincidencias
+== CASO-NAC (Neumonía adquirida en la comunidad) | palabras vigiladas: neumonia, pulmonia
+   sin coincidencias
+== CASO-SARS (Síndrome Respiratorio Agudo Grave (SARS)) | palabras vigiladas: sindrome, respiratorio, sars
+   sin coincidencias
+== CASO-SCA (Síndrome Coronario Agudo (STEMI)) | palabras vigiladas: sindrome, coronario, supradesnivel, iam, stemi, infarto, sca
+   sin coincidencias
+== CASO-TBC (Tuberculosis pulmonar) | palabras vigiladas: tuberculosis, tbc, bacilo
+   sin coincidencias
+== Catálogo (descripciones y respuestaSinDato; aplica a todos los casos)
+   sin coincidencias
+
+TOTAL: 0 coincidencia(s).

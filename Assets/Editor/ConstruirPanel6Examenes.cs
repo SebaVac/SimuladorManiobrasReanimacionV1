@@ -61,7 +61,7 @@ public static class ConstruirPanel6Examenes
         // Alto 806 (era 720, con las dos filas de pestañas por categoría del catálogo ampliado):
         // el canvas crece HACIA ARRIBA — se sube su origen (760-720)/2 para que el borde
         // INFERIOR quede donde estaba (-0.41 m respecto de la vista), por debajo del cual
-        // viven el ícono de pausa (y<=-0.469) y la hoja de notas (y<=-0.49).
+        // vive el ícono de pausa (y<=-0.469). (La hoja de notas se eliminó el 2026-11-19.)
         const float ALTO_CANVAS = 806f;
         var canvas = NuevoCanvas("Canvas", raiz.transform, 760f, ALTO_CANVAS);
         canvas.transform.localPosition = new Vector3(0f, (ALTO_CANVAS - 720f) * 0.5f * 0.001f, 0f);

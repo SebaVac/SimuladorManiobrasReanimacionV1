@@ -17,6 +17,22 @@ public class SelectorCasoAleatorio : MonoBehaviour
 
     [SerializeField] private GestorCasoClinico gestorCasoClinico;
 
+    [Header("Protocolo de estudio")]
+    [Tooltip("Vacío = caso aleatorio del pool (como siempre). Con un idCaso del pool (p. ej. CASO-SCA) se juega siempre ese caso. " +
+             "Si el id no está en el pool se avisa en el log y se usa el aleatorio. No cambia el pool.")]
+    [SerializeField] private string idCasoFijo = "";
+
+    /// <summary>Caso que se jugará con el id fijo; null si idCasoFijo está vacío o no está en el pool (en ese caso avisa).</summary>
+    private FichaCaso BuscarCasoFijo()
+    {
+        if (string.IsNullOrWhiteSpace(idCasoFijo)) return null;
+        string id = idCasoFijo.Trim();
+        foreach (var caso in poolDeCasos)
+            if (caso != null && string.Equals(caso.idCaso, id, System.StringComparison.OrdinalIgnoreCase)) return caso;
+        Debug.LogWarning("[SelectorCasoAleatorio] idCasoFijo '" + id + "' no está en el pool; se usa el caso aleatorio.", this);
+        return null;
+    }
+
     public void SeleccionarYComenzar(SubmodoCaso submodo)
     {
         if (gestorCasoClinico == null)
@@ -30,8 +46,9 @@ public class SelectorCasoAleatorio : MonoBehaviour
             return;
         }
 
-        int indice = Random.Range(0, poolDeCasos.Count);
-        FichaCaso casoElegido = poolDeCasos[indice];
+        FichaCaso casoElegido = BuscarCasoFijo();
+        int indice = casoElegido != null ? poolDeCasos.IndexOf(casoElegido) : Random.Range(0, poolDeCasos.Count);
+        if (casoElegido == null) casoElegido = poolDeCasos[indice];
 
         // Log de depuración — invisible para el jugador (no aparece en ningún panel).
         Debug.Log($"[SelectorCasoAleatorio] Caso {indice + 1}/{poolDeCasos.Count} " +

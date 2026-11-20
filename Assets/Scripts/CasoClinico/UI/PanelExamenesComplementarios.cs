@@ -78,6 +78,10 @@ public class PanelExamenesComplementarios : MonoBehaviour, IPanelOcultable
     [SerializeField] private TMP_Text textoAyudaBloqueado;
     [SerializeField] private string mensajeAyudaBloqueado = "Solicita al menos un examen para continuar.";
 
+    [Header("Volver")]
+    [Tooltip("Botón secundario « VOLVER: regresa a la fase anterior sin abandonar el caso ni borrar nada.")]
+    [SerializeField] private SeleccionableToque botonVolver;
+
     [Header("Sistema")]
     [SerializeField] private GestorCasoClinico gestorCaso;
     [SerializeField] private InteraccionPaciente interaccionPaciente;
@@ -109,6 +113,7 @@ public class PanelExamenesComplementarios : MonoBehaviour, IPanelOcultable
     {
         if (gestorCaso != null)        gestorCaso.OnCambioEstado       += AlCambioEstado;
         if (botonContinuar != null)    botonContinuar.OnSeleccionado   += Continuar;
+        if (botonVolver != null)       botonVolver.OnSeleccionado      += Volver;
         if (botonScrollArriba != null) botonScrollArriba.OnSeleccionado += ScrollArriba;
         if (botonScrollAbajo != null)  botonScrollAbajo.OnSeleccionado  += ScrollAbajo;
     }
@@ -117,6 +122,7 @@ public class PanelExamenesComplementarios : MonoBehaviour, IPanelOcultable
     {
         if (gestorCaso != null)        gestorCaso.OnCambioEstado       -= AlCambioEstado;
         if (botonContinuar != null)    botonContinuar.OnSeleccionado   -= Continuar;
+        if (botonVolver != null)       botonVolver.OnSeleccionado      -= Volver;
         if (botonScrollArriba != null) botonScrollArriba.OnSeleccionado -= ScrollArriba;
         if (botonScrollAbajo != null)  botonScrollAbajo.OnSeleccionado  -= ScrollAbajo;
     }
@@ -365,5 +371,10 @@ public class PanelExamenesComplementarios : MonoBehaviour, IPanelOcultable
     {
         if (gestorCaso != null && gestorCaso.ExamenesSolicitadosCount >= 1)
             gestorCaso.AvanzarFase(); // ExamenesComplementarios → RegistroDiagnostico
+    }
+
+    private void Volver()
+    {
+        if (gestorCaso != null) gestorCaso.VolverAFaseAnterior();
     }
 }

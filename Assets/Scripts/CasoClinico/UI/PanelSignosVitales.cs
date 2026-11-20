@@ -3,8 +3,8 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// Panel 3 — Monitor de signos vitales. Panel persistente y de solo lectura (como
-/// <see cref="PanelHojaNotas"/>): visible en ExamenFisico, Anamnesis, ExamenesComplementarios y
+/// Panel 3 — Monitor de signos vitales. Panel persistente y de solo lectura:
+/// visible en ExamenFisico, Anamnesis, ExamenesComplementarios y
 /// RegistroDiagnostico; oculto en Inactivo, Introduccion, Evaluando y Debriefing. NO agrega
 /// estados a <see cref="GestorCasoClinico"/>, no usa SeleccionableToque, no habla con
 /// MotorEvaluacion y no suma puntaje.

@@ -61,8 +61,8 @@ public static class ConstruirPanel7RegistroDiagnostico
         // Alto 810 (era 620, con el campo de manejo): el canvas crece HACIA ARRIBA —
         // se sube su origen (810-620)/2 para que el borde INFERIOR quede exactamente
         // donde estaba (alturaRelativa -0.05 - 0.31 = -0.36 m), de modo que la
-        // relación con el ícono de pausa (y=-0.469..-0.571) y la hoja de notas
-        // (y<=-0.49), que viven por debajo, no cambie. Arriba no hay nada que choque
+        // relación con el ícono de pausa (y=-0.469..-0.571), que vive por debajo,
+        // no cambie. Arriba no hay nada que choque
         // (esos elementos solo coexisten con la parte baja de la ficha).
         const float ALTO_CANVAS = 810f;
         var canvas = NuevoCanvas("Canvas", raiz.transform, 720f, ALTO_CANVAS);

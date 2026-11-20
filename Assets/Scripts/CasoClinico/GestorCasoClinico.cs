@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
 /// <summary>
@@ -26,6 +28,14 @@ public class GestorCasoClinico : MonoBehaviour
              "y aparece en el Debriefing. No afecta al puntaje.")]
     [SerializeField] private EntradaControlesTouch entradaDispositivo;
 
+    [Header("Anamnesis por texto libre")]
+    [Tooltip("Catálogo compartido de intenciones (segundo paso de la resolución de una pregunta escrita). Opcional: sin él " +
+             "solo se reconocen las preguntas clave del caso.")]
+    [SerializeField] private CatalogoIntenciones catalogoIntenciones;
+    [Tooltip("Guarda las preguntas que no se reconocieron: línea [ANAMNESIS] en el log (la primera vez de cada texto) y " +
+             "anamnesis_sin_reconocer.csv en Application.persistentDataPath (fecha, idCaso, submodo, texto) para ampliar el vocabulario.")]
+    [SerializeField] private bool registrarSinReconocer = true;
+
     [Header("Subsistemas (asignar en Inspector)")]
     [SerializeField] private InteraccionPaciente interaccionPaciente;
     [SerializeField] private MotorEvaluacion motorEvaluacion;
@@ -39,6 +49,16 @@ public class GestorCasoClinico : MonoBehaviour
     /// con el Gestor, no con el Motor). El Panel de Anamnesis lo usa para habilitar
     /// "Continuar" solo tras ≥1 pregunta reconocida.</summary>
     public int PreguntasReconocidasCount => motorEvaluacion != null ? motorEvaluacion.PreguntasRealizadasCount : 0;
+
+    /// <summary>Intercambios de anamnesis DISTINTOS reconocidos: preguntas clave (las mismas de
+    /// <see cref="PreguntasReconocidasCount"/>) más las intenciones del catálogo que NO puntúan (sin pregunta clave vinculada).
+    /// Habilita "Continuar" en el Panel de Anamnesis: una pregunta válida que no puntúa no deja el botón bloqueado.
+    /// El puntaje sigue dependiendo SOLO de <see cref="PreguntasReconocidasCount"/>.</summary>
+    public int IntercambiosReconocidosCount => PreguntasReconocidasCount + _intencionesLibres.Count;
+
+    private readonly HashSet<string> _intencionesLibres = new HashSet<string>();
+    private readonly HashSet<string> _sinReconocerYaLogueadas = new HashSet<string>();
+    private readonly StringBuilder _sbCsv = new StringBuilder(256);
 
     /// <summary>Exámenes DISTINTOS solicitados en el caso en curso (passthrough de
     /// <see cref="MotorEvaluacion.ExamenesSolicitadosCount"/>). El Panel de Exámenes
@@ -69,6 +89,23 @@ public class GestorCasoClinico : MonoBehaviour
     /// RetrocederFase, OnJugadorRegistroDiagnostico) sin tocar CasoActual ni
     /// lo acumulado en MotorEvaluacion.</summary>
     public bool Pausado { get; private set; }
+
+    /// <summary>Hay un caso a medias: de Introducción a Registro de diagnóstico (ni Inactivo, ni evaluando, ni Debriefing).
+    /// Solo lectura; lo usa el registro del estudio para distinguir un caso abandonado de uno terminado.</summary>
+    public bool CasoEnCurso =>
+        EstadoActual == EstadoCasoClinico.Introduccion || EstadoActual == EstadoCasoClinico.ExamenFisico ||
+        EstadoActual == EstadoCasoClinico.Anamnesis || EstadoActual == EstadoCasoClinico.ExamenesComplementarios ||
+        EstadoActual == EstadoCasoClinico.RegistroDiagnostico;
+
+    /// <summary>Diagnóstico y manejo tal como se entregaron al MotorEvaluacion al cerrar el caso (solo lectura; null hasta
+    /// entonces). Existen porque <see cref="DiagnosticoRegistrado"/> / <see cref="ManejoRegistrado"/> pueden diferir si el
+    /// llamador pasó textos explícitos a <see cref="OnJugadorRegistroDiagnostico"/>.</summary>
+    public string DiagnosticoEvaluado { get; private set; }
+    public string ManejoEvaluado { get; private set; }
+
+    /// <summary>Se dispara cuando un caso EN CURSO se abandona (AbandonarCaso o reiniciarlo con IniciarCaso), ANTES de
+    /// reinicializar nada: los contadores y el caso todavía son los del caso que se deja. No cambia ninguna transición.</summary>
+    public event Action AlAbandonarCaso;
 
     /// <summary>Se dispara en cada transición de estado. La UI se suscribe para
     /// mostrar/ocultar paneles.</summary>
@@ -153,10 +190,15 @@ public class GestorCasoClinico : MonoBehaviour
             return;
         }
 
+        if (CasoEnCurso) AlAbandonarCaso?.Invoke(); // reinicio de un caso a medias: aún no se ha tocado nada del caso anterior
+
         casoActual    = caso;
         submodoActual = submodo;
         DiagnosticoRegistrado = null;
         ManejoRegistrado = null;
+        DiagnosticoEvaluado = null;
+        ManejoEvaluado = null;
+        _intencionesLibres.Clear();
         FechaHoraInicio = System.DateTime.Now;
         if (entradaDispositivo != null) entradaDispositivo.ReiniciarRegistro();
 
@@ -204,11 +246,36 @@ public class GestorCasoClinico : MonoBehaviour
         }
     }
 
+    /// <summary>True si el botón "« VOLVER" aplica en el estado actual: Anamnesis,
+    /// Exámenes y Registro. Desde Hallazgos (ExamenFisico) no se retrocede.</summary>
+    public bool PuedeVolver =>
+        !Pausado &&
+        (EstadoActual == EstadoCasoClinico.Anamnesis
+         || EstadoActual == EstadoCasoClinico.ExamenesComplementarios
+         || EstadoActual == EstadoCasoClinico.RegistroDiagnostico);
+
+    /// <summary>Botón "« VOLVER": pasa a la fase anterior (Registro→Exámenes→Anamnesis→
+    /// Examen físico) SIN abandonar el caso: no emite AlAbandonarCaso, no toca el
+    /// motor de evaluación, el historial de anamnesis, los exámenes pedidos, los
+    /// textos de diagnóstico/manejo ni la duración. Fuera de esas tres fases (o con el
+    /// menú de pausa abierto) no hace nada.</summary>
+    public void VolverAFaseAnterior()
+    {
+        if (!PuedeVolver) return;
+        switch (EstadoActual)
+        {
+            case EstadoCasoClinico.Anamnesis:               TransicionarA(EstadoCasoClinico.ExamenFisico); break;
+            case EstadoCasoClinico.ExamenesComplementarios: TransicionarA(EstadoCasoClinico.Anamnesis); break;
+            case EstadoCasoClinico.RegistroDiagnostico:     TransicionarA(EstadoCasoClinico.ExamenesComplementarios); break;
+        }
+    }
+
     /// <summary>Abandona el caso en curso y vuelve a la selección de submodo
     /// (estado Inactivo). Botón "Salir del caso".</summary>
     public void AbandonarCaso()
     {
         if (EstadoActual == EstadoCasoClinico.Inactivo) return;
+        if (CasoEnCurso) AlAbandonarCaso?.Invoke();
         if (interaccionPaciente != null) interaccionPaciente.DetenerDeteccion();
         TransicionarA(EstadoCasoClinico.Inactivo);
     }
@@ -225,6 +292,8 @@ public class GestorCasoClinico : MonoBehaviour
 
         string dx = string.IsNullOrWhiteSpace(diagnostico) ? DiagnosticoRegistrado : diagnostico;
         string mj = string.IsNullOrWhiteSpace(manejo) ? ManejoRegistrado : manejo;
+        DiagnosticoEvaluado = dx;
+        ManejoEvaluado = mj;
 
         TransicionarA(EstadoCasoClinico.Evaluando);
 
@@ -247,20 +316,25 @@ public class GestorCasoClinico : MonoBehaviour
     private void OnJugadorPreguntoAlternativa(string idPregunta) =>
         motorEvaluacion.RegistrarPreguntaAlternativa(idPregunta);
 
-    /// <summary>Resolución de anamnesis por texto libre: recorre las preguntas del
-    /// caso EN ORDEN, y en el primer conjunto de palabras clave que matchee revela
-    /// la respuesta de esa pregunta y la marca como realizada (misma vía que
-    /// <c>pregunto:&lt;id&gt;</c>). Si nada matchea, respuesta genérica del caso y
-    /// no se marca nada. Nunca revela correcto/incorrecto.</summary>
+    /// <summary>Resolución de anamnesis por texto libre, en este orden (determinista, sin IA ni red):
+    /// 1) las preguntas clave del caso EN ORDEN con sus conjuntos de palabras clave: la primera que matchee revela su
+    ///    respuesta y se marca como realizada (misma vía que <c>pregunto:&lt;id&gt;</c>);
+    /// 2) si no coincide ninguna, la intención más específica del <see cref="CatalogoIntenciones"/>. Si está vinculada a una
+    ///    pregunta clave (<see cref="PreguntaAnamnesis.intencionesQueSatisface"/>) se registra ESA pregunta y se responde con
+    ///    su respuestaPaciente; si no, se responde con el campo de la historia del paciente, SIN puntaje;
+    /// 3) si nada coincide, la respuesta genérica del caso (<see cref="FichaCaso.respuestaGenericaSinMatch"/>) y la pregunta
+    ///    se anota para ampliar el vocabulario.
+    /// El puntaje depende SOLO de las preguntas clave reconocidas. Nunca revela correcto/incorrecto.</summary>
     private void OnJugadorEscribioPregunta(string textoLibre)
     {
         if (Pausado) return;
         if (casoActual == null || string.IsNullOrWhiteSpace(textoLibre)) return;
 
+        // 1) Preguntas clave (matching tolerante: sin signos de puntuación y con una edición en palabras de 5+ letras).
         foreach (var pregunta in casoActual.preguntasClave)
         {
             if (pregunta == null) continue;
-            if (!motorEvaluacion.ContienePalabraClave(textoLibre, pregunta.conjuntosPalabrasClave)) continue;
+            if (!motorEvaluacion.ContienePalabraClave(textoLibre, pregunta.conjuntosPalabrasClave, true)) continue;
 
             motorEvaluacion.RegistrarPreguntaAlternativa(pregunta.idPregunta);
             OnRespuestaPacienteRevelada?.Invoke(pregunta.respuestaPaciente);
@@ -268,11 +342,68 @@ public class GestorCasoClinico : MonoBehaviour
             return;
         }
 
+        // 2) Intenciones del catálogo.
+        var intencion = catalogoIntenciones != null ? catalogoIntenciones.Resolver(textoLibre, motorEvaluacion) : null;
+        if (intencion != null)
+        {
+            var vinculada = BuscarPreguntaVinculada(intencion.id);
+            string respuesta;
+            if (vinculada != null)
+            {
+                motorEvaluacion.RegistrarPreguntaAlternativa(vinculada.idPregunta);   // puntúa, igual que si la hubiera dicho con sus palabras
+                respuesta = vinculada.respuestaPaciente;
+            }
+            else
+            {
+                _intencionesLibres.Add(intencion.id);                                  // habilita Continuar, no puntúa
+                respuesta = catalogoIntenciones.Responder(intencion, casoActual);
+            }
+            OnRespuestaPacienteRevelada?.Invoke(respuesta);
+            OnIntercambioAnamnesis?.Invoke(textoLibre, respuesta);
+            return;
+        }
+
+        // 3) Fallback.
         string generica = string.IsNullOrEmpty(casoActual.respuestaGenericaSinMatch)
-            ? "No estoy segura de a qué se refiere con eso."
+            ? "Disculpe, no le entendí bien. ¿Me lo puede preguntar de otra forma?"
             : casoActual.respuestaGenericaSinMatch;
+        if (registrarSinReconocer) RegistrarSinReconocer(textoLibre);
         OnRespuestaPacienteRevelada?.Invoke(generica);
         OnIntercambioAnamnesis?.Invoke(textoLibre, generica);
+    }
+
+    private PreguntaAnamnesis BuscarPreguntaVinculada(string idIntencion)
+    {
+        foreach (var pregunta in casoActual.preguntasClave)
+        {
+            if (pregunta == null || pregunta.intencionesQueSatisface == null) continue;
+            if (pregunta.intencionesQueSatisface.Contains(idIntencion)) return pregunta;
+        }
+        return null;
+    }
+
+    /// <summary>Anota una pregunta sin reconocer: línea [ANAMNESIS] (solo la primera vez de cada texto en esta ejecución) y una
+    /// fila en anamnesis_sin_reconocer.csv (cada vez; fecha, idCaso, submodo, texto). Solo corre al enviar un texto: no hay
+    /// trabajo por fotograma. Un error de escritura nunca interrumpe el flujo.</summary>
+    private void RegistrarSinReconocer(string texto)
+    {
+        string limpio = texto.Replace('\r', ' ').Replace('\n', ' ').Trim();
+        if (_sinReconocerYaLogueadas.Add(limpio.ToLowerInvariant()))
+            Debug.Log("[ANAMNESIS] sin reconocer | caso=" + casoActual.idCaso + " submodo=" + submodoActual + " texto='" + limpio + "'");
+        try
+        {
+            string ruta = Path.Combine(Application.persistentDataPath, "anamnesis_sin_reconocer.csv");
+            _sbCsv.Length = 0;
+            if (!File.Exists(ruta)) _sbCsv.Append("fecha,idCaso,submodo,texto\n");
+            _sbCsv.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).Append(',')
+                  .Append(casoActual.idCaso).Append(',').Append(submodoActual).Append(",\"")
+                  .Append(limpio.Replace("\"", "\"\"")).Append("\"\n");
+            File.AppendAllText(ruta, _sbCsv.ToString(), new UTF8Encoding(false));
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[ANAMNESIS] no se pudo escribir anamnesis_sin_reconocer.csv: " + e.Message);
+        }
     }
 
     /// <summary>El jugador escribió el diagnóstico en el teclado. Se guarda; el

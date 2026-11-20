@@ -8,6 +8,11 @@ Estos documentos se generan desde los assets del módulo de Razonamiento Clínic
 | [conjuntos_manejo.md](conjuntos_manejo.md) | Los 14 conjuntos de palabras clave de las acciones de Manejo (7 casos × 2) y su frase de prueba | `Tools/Razonamiento Clínico/Conjuntos de Manejo/2. Generar docs/conjuntos_manejo.md` |
 | [matriz_examenes.md](matriz_examenes.md) / [.csv](matriz_examenes.csv) | Clasificación de cada examen del catálogo en cada caso (Pertinente / Indiferente / No pertinente) y los resultados | `Tools/Razonamiento Clínico/Catálogo de exámenes/3. Generar matriz de exámenes (docs/)` |
 | [errores_sin_condicion.md](errores_sin_condicion.md) / [.csv](errores_sin_condicion.csv) | Los 5 errores frecuentes con condición vacía, que hoy no se detectan solos | `Tools/Razonamiento Clínico/Validación clínica/Generar paquete de validación (docs/)` |
+| [validacion_historia_paciente.md](validacion_historia_paciente.md) / [.csv](validacion_historia_paciente.csv) | Anamnesis por texto libre: la historia del paciente de cada caso (respuestas en primera persona y su fuente en la ficha), el catálogo de intenciones y el mapeo de cada intención a las preguntas clave, con columnas vacías para validar | `Tools/Razonamiento Clínico/Anamnesis/3. Generar documentos de validación (docs/)` |
+| [historia_paciente_pendientes.md](historia_paciente_pendientes.md) | Por caso, los campos de la historia del paciente que no tienen fuente en la ficha y quedan en «No refiere» hasta que los valide un profesional | `Tools/Razonamiento Clínico/Anamnesis/3. Generar documentos de validación (docs/)` |
+| [antifuga_historia_paciente.txt](antifuga_historia_paciente.txt) | Control anti-fuga: busca las palabras del propio diagnóstico en la historia, en las respuestas del paciente y en el catálogo de intenciones (resultado esperado: 0 coincidencias) | `Tools/Razonamiento Clínico/Anamnesis/2. Control anti-fuga (historia, respuestas y catálogo)` |
+
+> Atención: los menús de `Anamnesis/1. Crear catálogo, historias y mapeo` (`ConstruirAnamnesisHistoria`) **regeneran** el catálogo, las historias de los casos y el mapeo de preguntas. Ejecútalo solo si quieres rehacer esos datos; sobrescribe lo que se haya editado a mano en las fichas y en el catálogo.
 
 ## Instrucciones para quien revisa
 

@@ -91,6 +91,8 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "Hace unas dos horas, y empeor\xF3 r\xE1pido."
     esPreguntaClave: 1
+    intencionesQueSatisface:
+    - tiempo_evolucion
   - idPregunta: epa_ortopnea
     preguntaSugerida: "\xBFLa dificultad empeora al acostarse?"
     conjuntosPalabrasClave:
@@ -103,10 +105,17 @@ MonoBehaviour:
     - palabras:
       - dorm
       - almohad
+    - palabras:
+      - acost
+      - dificult
+    - palabras:
+      - acost
+      - empeor
     palabrasClave: []
     sinonimos: []
     respuestaPaciente: "S\xED, tengo que dormir sentado con varias almohadas."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: epa_dpn
     preguntaSugerida: "\xBFSe ha despertado en la noche con falta de aire?"
     conjuntosPalabrasClave:
@@ -123,6 +132,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, anoche me despert\xE9 sintiendo que me ahogaba."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: epa_tos
     preguntaSugerida: "\xBFTiene tos? \xBFC\xF3mo es?"
     conjuntosPalabrasClave:
@@ -132,6 +142,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, con una flema rosada y espumosa."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: epa_cardiopatia
     preguntaSugerida: "\xBFTiene antecedentes de enfermedades del coraz\xF3n?"
     conjuntosPalabrasClave:
@@ -141,8 +152,9 @@ MonoBehaviour:
       - corazon
     palabrasClave: []
     sinonimos: []
-    respuestaPaciente: "S\xED, tengo insuficiencia card\xEDaca."
+    respuestaPaciente: "S\xED, ya me hab\xEDan dicho que tengo problemas del coraz\xF3n."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: epa_adherencia
     preguntaSugerida: "\xBFHa tomado sus medicamentos como corresponde?"
     conjuntosPalabrasClave:
@@ -157,6 +169,7 @@ MonoBehaviour:
     respuestaPaciente: "La verdad, se me olvid\xF3 tomar el diur\xE9tico estos \xFAltimos
       d\xEDas."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: epa_edema
     preguntaSugerida: "\xBFHa notado hinchaz\xF3n en las piernas?"
     conjuntosPalabrasClave:
@@ -168,7 +181,25 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, se me hincharon harto los pies."
     esPreguntaClave: 1
-  respuestaGenericaSinMatch: "No estoy segura de a qu\xE9 se refiere con eso."
+    intencionesQueSatisface: []
+  respuestaGenericaSinMatch: "Disculpe, no le entend\xED bien. \xBFMe lo puede preguntar
+    de otra forma?"
+  historia:
+    inicio: "Hace unas dos horas, y empeor\xF3 r\xE1pido."
+    evolucion: "Fue empeorando r\xE1pido desde que empez\xF3."
+    empeora: "Me ahogo m\xE1s cuando me acuesto; tengo que dormir sentada con varias
+      almohadas."
+    alivia: No refiere
+    remedios: "Tengo un diur\xE9tico, pero estos \xFAltimos d\xEDas se me olvid\xF3
+      tomarlo."
+    alergias: No refiere
+    antecedentes: "Tengo problemas del coraz\xF3n y la presi\xF3n alta."
+    habitos: No refiere
+    intensidad: Me cuesta mucho respirar, siento que me ahogo.
+    localizacion: No refiere
+    sintomasAsociados: Tengo tos con una flema rosada y espumosa, y se me hincharon
+      harto los pies.
+    perfil: "Soy Elena Sep\xFAlveda, tengo 68 a\xF1os."
   diagnosticoEsperado: "Edema pulmonar agudo de origen cardiog\xE9nico (descompensaci\xF3n
     de insuficiencia card\xEDaca)."
   conjuntosPalabrasClaveDiagnostico:

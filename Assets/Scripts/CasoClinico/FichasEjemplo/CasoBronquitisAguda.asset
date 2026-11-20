@@ -69,6 +69,8 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "Hace unos cinco d\xEDas."
     esPreguntaClave: 1
+    intencionesQueSatisface:
+    - tiempo_evolucion
   - idPregunta: bronq_tos_seca_a_productiva
     preguntaSugerida: "\xBFLa tos era seca al principio?"
     conjuntosPalabrasClave:
@@ -82,6 +84,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, y ahora boto flema clara."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: bronq_dolor_toracico
     preguntaSugerida: "\xBFLe duele el pecho al toser?"
     conjuntosPalabrasClave:
@@ -91,10 +94,14 @@ MonoBehaviour:
     - palabras:
       - tensa
       - pecho
+    - palabras:
+      - duel
+      - pecho
     palabrasClave: []
     sinonimos: []
     respuestaPaciente: "S\xED, como que se me tensa el pecho."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: bronq_fiebre
     preguntaSugerida: "\xBFTiene fiebre?"
     conjuntosPalabrasClave:
@@ -104,6 +111,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: Un poco, me he sentido afiebrado.
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: bronq_exposicion
     preguntaSugerida: "\xBFHa estado expuesto al fr\xEDo o resfriado recientemente?"
     conjuntosPalabrasClave:
@@ -115,6 +123,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, hace una semana andaba resfriado."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: bronq_tabaquismo
     preguntaSugerida: "\xBFFuma?"
     conjuntosPalabrasClave:
@@ -124,7 +133,22 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, fumo desde hace varios a\xF1os."
     esPreguntaClave: 1
-  respuestaGenericaSinMatch: "No estoy segura de a qu\xE9 se refiere con eso."
+    intencionesQueSatisface: []
+  respuestaGenericaSinMatch: "Disculpe, no le entend\xED bien. \xBFMe lo puede preguntar
+    de otra forma?"
+  historia:
+    inicio: "Empec\xE9 con tos hace unos cinco d\xEDas."
+    evolucion: Al principio la tos era seca y ahora sale con flema clara.
+    empeora: Cuando toso se me tensa el pecho.
+    alivia: No refiere
+    remedios: No refiere
+    alergias: No refiere
+    antecedentes: "Fumo y hace una semana andaba con un resfr\xEDo."
+    habitos: "Fumo desde hace varios a\xF1os."
+    intensidad: No refiere
+    localizacion: Me duele el pecho.
+    sintomasAsociados: Un poco de fiebre.
+    perfil: "Soy Patricia Gonz\xE1lez, tengo 41 a\xF1os."
   diagnosticoEsperado: Bronquitis aguda.
   conjuntosPalabrasClaveDiagnostico:
   - palabras:

@@ -30,7 +30,18 @@ public class PanelSeleccionSubmodo : MonoBehaviour, IPanelOcultable
     [SerializeField] private GestorNavegacionMenu navegacion;
     [SerializeField] private GestorCasoClinico gestorCaso;
 
+    [Header("Protocolo de estudio")]
+    [Tooltip("Introducción del estudio: mientras esté pendiente (código sin confirmar), este panel permanece oculto. " +
+             "Vacío = comportamiento de siempre.")]
+    [SerializeField] private PanelIntroduccionDiagnostico introduccion;
+
     void Start()
+    {
+        AplicarVisibilidad(gestorCaso != null ? gestorCaso.EstadoActual : EstadoCasoClinico.Inactivo);
+    }
+
+    // La introducción cambió de pendiente a no pendiente (o al revés): se recalcula con el estado actual del caso.
+    private void AlCambiarPendienteIntroduccion()
     {
         AplicarVisibilidad(gestorCaso != null ? gestorCaso.EstadoActual : EstadoCasoClinico.Inactivo);
     }
@@ -41,6 +52,7 @@ public class PanelSeleccionSubmodo : MonoBehaviour, IPanelOcultable
         Suscribir(tarjetaEvaluacion, ElegirEvaluacion, true);
         Suscribir(botonVolver,       Volver,           true);
         if (gestorCaso != null) gestorCaso.OnCambioEstado += AplicarVisibilidad;
+        if (introduccion != null) introduccion.AlCambiarPendiente += AlCambiarPendienteIntroduccion;
     }
 
     void OnDisable()
@@ -49,6 +61,7 @@ public class PanelSeleccionSubmodo : MonoBehaviour, IPanelOcultable
         Suscribir(tarjetaEvaluacion, ElegirEvaluacion, false);
         Suscribir(botonVolver,       Volver,           false);
         if (gestorCaso != null) gestorCaso.OnCambioEstado -= AplicarVisibilidad;
+        if (introduccion != null) introduccion.AlCambiarPendiente -= AlCambiarPendienteIntroduccion;
     }
 
     private static void Suscribir(SeleccionableToque s, System.Action h, bool add)
@@ -84,7 +97,8 @@ public class PanelSeleccionSubmodo : MonoBehaviour, IPanelOcultable
 
     private void AplicarVisibilidad(EstadoCasoClinico estado)
     {
-        bool visible = estado == EstadoCasoClinico.Inactivo;
+        // Visible solo en Inactivo, y no mientras la introducción del estudio esté pendiente.
+        bool visible = estado == EstadoCasoClinico.Inactivo && (introduccion == null || !introduccion.Pendiente);
         _visibleSegunEstado = visible;
         if (raiz != null && raiz.activeSelf != visible) raiz.SetActive(visible);
     }

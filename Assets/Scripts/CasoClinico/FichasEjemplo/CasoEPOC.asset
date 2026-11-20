@@ -75,6 +75,8 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "Hace a\xF1os; tos de fumador le dicen."
     esPreguntaClave: 1
+    intencionesQueSatisface:
+    - tiempo_evolucion
   - idPregunta: epoc_tabaquismo
     preguntaSugerida: "\xBFFuma o ha fumado? \xBFCu\xE1nto?"
     conjuntosPalabrasClave:
@@ -84,6 +86,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "Fum\xE9 como 30 a\xF1os, un paquete al d\xEDa."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: epoc_expectoracion
     preguntaSugerida: "\xBFLa tos tiene flema?"
     conjuntosPalabrasClave:
@@ -96,6 +99,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, en las ma\xF1anas boto harta flema."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: epoc_disnea_esfuerzo
     preguntaSugerida: "\xBFHa notado que se cansa m\xE1s al hacer esfuerzo?"
     conjuntosPalabrasClave:
@@ -108,6 +112,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, ya no puedo subir escaleras como antes."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: epoc_baja_peso
     preguntaSugerida: "\xBFHa bajado de peso?"
     conjuntosPalabrasClave:
@@ -120,6 +125,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "Un poco, s\xED."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: epoc_exacerbaciones
     preguntaSugerida: "\xBFHa tenido episodios similares antes?"
     conjuntosPalabrasClave:
@@ -132,7 +138,24 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, esta es como la tercera vez que me pasa esto."
     esPreguntaClave: 1
-  respuestaGenericaSinMatch: "No estoy segura de a qu\xE9 se refiere con eso."
+    intencionesQueSatisface: []
+  respuestaGenericaSinMatch: "Disculpe, no le entend\xED bien. \xBFMe lo puede preguntar
+    de otra forma?"
+  historia:
+    inicio: "Llevo a\xF1os con tos; ahora me cuesta respirar mucho m\xE1s que antes."
+    evolucion: "Se me agrav\xF3; ya no puedo subir escaleras como antes."
+    empeora: "Me canso m\xE1s cuando hago esfuerzo; ya no puedo subir escaleras como
+      antes."
+    alivia: No refiere
+    remedios: No refiere
+    alergias: No refiere
+    antecedentes: Esta es como la tercera vez que me pasa esto.
+    habitos: "Fum\xE9 como 30 a\xF1os, un paquete al d\xEDa."
+    intensidad: "Me cuesta respirar mucho m\xE1s que antes."
+    localizacion: No refiere
+    sintomasAsociados: "Boto harta flema en las ma\xF1anas y he bajado un poco de
+      peso."
+    perfil: "Soy Manuel Rojas, tengo 64 a\xF1os."
   diagnosticoEsperado: "Exacerbaci\xF3n de Enfermedad Pulmonar Obstructiva Cr\xF3nica
     (EPOC)."
   conjuntosPalabrasClaveDiagnostico:

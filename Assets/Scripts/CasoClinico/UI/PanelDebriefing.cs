@@ -29,6 +29,11 @@ using UnityEngine.UI;
 /// RegistroDiagnostico), así que ese código sería inalcanzable.
 ///
 /// Visible únicamente en <see cref="EstadoCasoClinico.Debriefing"/>.
+///
+/// PROTOCOLO DE ESTUDIO: con <see cref="unaSolaPasada"/> (true) tras el Debriefing solo queda «Finalizar», que vuelve a
+/// SceneInicio; no aparecen «Reintentar este caso» ni «Volver a selección de caso». En false los botones son los de siempre.
+/// Además muestra el código del participante y una línea discreta «Resultados guardados» / «No se pudieron guardar»
+/// (estado que informa <see cref="RegistroCasoClinico"/>).
 /// </summary>
 public class PanelDebriefing : MonoBehaviour
 {
@@ -60,7 +65,23 @@ public class PanelDebriefing : MonoBehaviour
     [Header("Sistema")]
     [SerializeField] private GestorCasoClinico gestorCaso;
 
+    [Header("Protocolo de estudio")]
+    [Tooltip("true: tras el Debriefing solo aparece «Finalizar» (vuelve a SceneInicio); sin «Reintentar este caso» ni «Volver a selección de caso». " +
+             "false: comportamiento de siempre.")]
+    [SerializeField] private bool unaSolaPasada = true;
+    [Tooltip("Registro del estudio: informa si la fila del caso se guardó. Vacío = no se muestra la línea de guardado.")]
+    [SerializeField] private RegistroCasoClinico registro;
+    [Tooltip("Línea discreta «Resultados guardados» / «No se pudieron guardar».")]
+    [SerializeField] private TMP_Text textoGuardado;
+
     private ResultadoCaso _resultado;
+    private Vector2 _posVolverOriginal;
+    private string _etiquetaVolverOriginal;
+    private bool _modoLeido;
+    private static readonly Color ColorGuardadoOk = new Color(0.62f, 0.74f, 0.78f, 1f);
+    private static readonly Color ColorGuardadoError = new Color(0.95f, 0.85f, 0.15f, 1f);
+
+    public bool UnaSolaPasada => unaSolaPasada;
 
     // ── Ciclo de vida ────────────────────────────────────────────────────────
 
@@ -80,6 +101,8 @@ public class PanelDebriefing : MonoBehaviour
         if (botonVolver != null)     botonVolver.OnSeleccionado     += Volver;
         if (botonScrollArriba != null) botonScrollArriba.OnSeleccionado += ScrollArriba;
         if (botonScrollAbajo != null)  botonScrollAbajo.OnSeleccionado  += ScrollAbajo;
+        if (registro != null) registro.AlGuardar += AlGuardarResultado;
+        AplicarModoPasada();
     }
 
     void OnDisable()
@@ -93,6 +116,37 @@ public class PanelDebriefing : MonoBehaviour
         if (botonVolver != null)     botonVolver.OnSeleccionado     -= Volver;
         if (botonScrollArriba != null) botonScrollArriba.OnSeleccionado -= ScrollArriba;
         if (botonScrollAbajo != null)  botonScrollAbajo.OnSeleccionado  -= ScrollAbajo;
+        if (registro != null) registro.AlGuardar -= AlGuardarResultado;
+    }
+
+    // «Una sola pasada»: solo «Finalizar» (el botón Volver, recentrado y renombrado); sin Reintentar.
+    private void AplicarModoPasada()
+    {
+        if (botonVolver == null) return;
+        var etiqueta = botonVolver.GetComponentInChildren<TMP_Text>(true);
+        var rt = (RectTransform)botonVolver.transform;
+        if (!_modoLeido)
+        {
+            _posVolverOriginal = rt.anchoredPosition;
+            _etiquetaVolverOriginal = etiqueta != null ? etiqueta.text : null;
+            _modoLeido = true;
+        }
+        if (botonReintentar != null) botonReintentar.gameObject.SetActive(!unaSolaPasada);
+        rt.anchoredPosition = unaSolaPasada ? new Vector2(0f, _posVolverOriginal.y) : _posVolverOriginal;
+        if (etiqueta != null && _etiquetaVolverOriginal != null) etiqueta.text = unaSolaPasada ? "FINALIZAR" : _etiquetaVolverOriginal;
+    }
+
+    private void AlGuardarResultado(bool ok, string estado) { ActualizarGuardado(); }
+
+    // Línea de estado del guardado: solo cuando ya se intentó escribir la fila de ESTE caso.
+    private void ActualizarGuardado()
+    {
+        if (textoGuardado == null) return;
+        bool ver = registro != null && registro.GuardarResultados && registro.GuardadoEsteCaso;
+        textoGuardado.gameObject.SetActive(ver);
+        if (!ver) return;
+        textoGuardado.text = registro.UltimoGuardadoOk ? "Resultados guardados" : "No se pudieron guardar";
+        textoGuardado.color = registro.UltimoGuardadoOk ? ColorGuardadoOk : ColorGuardadoError;
     }
 
     // ── Visibilidad + contenido ──────────────────────────────────────────────
@@ -147,8 +201,10 @@ public class PanelDebriefing : MonoBehaviour
         {
             string disp = _resultado.dispositivoEntrada == DispositivoEntrada.Controles ? "Controles"
                         : _resultado.dispositivoEntrada == DispositivoEntrada.Mixto ? "Mixto" : "Manos";
-            textoDispositivo.text = "Dispositivo de entrada: " + disp;
+            textoDispositivo.text = "Dispositivo de entrada: " + disp
+                + (CodigoParticipante.HayCodigo ? "  ·  Código: " + CodigoParticipante.Actual : "");
         }
+        ActualizarGuardado();
 
         var sb = new StringBuilder(512);
         sb.Append("<b>ACCIONES CRÍTICAS</b>\n");
@@ -240,7 +296,16 @@ public class PanelDebriefing : MonoBehaviour
     // PanelSeleccionSubmodo, que sí llama a GestorNavegacionMenu.
     private void Volver()
     {
-        if (gestorCaso != null) gestorCaso.AbandonarCaso();
-        else Debug.LogError("[PanelDebriefing] Falta GestorCasoClinico.", this);
+        if (gestorCaso == null) { Debug.LogError("[PanelDebriefing] Falta GestorCasoClinico.", this); return; }
+
+        if (unaSolaPasada)
+        {
+            // «Finalizar»: cierra el caso (estado Finalizado: ya no cuenta como abandonado) y vuelve a SceneInicio por la misma
+            // ruta que «Salir al menú principal» del menú de pausa (GestorMenuPausa.VolverAlMenuPrincipal).
+            gestorCaso.FinalizarCaso();
+            UnityEngine.SceneManagement.SceneManager.LoadScene(GestorNavegacionMenu.escenaMenuPrincipal);
+            return;
+        }
+        gestorCaso.AbandonarCaso();
     }
 }

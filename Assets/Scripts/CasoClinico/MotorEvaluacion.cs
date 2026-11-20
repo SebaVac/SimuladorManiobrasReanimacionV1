@@ -105,12 +105,29 @@ public class MotorEvaluacion : MonoBehaviour
     ///
     /// No corre en Update() — sin restricción de cero-allocation.
     /// </summary>
-    public bool ContienePalabraClave(string textoJugador, List<ConjuntoPalabrasClave> conjuntos)
+    public bool ContienePalabraClave(string textoJugador, List<ConjuntoPalabrasClave> conjuntos, bool tolerante = false)
+    {
+        return CoincidenciaConjuntos(textoJugador, conjuntos, tolerante) > 0;
+    }
+
+    /// <summary>
+    /// Como <see cref="ContienePalabraClave"/>, pero devuelve CUÁNTAS palabras tiene el conjunto que coincide por completo
+    /// (el mayor, si coinciden varios) o 0 si ninguno coincide. Sirve para elegir la intención más específica.
+    ///
+    /// <paramref name="tolerante"/> (solo anamnesis; el diagnóstico y el manejo siguen con el matching estricto de siempre,
+    /// para no alterar el puntaje): además de quitar tildes y mayúsculas quita los signos de puntuación y, para palabras
+    /// clave de 5 o más letras, acepta una edición (sustitución, inserción o borrado) contra el PREFIJO de una palabra del
+    /// texto (errores de tipeo, p. ej. "molsta" por "molest"). Sin negaciones: "no me duele" sigue coincidiendo con "dol"
+    /// (limitación conocida). Determinista, sin IA ni red.
+    /// </summary>
+    public int CoincidenciaConjuntos(string textoJugador, List<ConjuntoPalabrasClave> conjuntos, bool tolerante = false)
     {
         if (conjuntos == null || conjuntos.Count == 0 || string.IsNullOrWhiteSpace(textoJugador))
-            return false;
+            return 0;
 
-        string texto = NormalizarTexto(textoJugador);
+        string texto = tolerante ? NormalizarTolerante(textoJugador) : NormalizarTexto(textoJugador);
+        string[] tokens = tolerante ? texto.Split(' ') : null;
+        int mejor = 0;
 
         foreach (var conjunto in conjuntos)
         {
@@ -118,20 +135,108 @@ public class MotorEvaluacion : MonoBehaviour
                 continue;
 
             bool todasPresentes = true;
-            bool algunaPalabraValida = false;
+            int validas = 0;
 
             foreach (var palabra in conjunto.palabras)
             {
                 string p = NormalizarTexto(palabra);
                 if (p.Length == 0) continue;      // palabra en blanco → se ignora
-                algunaPalabraValida = true;
-                if (!texto.Contains(p)) { todasPresentes = false; break; }
+                validas++;
+                bool presente;
+                if (!tolerante) presente = texto.Contains(p);
+                else if (p.Length <= 3) presente = ProcesaPrefijo(p, tokens);   // raíces cortas ("tos", "dol", "fum"): solo al inicio de una palabra
+                else presente = texto.Contains(p) || (p.Length >= 5 && CoincideConUnaEdicion(p, tokens));
+                if (!presente) { todasPresentes = false; break; }
             }
 
-            if (algunaPalabraValida && todasPresentes) return true;
+            if (validas > 0 && todasPresentes && validas > mejor) mejor = validas;
         }
 
+        return mejor;
+    }
+
+    // Una raíz de 3 letras o menos como subcadena da falsos positivos ("tos" en "datos", "cuantos", "estos"): en modo tolerante
+    // solo vale al principio de una palabra del texto ("tos", "toser", "tosiendo"; "dol" en "dolor"; "fum" en "fumar").
+    private static bool ProcesaPrefijo(string p, string[] tokens)
+    {
+        for (int i = 0; i < tokens.Length; i++) if (tokens[i].StartsWith(p)) return true;
         return false;
+    }
+
+    // Pares de raíces que a distancia 1 se confundirían entre sí y NO son lo mismo (cuándo/cuánto, dolor/color, pecho/hecho).
+    private static readonly string[][] PARES_CONFUNDIBLES =
+    {
+        new[] { "cuand", "cuant" }, new[] { "dolor", "color" }, new[] { "pecho", "hecho" }, new[] { "tomar", "tomas" },
+        new[] { "trago", "trajo" }, new[] { "parte", "parec" }, new[] { "previ", "presi" }, new[] { "cuant", "cuent" }, new[] { "padec", "parec" }, new[] { "extie", "entie" },
+    };
+
+    private static bool CoincideConUnaEdicion(string p, string[] tokens)
+    {
+        for (int i = 0; i < tokens.Length; i++)
+        {
+            string t = tokens[i];
+            if (t.Length < p.Length - 1 || t[0] != p[0]) continue;   // un error de tipeo casi nunca cae en la primera letra
+            for (int largo = p.Length - 1; largo <= p.Length + 1; largo++)
+            {
+                if (largo > t.Length) break;
+                if (!UnaEdicion(p, t, largo)) continue;
+                if (EsParConfundible(p, t)) continue;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool EsParConfundible(string p, string t)
+    {
+        for (int k = 0; k < PARES_CONFUNDIBLES.Length; k++)
+        {
+            string a = PARES_CONFUNDIBLES[k][0], b = PARES_CONFUNDIBLES[k][1];
+            if ((p.StartsWith(a) && t.StartsWith(b)) || (p.StartsWith(b) && t.StartsWith(a))) return true;
+        }
+        return false;
+    }
+
+    /// <summary>¿a y el prefijo de b de longitud lb están a distancia de edición 1 (o 0)? Una edición = sustitución, inserción,
+    /// borrado o transposición de dos letras contiguas (Damerau-Levenshtein). Sin asignaciones.</summary>
+    private static bool UnaEdicion(string a, string b, int lb)
+    {
+        int la = a.Length;
+        if (Mathf.Abs(la - lb) > 1) return false;
+        int i = 0, j = 0, dif = 0;
+        while (i < la && j < lb)
+        {
+            if (a[i] == b[j]) { i++; j++; continue; }
+            if (++dif > 1) return false;
+            if (la > lb) i++;            // borrado en a
+            else if (la < lb) j++;       // inserción en a
+            else
+            {
+                if (i + 1 < la && a[i] == b[j + 1] && a[i + 1] == b[j])   // transposición: se comprueba el resto exacto
+                {
+                    for (int k = i + 2; k < la; k++) if (a[k] != b[k]) return false;
+                    return true;
+                }
+                i++; j++;                // sustitución
+            }
+        }
+        dif += (la - i) + (lb - j);
+        return dif <= 1;
+    }
+
+    /// <summary>Normalización de la anamnesis: la de siempre + los signos de puntuación pasan a espacios (¿hace cuánto?, "duele..").</summary>
+    private string NormalizarTolerante(string texto)
+    {
+        string n = NormalizarTexto(texto);
+        _sbNorm.Clear();
+        bool espacio = true;
+        for (int i = 0; i < n.Length; i++)
+        {
+            char c = n[i];
+            if (char.IsLetterOrDigit(c)) { _sbNorm.Append(c); espacio = false; }
+            else if (!espacio) { _sbNorm.Append(' '); espacio = true; }
+        }
+        return _sbNorm.ToString().Trim();
     }
 
     /// <summary>Texto libre de anamnesis: si contiene alguna palabra clave/sinónimo

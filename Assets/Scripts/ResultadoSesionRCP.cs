@@ -6,8 +6,13 @@
 [System.Serializable]
 public class ResultadoSesionRCP
 {
-    /// <summary>Duración configurada de la sesión, en segundos.</summary>
+    /// <summary>Duración configurada de la sesión, en segundos. En un resultado PARCIAL (<see cref="parcial"/>) es el
+    /// tiempo efectivamente transcurrido antes de descartar la sesión.</summary>
     public float duracionSeg;
+
+    /// <summary>true si la sesión se descartó antes de terminar (lo construye <see cref="SesionRCP"/> solo para el
+    /// registro del estudio; el panel de resultados nunca lo muestra).</summary>
+    public bool parcial;
 
     // a) Compresiones. Un "intento" es un ciclo de push de cualquier profundidad (>2 cm).
     public int intentosTotales;

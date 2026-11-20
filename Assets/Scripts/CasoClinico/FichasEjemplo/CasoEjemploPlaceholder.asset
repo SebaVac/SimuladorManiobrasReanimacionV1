@@ -77,7 +77,7 @@ MonoBehaviour:
     - reaccion
     respuestaPaciente: 'PLACEHOLDER: el paciente niega alergias (ficticio).'
     esPreguntaClave: 1
-  respuestaGenericaSinMatch: 'No estoy segura de a que se refiere con eso.'
+  respuestaGenericaSinMatch: "Disculpe, no le entend\xED bien. \xBFMe lo puede preguntar de otra forma?"
   diagnosticoEsperado: Diagnostico placeholder
   conjuntosPalabrasClaveDiagnostico:
   - palabras:

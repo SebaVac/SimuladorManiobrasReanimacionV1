@@ -82,6 +82,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "Volv\xED hace una semana de un viaje donde hab\xEDa un brote."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: sars_fiebre
     preguntaSugerida: "\xBFTiene fiebre? \xBFDe cu\xE1nto?"
     conjuntosPalabrasClave:
@@ -91,6 +92,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, como 38 grados, con calofr\xEDos."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: sars_mialgias
     preguntaSugerida: "\xBFLe duele el cuerpo?"
     conjuntosPalabrasClave:
@@ -99,10 +101,14 @@ MonoBehaviour:
       - cuerpo
     - palabras:
       - mialgia
+    - palabras:
+      - duel
+      - cuerpo
     palabrasClave: []
     sinonimos: []
     respuestaPaciente: "S\xED, todo el cuerpo, sobre todo las piernas."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: sars_cefalea
     preguntaSugerida: "\xBFLe duele la cabeza?"
     conjuntosPalabrasClave:
@@ -111,10 +117,14 @@ MonoBehaviour:
       - cabeza
     - palabras:
       - cefalea
+    - palabras:
+      - duel
+      - cabeza
     palabrasClave: []
     sinonimos: []
     respuestaPaciente: "S\xED, harto."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: sars_disnea
     preguntaSugerida: "\xBFHa notado que le cuesta respirar?"
     conjuntosPalabrasClave:
@@ -130,6 +140,7 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: "S\xED, sobre todo cuando camino."
     esPreguntaClave: 1
+    intencionesQueSatisface: []
   - idPregunta: sars_tos
     preguntaSugerida: "\xBFHa tenido tos?"
     conjuntosPalabrasClave:
@@ -139,7 +150,25 @@ MonoBehaviour:
     sinonimos: []
     respuestaPaciente: Un poco, seca.
     esPreguntaClave: 1
-  respuestaGenericaSinMatch: "No estoy segura de a qu\xE9 se refiere con eso."
+    intencionesQueSatisface: []
+  respuestaGenericaSinMatch: "Disculpe, no le entend\xED bien. \xBFMe lo puede preguntar
+    de otra forma?"
+  historia:
+    inicio: "Hace unos d\xEDas que me cuesta respirar."
+    evolucion: No refiere
+    empeora: "Me cuesta m\xE1s respirar cuando camino."
+    alivia: No refiere
+    remedios: No refiere
+    alergias: No refiere
+    antecedentes: "No tengo otras enfermedades. Volv\xED hace una semana de un viaje
+      donde hab\xEDa un brote."
+    habitos: No refiere
+    intensidad: La cabeza me duele harto.
+    localizacion: "Me duele todo el cuerpo, sobre todo las piernas, y tambi\xE9n
+      la cabeza."
+    sintomasAsociados: "Tengo fiebre como de 38 grados con calofr\xEDos, dolor de
+      cabeza y un poco de tos seca."
+    perfil: "Soy Valentina Torres, tengo 29 a\xF1os."
   diagnosticoEsperado: "S\xEDndrome Respiratorio Agudo Grave (SARS)."
   conjuntosPalabrasClaveDiagnostico:
   - palabras:

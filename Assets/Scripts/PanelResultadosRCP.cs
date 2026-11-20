@@ -14,6 +14,14 @@ public enum EstadoSemaforoRCP { SinDatos, Verde, Amarillo, Rojo }
 ///
 /// Solo lee el <see cref="ResultadoSesionRCP"/>; los umbrales del semáforo son PROVISIONALES
 /// (campos serializados, pendientes de justificar en el informe).
+///
+/// PROTOCOLO DE ESTUDIO (<see cref="modoProtocolo"/>, defecto true): el participante hace
+/// <see cref="sesionesPorParticipante"/> sesiones seguidas. El panel muestra «Sesión k de N» y el código; el botón principal
+/// es «Siguiente sesión» (equivale a Repetir sesión, sin recalibrar) y en la última «Finalizar» (cierre con «Volver al
+/// menú principal»); «Volver a calibración» no aparece (queda el ítem de pausa «Cambiar de modo»). Al terminar una
+/// sesión se escribe UNA fila (estado Completa) en resultados_rcp.csv (<see cref="RegistroResultados"/>); una sesión
+/// descartada con la sesión en curso (reinicio, cambio de modo o «Salir al menú principal») escribe una fila Descartada
+/// y NO avanza k. Con modoProtocolo en false el comportamiento es el de siempre, sin guardar nada.
 /// </summary>
 public class PanelResultadosRCP : MonoBehaviour, IPanelOcultable
 {
@@ -34,6 +42,21 @@ public class PanelResultadosRCP : MonoBehaviour, IPanelOcultable
     [SerializeField] private TMP_Text[] etiquetasIndicador = new TMP_Text[FILAS];
     [SerializeField] private SeleccionableToque botonRepetir;
     [SerializeField] private SeleccionableToque botonVolver;
+
+    [Header("Protocolo de estudio")]
+    [Tooltip("true: sesiones seguidas por participante (Siguiente sesión / Finalizar), código en el panel y guardado de resultados en CSV. " +
+             "false: comportamiento anterior (Repetir sesión / Volver a calibración), sin guardar nada.")]
+    [SerializeField] private bool modoProtocolo = true;
+    [Tooltip("Sesiones que hace cada participante antes de «Finalizar» (1 a 5).")]
+    [Range(1, 5)] [SerializeField] private int sesionesPorParticipante = 3;
+    [Tooltip("Etiqueta del botón principal (Repetir sesión / Siguiente sesión / Finalizar).")]
+    [SerializeField] private TMP_Text textoEtiquetaRepetir;
+    [Tooltip("Línea discreta «Resultados guardados» / «No se pudieron guardar».")]
+    [SerializeField] private TMP_Text textoGuardado;
+    [Tooltip("Cierre tras la última sesión (hijo del canvas de resultados, tapa el contenido).")]
+    [SerializeField] private GameObject cierre;
+    [SerializeField] private TMP_Text textoCierre;
+    [SerializeField] private SeleccionableToque botonMenuPrincipal;
 
     [Header("Semáforo — PROVISIONAL (pendiente de justificar en el informe)")]
     [Tooltip("Porcentaje mínimo para verde (compresiones válidas, profundidad correcta, postura correcta, recoil completo).")]
@@ -60,13 +83,38 @@ public class PanelResultadosRCP : MonoBehaviour, IPanelOcultable
     private bool _ocultoPorPausa;
     private bool _visible;
 
+    // Protocolo
+    private int _k = 1;                       // número de la sesión en curso (1..N)
+    private bool _cierreVisible;
+    private bool _guardadoEstaSesion;          // ya se escribió la fila Completa de la sesión actual (evita duplicados)
+    private bool _ultimoGuardadoOk;
+    private bool _cerrandoApp;
+    private Vector2 _posRepetirOriginal, _posVolverOriginal;
+    private bool _posicionesLeidas;
+    private static readonly Color ColorGuardadoOk = new Color(0.62f, 0.74f, 0.78f, 1f);
+    private static readonly Color ColorGuardadoError = new Color(0.95f, 0.85f, 0.15f, 1f);
+    public const string DISPOSITIVO_ENTRADA = "Manos"; // SceneSimulador solo usa seguimiento de manos
+
+    public bool ModoProtocolo => modoProtocolo;
+    public int SesionesPorParticipante => Mathf.Clamp(sesionesPorParticipante, 1, 5);
+    /// <summary>Número (1..N) de la sesión en curso o, con la sesión terminada, de la que se está mostrando.</summary>
+    public int SesionActual => _k;
+    public bool CierreVisible => _cierreVisible;
+    public bool UltimoGuardadoOk => _ultimoGuardadoOk;
+
+    void OnValidate() { sesionesPorParticipante = Mathf.Clamp(sesionesPorParticipante, 1, 5); }
+
     /// <summary>Semáforo de cada fila tras el último <see cref="Poblar"/> (solo lectura/verificación).</summary>
     public EstadoSemaforoRCP[] Estados => _estados;
     public bool Visible => _visible;
 
     void OnEnable()
     {
-        if (sesion != null) sesion.AlCambiarEstado += AlCambiarEstadoSesion;
+        if (sesion != null)
+        {
+            sesion.AlCambiarEstado += AlCambiarEstadoSesion;
+            sesion.AlDescartar     += AlDescartarSesion;
+        }
         if (menuPausa != null)
         {
             menuPausa.AlAbrirMenu  += OcultarTemporalmente;
@@ -74,12 +122,30 @@ public class PanelResultadosRCP : MonoBehaviour, IPanelOcultable
         }
         if (botonRepetir != null) botonRepetir.OnSeleccionado += RepetirSesion;
         if (botonVolver != null) botonVolver.OnSeleccionado += VolverACalibracion;
+        if (botonMenuPrincipal != null) botonMenuPrincipal.OnSeleccionado += VolverAlMenuPrincipal;
+        CodigoParticipante.AlCambiar += AlCambiarCodigo;
+        Application.quitting += AlCerrarAplicacion;
+        AplicarModoProtocolo();
         Aplicar();
     }
 
     void OnDisable()
     {
-        if (sesion != null) sesion.AlCambiarEstado -= AlCambiarEstadoSesion;
+        // «Salir al menú principal» descarga la escena sin pasar por ResetearEstadoSimulacion: si había una sesión en
+        // curso se registra aquí como Descartada (no al cerrar la aplicación ni al detener Play: ahí no hay sesión que guardar).
+        // OJO: al descargar la escena Unity puede haber destruido ya SesionRCP (su "== null" es true), pero ConstruirParcial
+        // solo lee campos gestionados, así que se compara la referencia, no el nulo de Unity.
+        if (modoProtocolo && !_cerrandoApp && (object)sesion != null)
+        {
+            var parcial = sesion.ConstruirParcial();
+            if (parcial != null) Guardar(RegistroResultados.ESTADO_DESCARTADA, parcial);
+        }
+
+        if (sesion != null)
+        {
+            sesion.AlCambiarEstado -= AlCambiarEstadoSesion;
+            sesion.AlDescartar     -= AlDescartarSesion;
+        }
         if (menuPausa != null)
         {
             menuPausa.AlAbrirMenu  -= OcultarTemporalmente;
@@ -87,13 +153,59 @@ public class PanelResultadosRCP : MonoBehaviour, IPanelOcultable
         }
         if (botonRepetir != null) botonRepetir.OnSeleccionado -= RepetirSesion;
         if (botonVolver != null) botonVolver.OnSeleccionado -= VolverACalibracion;
+        if (botonMenuPrincipal != null) botonMenuPrincipal.OnSeleccionado -= VolverAlMenuPrincipal;
+        CodigoParticipante.AlCambiar -= AlCambiarCodigo;
+        Application.quitting -= AlCerrarAplicacion;
     }
+
+    private void AlCerrarAplicacion() { _cerrandoApp = true; }
 
     private void AlCambiarEstadoSesion(EstadoSesionRCP estado)
     {
         if (estado == EstadoSesionRCP.Terminada && sesion.UltimoResultado != null)
+        {
+            // La fila se escribe aquí, UNA vez por sesión terminada (no en Poblar: re-mostrar el panel no duplica).
+            if (modoProtocolo && !_guardadoEstaSesion)
+            {
+                _guardadoEstaSesion = true;
+                Guardar(RegistroResultados.ESTADO_COMPLETA, sesion.UltimoResultado);
+            }
             Poblar(sesion.UltimoResultado);
+        }
+        else if (estado != EstadoSesionRCP.Terminada)
+        {
+            _guardadoEstaSesion = false;
+        }
         Aplicar();
+    }
+
+    // Sesión descartada (reinicio, cambio de modo o «Siguiente sesión»): con la sesión EN CURSO se registra una fila
+    // Descartada y k NO avanza; con la sesión ya TERMINADA el participante pasa a la sesión siguiente (tras la última
+    // empieza una ronda nueva en k = 1).
+    private void AlDescartarSesion(EstadoSesionRCP previo, ResultadoSesionRCP parcial)
+    {
+        _cierreVisible = false;
+        if (cierre != null && cierre.activeSelf) cierre.SetActive(false);
+        _guardadoEstaSesion = false;
+        if (!modoProtocolo) return;
+
+        if (previo == EstadoSesionRCP.EnCurso && parcial != null)
+        {
+            Guardar(RegistroResultados.ESTADO_DESCARTADA, parcial);
+        }
+        else if (previo == EstadoSesionRCP.Terminada)
+        {
+            _k = _k < SesionesPorParticipante ? _k + 1 : 1;
+        }
+        AplicarModoProtocolo();
+    }
+
+    private void AlCambiarCodigo(string nuevo)
+    {
+        _k = 1;                                 // otro participante: vuelve a la sesión 1
+        _cierreVisible = false;
+        if (cierre != null && cierre.activeSelf) cierre.SetActive(false);
+        AplicarModoProtocolo();
     }
 
     private void Aplicar()
@@ -126,7 +238,69 @@ public class PanelResultadosRCP : MonoBehaviour, IPanelOcultable
     /// sin recalibrar.</summary>
     public void RepetirSesion()
     {
+        // Protocolo: en la última sesión el botón es «Finalizar» y muestra el cierre en vez de repetir.
+        if (modoProtocolo && _k >= SesionesPorParticipante && sesion != null && sesion.Estado == EstadoSesionRCP.Terminada)
+        {
+            MostrarCierre();
+            return;
+        }
         if (logica != null) logica.ResetearEstadoSimulacion();
+    }
+
+    /// <summary>«Volver al menú principal» del cierre (misma ruta que el ítem de pausa).</summary>
+    public void VolverAlMenuPrincipal()
+    {
+        if (menuPausa != null) menuPausa.VolverAlMenuPrincipal();
+    }
+
+    private void MostrarCierre()
+    {
+        _cierreVisible = true;
+        if (textoCierre != null)
+            textoCierre.text = "Terminaste las " + SesionesPorParticipante + " sesiones. Gracias.\nTu código: "
+                               + (CodigoParticipante.HayCodigo ? CodigoParticipante.Actual : "—");
+        if (botonRepetir != null) botonRepetir.gameObject.SetActive(false);   // el cierre tapa el panel: nada que se pueda pulsar por detrás
+        if (botonVolver != null) botonVolver.gameObject.SetActive(false);
+        if (cierre != null) cierre.SetActive(true);
+    }
+
+    private void Guardar(string estado, ResultadoSesionRCP r)
+    {
+        string fila = RegistroResultados.FilaRcp(CodigoParticipante.Actual, estado, _k, SesionesPorParticipante, r, DISPOSITIVO_ENTRADA);
+        _ultimoGuardadoOk = RegistroResultados.Escribir(RegistroResultados.ARCHIVO_RCP, RegistroResultados.CABECERA_RCP, fila);
+        if (textoGuardado != null)
+        {
+            textoGuardado.text = _ultimoGuardadoOk ? "Resultados guardados" : "No se pudieron guardar";
+            textoGuardado.color = _ultimoGuardadoOk ? ColorGuardadoOk : ColorGuardadoError;
+            textoGuardado.gameObject.SetActive(true);
+        }
+    }
+
+    // Botón principal, botón «Volver a calibración» y línea de guardado según el modo (y la sesión k de N).
+    private void AplicarModoProtocolo()
+    {
+        if (!_posicionesLeidas)
+        {
+            if (botonRepetir != null) _posRepetirOriginal = ((RectTransform)botonRepetir.transform).anchoredPosition;
+            if (botonVolver != null) _posVolverOriginal = ((RectTransform)botonVolver.transform).anchoredPosition;
+            _posicionesLeidas = true;
+        }
+
+        if (botonRepetir != null)
+        {
+            if (!_cierreVisible && !botonRepetir.gameObject.activeSelf) botonRepetir.gameObject.SetActive(true);
+            ((RectTransform)botonRepetir.transform).anchoredPosition = modoProtocolo ? new Vector2(0f, _posRepetirOriginal.y) : _posRepetirOriginal;
+        }
+        if (botonVolver != null)
+        {
+            bool ver = !modoProtocolo && !_cierreVisible;
+            if (botonVolver.gameObject.activeSelf != ver) botonVolver.gameObject.SetActive(ver);
+        }
+        if (textoEtiquetaRepetir != null)
+            textoEtiquetaRepetir.text = !modoProtocolo ? "REPETIR SESIÓN"
+                                      : _k < SesionesPorParticipante ? "SIGUIENTE SESIÓN" : "FINALIZAR";
+        if (textoGuardado != null && (!modoProtocolo || sesion == null || sesion.Estado != EstadoSesionRCP.Terminada))
+            textoGuardado.gameObject.SetActive(false);
     }
 
     /// <summary>"Volver a calibración": mismo camino que el ítem de cambio de modo del menú de
@@ -140,7 +314,12 @@ public class PanelResultadosRCP : MonoBehaviour, IPanelOcultable
 
     public void Poblar(ResultadoSesionRCP r)
     {
-        if (textoDuracion != null) textoDuracion.text = "Duración de la sesión: " + FormatoTiempo(r.duracionSeg);
+        if (textoDuracion != null)
+            textoDuracion.text = modoProtocolo
+                ? "Sesión " + _k + " de " + SesionesPorParticipante + "  ·  Código: "
+                  + (CodigoParticipante.HayCodigo ? CodigoParticipante.Actual : "—") + "  ·  Duración " + FormatoTiempo(r.duracionSeg)
+                : "Duración de la sesión: " + FormatoTiempo(r.duracionSeg);
+        AplicarModoProtocolo();
 
         // 1. Compresiones: válidas / totales y %
         _estados[0] = r.intentosTotales <= 0 ? EstadoSemaforoRCP.SinDatos : PorPorcentaje(r.PorcentajeValidas);
